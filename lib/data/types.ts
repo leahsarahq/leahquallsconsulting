@@ -4,6 +4,8 @@ export type Campaign = (typeof CAMPAIGNS)[number]
 export interface KPIData {
   totalSpend: number
   followerGrowth: number
+  followerGrowthExclGiveaway?: number
+  giveawayFollows?: number
   startFollowers: number
   endFollowers: number
   blendedCPF: number
@@ -36,6 +38,7 @@ export interface WeeklyFollows {
   week: string
   paid: number
   total: number
+  note?: string
 }
 
 export interface AudienceTestResult {

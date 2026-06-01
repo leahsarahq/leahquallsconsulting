@@ -18,11 +18,11 @@ export function AudienceTestTab() {
   }
 
   const cpmData = [
-    { name: audienceTest.baseline.name, cpm: audienceTest.baseline.cpm, fill: "#888888" },
+    { name: audienceTest.baseline.name, cpm: audienceTest.baseline.cpm, fill: "#999999" },
     ...audienceTest.tests.map((test) => ({
       name: test.name,
       cpm: test.cpm,
-      fill: test.name === audienceTest.winner ? "#D93732" : "#660033", // Brand colors: primary red for winner, accent maroon for other
+      fill: test.name === audienceTest.winner ? "#D93732" : "#E8853A", // Brand colors: primary red for winner, orange for other
     })),
   ]
 
@@ -36,7 +36,7 @@ export function AudienceTestTab() {
         <h3 className="text-sm font-semibold text-foreground mb-3">Key Wins — Audience Testing</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex gap-3">
-            <div className="w-1 bg-primary rounded-full flex-shrink-0" />
+            <div className="w-1 rounded-full flex-shrink-0" style={{ backgroundColor: "#D93732" }} />
             <div>
               <p className="text-sm font-medium text-foreground">{audienceTest.winner} wins</p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -45,7 +45,7 @@ export function AudienceTestTab() {
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="w-1 bg-primary rounded-full flex-shrink-0" />
+            <div className="w-1 rounded-full flex-shrink-0" style={{ backgroundColor: "#D93732" }} />
             <div>
               <p className="text-sm font-medium text-foreground">{((1 - (winnerTest?.cpm || 0) / audienceTest.baseline.cpm) * 100).toFixed(0)}% CPM savings</p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -54,7 +54,7 @@ export function AudienceTestTab() {
             </div>
           </div>
           <div className="flex gap-3">
-            <div className="w-1 bg-primary rounded-full flex-shrink-0" />
+            <div className="w-1 rounded-full flex-shrink-0" style={{ backgroundColor: "#D93732" }} />
             <div>
               <p className="text-sm font-medium text-foreground">Us v. Them top creative</p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -96,12 +96,16 @@ export function AudienceTestTab() {
         {audienceTest.tests.map((test) => (
           <div 
             key={test.name} 
-            className={`bg-card border rounded-xl p-4 ${test.name === audienceTest.winner ? "border-primary border-2" : "border-border"}`}
+            className="bg-card border rounded-xl p-4"
+            style={{ 
+              borderColor: test.name === audienceTest.winner ? "#D93732" : undefined,
+              borderWidth: test.name === audienceTest.winner ? "2px" : undefined
+            }}
           >
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-foreground">{test.name}</h4>
               {test.name === audienceTest.winner && (
-                <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase">Winner</span>
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full uppercase" style={{ backgroundColor: "rgba(217, 55, 50, 0.1)", color: "#D93732" }}>Winner</span>
               )}
             </div>
             <p className="text-[10px] text-muted-foreground mb-3">{test.dateRange} · {test.audience}</p>
@@ -111,7 +115,7 @@ export function AudienceTestTab() {
                 <p className="text-lg font-semibold">${test.cpm.toFixed(2)}</p>
                 <p className="text-[10px] text-muted-foreground">
                   {test.cpm < audienceTest.baseline.cpm ? (
-                    <span className="text-primary">${(audienceTest.baseline.cpm - test.cpm).toFixed(2)} below baseline</span>
+                    <span style={{ color: "#D93732" }}>${(audienceTest.baseline.cpm - test.cpm).toFixed(2)} below baseline</span>
                   ) : (
                     <span className="text-destructive">${(test.cpm - audienceTest.baseline.cpm).toFixed(2)} above baseline</span>
                   )}
