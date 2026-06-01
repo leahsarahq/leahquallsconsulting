@@ -18,11 +18,11 @@ export function AudienceTestTab() {
   }
 
   const cpmData = [
-    { name: audienceTest.baseline.name, cpm: audienceTest.baseline.cpm, fill: "#9ca3af" },
-    ...audienceTest.tests.map((test, i) => ({
+    { name: audienceTest.baseline.name, cpm: audienceTest.baseline.cpm, fill: "#888888" },
+    ...audienceTest.tests.map((test) => ({
       name: test.name,
       cpm: test.cpm,
-      fill: test.name === audienceTest.winner ? "#22c55e" : i === 0 ? "#D93732" : "#660033",
+      fill: test.name === audienceTest.winner ? "#D93732" : "#660033", // Brand colors: primary red for winner, accent maroon for other
     })),
   ]
 
@@ -36,7 +36,7 @@ export function AudienceTestTab() {
         <h3 className="text-sm font-semibold text-foreground mb-3">Key Wins — Audience Testing</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex gap-3">
-            <div className="w-1 bg-green-500 rounded-full flex-shrink-0" />
+            <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-foreground">{audienceTest.winner} wins</p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -96,12 +96,12 @@ export function AudienceTestTab() {
         {audienceTest.tests.map((test) => (
           <div 
             key={test.name} 
-            className={`bg-card border rounded-xl p-4 ${test.name === audienceTest.winner ? "border-green-500 border-2" : "border-border"}`}
+            className={`bg-card border rounded-xl p-4 ${test.name === audienceTest.winner ? "border-primary border-2" : "border-border"}`}
           >
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-foreground">{test.name}</h4>
               {test.name === audienceTest.winner && (
-                <span className="text-[10px] font-medium bg-green-100 text-green-800 px-2 py-0.5 rounded-full uppercase">Winner</span>
+                <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase">Winner</span>
               )}
             </div>
             <p className="text-[10px] text-muted-foreground mb-3">{test.dateRange} · {test.audience}</p>
@@ -111,9 +111,9 @@ export function AudienceTestTab() {
                 <p className="text-lg font-semibold">${test.cpm.toFixed(2)}</p>
                 <p className="text-[10px] text-muted-foreground">
                   {test.cpm < audienceTest.baseline.cpm ? (
-                    <span className="text-green-600">${(audienceTest.baseline.cpm - test.cpm).toFixed(2)} below baseline</span>
+                    <span className="text-primary">${(audienceTest.baseline.cpm - test.cpm).toFixed(2)} below baseline</span>
                   ) : (
-                    <span className="text-red-600">${(test.cpm - audienceTest.baseline.cpm).toFixed(2)} above baseline</span>
+                    <span className="text-destructive">${(test.cpm - audienceTest.baseline.cpm).toFixed(2)} above baseline</span>
                   )}
                 </p>
               </div>

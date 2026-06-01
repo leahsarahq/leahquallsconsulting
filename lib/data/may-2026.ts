@@ -129,10 +129,10 @@ const totalReach = 817000
 
 export const MAY_KPI_DATA = {
   totalSpend: Math.round(totalSpend),
-  followerGrowth: 4231, // From PDF Week 8: 4,231 followers since April 9
+  followerGrowth: 2525, // From IG Insights CSV (May 1-30 daily follows)
   startFollowers: 7132, // End of April
-  endFollowers: 9367, // Week 8 count
-  blendedCPF: totalSpend / 4231, // ~$1.23 using total IG follows
+  endFollowers: 9657, // 7132 + 2525
+  blendedCPF: totalSpend / 2525, // ~$2.07 using total IG follows
   totalReach: totalReach,
   paidFollows: paidFollows,
   totalImpressions: 2800000, // Sum from all campaign data
@@ -148,9 +148,9 @@ export const MAY_SPEND_BY_CAMPAIGN = [
 ]
 
 export const MAY_WEEKLY_FOLLOWS = [
-  { week: "May 1–7", paid: 394, total: 478 },
-  { week: "May 8–14", paid: 447, total: 806 },
-  { week: "May 15–21", paid: 433, total: 463 },
-  { week: "May 22–28", paid: 376, total: 488 },
-  { week: "May 29–31", paid: 268, total: 268 },
+  { week: "May 1–7", paid: 394, total: 531 }, // 75+45+87+84+80+90+70
+  { week: "May 8–14", paid: 447, total: 855 }, // 65+73+195+187+141+117+77
+  { week: "May 15–21", paid: 433, total: 466 }, // 32+77+98+64+69+67+59
+  { week: "May 22–28", paid: 376, total: 440 }, // 82+95+71+10+7+110+65
+  { week: "May 29–30", paid: 171, total: 233 }, // 109+124
 ]
