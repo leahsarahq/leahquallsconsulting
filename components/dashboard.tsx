@@ -5,20 +5,30 @@ import { OverviewTab } from "@/components/tabs/overview-tab"
 import { DailyTab } from "@/components/tabs/daily-tab"
 import { AdsTab } from "@/components/tabs/ads-tab"
 import { InsightsTab } from "@/components/tabs/insights-tab"
+import { AudienceTestTab } from "@/components/tabs/audience-test-tab"
 import { MonthProvider, useMonth, MONTHS, type MonthKey } from "@/lib/month-context"
+import { getDataForMonth } from "@/lib/data"
 
-const tabs = [
+const baseTabs = [
   { id: "overview", label: "Overview" },
   { id: "daily", label: "Daily spend & follows" },
   { id: "ads", label: "Ad creative" },
   { id: "insights", label: "Insights & Benchmarks" },
 ] as const
 
-type TabId = (typeof tabs)[number]["id"]
+const audienceTestTab = { id: "audience-test", label: "Audience Testing" } as const
+
+type TabId = (typeof baseTabs)[number]["id"] | "audience-test"
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const { selectedMonth, setSelectedMonth, monthInfo } = useMonth()
+  const { audienceTest } = getDataForMonth(selectedMonth)
+  
+  // Build tabs list - include Audience Testing only if data exists
+  const tabs = audienceTest 
+    ? [...baseTabs, audienceTestTab]
+    : baseTabs
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,6 +82,7 @@ function DashboardContent() {
           {activeTab === "overview" && <OverviewTab />}
           {activeTab === "daily" && <DailyTab />}
           {activeTab === "ads" && <AdsTab />}
+          {activeTab === "audience-test" && <AudienceTestTab />}
           {activeTab === "insights" && <InsightsTab />}
         </main>
       </div>

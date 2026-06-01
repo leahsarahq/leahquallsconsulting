@@ -43,6 +43,13 @@ export function AdsTab() {
   const [filter, setFilter] = useState<FilterKey>("all")
   const [campaignFilter, setCampaignFilter] = useState<CampaignFilter>("all")
 
+  // Calculate key wins for this month
+  const engagementAds = adsData.filter((ad) => ad.campaign === "Engagement" && ad.follows > 0)
+  const topEngagementAd = engagementAds.sort((a, b) => b.follows - a.follows)[0]
+  const lowestCpfAd = engagementAds.filter(ad => ad.cpf !== null).sort((a, b) => (a.cpf ?? Infinity) - (b.cpf ?? Infinity))[0]
+  const totalEngagementFollows = engagementAds.reduce((sum, ad) => sum + ad.follows, 0)
+  const avgEngagementCpf = engagementAds.reduce((sum, ad) => sum + ad.spend, 0) / totalEngagementFollows
+
   const sortedAds = useMemo(() => {
     let filtered = [...adsData]
 
@@ -100,6 +107,44 @@ export function AdsTab() {
 
   return (
     <div className="space-y-4">
+      {/* Key Wins */}
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-3">Key Wins — Ad Creative</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {topEngagementAd && (
+            <div className="flex gap-3">
+              <div className="w-1 bg-green-500 rounded-full flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{topEngagementAd.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Top performer: {topEngagementAd.follows} follows at ${topEngagementAd.cpf?.toFixed(2)} CPF
+                </p>
+              </div>
+            </div>
+          )}
+          {lowestCpfAd && lowestCpfAd !== topEngagementAd && (
+            <div className="flex gap-3">
+              <div className="w-1 bg-primary rounded-full flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{lowestCpfAd.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Most efficient: ${lowestCpfAd.cpf?.toFixed(2)} CPF ({lowestCpfAd.follows} follows)
+                </p>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <div className="w-1 bg-primary rounded-full flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">${avgEngagementCpf.toFixed(2)} avg CPF</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {totalEngagementFollows.toLocaleString()} paid follows from engagement ads
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-3 items-center">
         <label className="text-xs text-muted-foreground">Sort by:</label>
         <select

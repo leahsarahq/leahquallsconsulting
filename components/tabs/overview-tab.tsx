@@ -26,15 +26,20 @@ export function OverviewTab() {
   const { selectedMonth, monthInfo } = useMonth()
   const { kpiData, spendByCampaign, weeklyFollows, previousMonth } = getDataForMonth(selectedMonth)
   
-  // Calculate lifts vs Q1 baseline (avg of Jan-Mar, no ads)
-  const baselineFollows = Q1_BASELINE.avgMonthlyFollows
-  const baselineMessaging = Q1_BASELINE.march.messagingContacts
-  const followsLift = Math.round(((kpiData.followerGrowth - baselineFollows) / baselineFollows) * 100)
-  const messagingLift = Math.round(((kpiData.messagingContacts - baselineMessaging) / baselineMessaging) * 100)
-  const followsMultiple = (kpiData.followerGrowth / baselineFollows).toFixed(1)
-  
   // Month-over-month improvements (for May+)
   const hasPreviousMonth = previousMonth !== null
+  
+  // Calculate lifts vs Q1 baseline (for April) or vs previous month (for May+)
+  const baselineFollows = Q1_BASELINE.avgMonthlyFollows
+  const baselineMessaging = Q1_BASELINE.march.messagingContacts
+  
+  // For months with previous month data, compare to previous month; otherwise use baseline
+  const comparisonFollows = hasPreviousMonth ? previousMonth.kpiData.followerGrowth : baselineFollows
+  const comparisonLabel = hasPreviousMonth ? previousMonth.label : "Jan–Mar avg"
+  const followsLift = Math.round(((kpiData.followerGrowth - comparisonFollows) / comparisonFollows) * 100)
+  const messagingLift = Math.round(((kpiData.messagingContacts - baselineMessaging) / baselineMessaging) * 100)
+  const followsMultiple = (kpiData.followerGrowth / (hasPreviousMonth ? previousMonth.kpiData.followerGrowth : baselineFollows)).toFixed(1)
+  
   const cpfImprovement = hasPreviousMonth 
     ? Math.round(((previousMonth.kpiData.blendedCPF - kpiData.blendedCPF) / previousMonth.kpiData.blendedCPF) * 100)
     : 0
@@ -57,10 +62,21 @@ export function OverviewTab() {
           <div className="flex gap-3">
             <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-foreground">{followsMultiple}x follower growth vs. baseline</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {kpiData.followerGrowth.toLocaleString()} follows vs. ~{baselineFollows} avg (Jan–Mar, no ads)
-              </p>
+              {hasPreviousMonth ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">{followsLift > 0 ? "+" : ""}{followsLift}% follower growth vs. {previousMonth.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {kpiData.followerGrowth.toLocaleString()} vs. {previousMonth.kpiData.followerGrowth.toLocaleString()} follows
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-foreground">{followsMultiple}x follower growth vs. baseline</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {kpiData.followerGrowth.toLocaleString()} follows vs. ~{baselineFollows} avg (Jan–Mar, no ads)
+                  </p>
+                </>
+              )}
             </div>
           </div>
           <div className="flex gap-3">
@@ -101,9 +117,16 @@ export function OverviewTab() {
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total follows</p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-xl font-semibold">{kpiData.followerGrowth.toLocaleString()}</span>
-            <span className="text-xs font-medium text-green-600">+{followsLift}%</span>
+            {followsLift > 0 ? (
+              <span className="text-xs font-medium text-green-600">+{followsLift}%</span>
+            ) : followsLift < 0 ? (
+              <span className="text-xs font-medium text-red-600">{followsLift}%</span>
+            ) : null}
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">vs. ~{baselineFollows} avg (Jan–Mar)</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            vs. {comparisonLabel} ({comparisonFollows.toLocaleString()})
+            {kpiData.giveawayFollows && <span className="italic"> · incl. {kpiData.giveawayFollows} giveaway</span>}
+          </p>
         </div>
         <div className="bg-card border border-border rounded-xl p-3">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total impressions</p>

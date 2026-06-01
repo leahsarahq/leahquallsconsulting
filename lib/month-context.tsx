@@ -6,7 +6,7 @@ export type MonthKey = "apr-2026" | "may-2026"
 
 export const MONTHS: { key: MonthKey; label: string; dateRange: string }[] = [
   { key: "apr-2026", label: "April 2026", dateRange: "Apr 9–30, 2026" },
-  { key: "may-2026", label: "May 2026", dateRange: "May 1–15, 2026 (MTD)" },
+  { key: "may-2026", label: "May 2026", dateRange: "May 1–31, 2026" },
 ]
 
 interface MonthContextType {

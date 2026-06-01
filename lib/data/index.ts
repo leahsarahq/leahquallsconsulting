@@ -1,6 +1,6 @@
 import type { MonthKey } from "../month-context"
 import { APRIL_DAILY_DATA, APRIL_ADS_DATA, APRIL_KPI_DATA, APRIL_SPEND_BY_CAMPAIGN, APRIL_WEEKLY_FOLLOWS } from "./april-2026"
-import { MAY_DAILY_DATA, MAY_ADS_DATA, MAY_KPI_DATA, MAY_SPEND_BY_CAMPAIGN, MAY_WEEKLY_FOLLOWS } from "./may-2026"
+import { MAY_DAILY_DATA, MAY_ADS_DATA, MAY_KPI_DATA, MAY_SPEND_BY_CAMPAIGN, MAY_WEEKLY_FOLLOWS, MAY_AUDIENCE_TEST } from "./may-2026"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows } from "./types"
 
@@ -14,6 +14,7 @@ export function getDataForMonth(month: MonthKey) {
         spendByCampaign: APRIL_SPEND_BY_CAMPAIGN,
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
+        audienceTest: null,
       }
     case "may-2026":
       return {
@@ -26,6 +27,7 @@ export function getDataForMonth(month: MonthKey) {
           kpiData: APRIL_KPI_DATA,
           label: "April",
         },
+        audienceTest: MAY_AUDIENCE_TEST,
       }
     default:
       return {
@@ -35,6 +37,7 @@ export function getDataForMonth(month: MonthKey) {
         spendByCampaign: APRIL_SPEND_BY_CAMPAIGN,
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
+        audienceTest: null,
       }
   }
 }

@@ -4,6 +4,8 @@ export type Campaign = (typeof CAMPAIGNS)[number]
 export interface KPIData {
   totalSpend: number
   followerGrowth: number
+  followerGrowthExclGiveaway?: number
+  giveawayFollows?: number
   startFollowers: number
   endFollowers: number
   blendedCPF: number
@@ -36,6 +38,36 @@ export interface WeeklyFollows {
   week: string
   paid: number
   total: number
+  note?: string
+}
+
+export interface AudienceTestResult {
+  name: string
+  dateRange: string
+  audience: string
+  size: string
+  spend: number
+  impressions: number
+  reach: number
+  clicks: number
+  cpm: number
+  ctr: number
+  cpc: number
+  winningCreative: string
+  winningCreativeCtr: number
+  winningCreativeCpc?: number
+  status: "complete" | "in-progress"
+}
+
+export interface AudienceTest {
+  baseline: {
+    name: string
+    cpm: number
+    description: string
+  }
+  tests: AudienceTestResult[]
+  winner: string
+  winnerReason: string
 }
 
 // Q1 2026 baseline (no paid ads) - for comparison
