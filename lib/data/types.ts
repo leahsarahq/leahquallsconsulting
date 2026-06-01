@@ -38,6 +38,35 @@ export interface WeeklyFollows {
   total: number
 }
 
+export interface AudienceTestResult {
+  name: string
+  dateRange: string
+  audience: string
+  size: string
+  spend: number
+  impressions: number
+  reach: number
+  clicks: number
+  cpm: number
+  ctr: number
+  cpc: number
+  winningCreative: string
+  winningCreativeCtr: number
+  winningCreativeCpc?: number
+  status: "complete" | "in-progress"
+}
+
+export interface AudienceTest {
+  baseline: {
+    name: string
+    cpm: number
+    description: string
+  }
+  tests: AudienceTestResult[]
+  winner: string
+  winnerReason: string
+}
+
 // Q1 2026 baseline (no paid ads) - for comparison
 export const Q1_BASELINE = {
   january: { follows: 350, messagingContacts: 180 },
