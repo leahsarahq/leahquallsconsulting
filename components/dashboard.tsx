@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import { OverviewTab } from "@/components/tabs/overview-tab"
+import { ProgressTab } from "@/components/tabs/progress-tab"
 import { DailyTab } from "@/components/tabs/daily-tab"
 import { AdsTab } from "@/components/tabs/ads-tab"
 import { InsightsTab } from "@/components/tabs/insights-tab"
 import { AudienceTestTab } from "@/components/tabs/audience-test-tab"
-import { MonthProvider, useMonth, MONTHS, type MonthKey } from "@/lib/month-context"
+import { MonthProvider, useMonth, MONTHS, type MonthKey, type ComparisonMode } from "@/lib/month-context"
 import { getDataForMonth } from "@/lib/data"
+import { COMPARISON_OPTIONS } from "@/lib/data/comparisons"
 
 const baseTabs = [
   { id: "overview", label: "Overview" },
@@ -17,18 +19,28 @@ const baseTabs = [
 ] as const
 
 const audienceTestTab = { id: "audience-test", label: "Audience Testing" } as const
+const progressTab = { id: "progress", label: "Progress" } as const
 
-type TabId = (typeof baseTabs)[number]["id"] | "audience-test"
+type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "progress"
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
-  const { selectedMonth, setSelectedMonth, monthInfo } = useMonth()
+  const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
   const { audienceTest } = getDataForMonth(selectedMonth)
-  
-  // Build tabs list - include Audience Testing only if data exists
-  const tabs = audienceTest 
-    ? [...baseTabs, audienceTestTab]
-    : baseTabs
+
+  // Build tabs list: Progress (in-progress months only) sits right after Overview;
+  // Audience Testing is appended only when data exists.
+  const [overview, ...restBase] = baseTabs
+  const tabs = [
+    overview,
+    ...(monthInfo.inProgress ? [progressTab] : []),
+    ...restBase,
+    ...(audienceTest ? [audienceTestTab] : []),
+  ]
+
+  // If the active tab isn't available for the selected month, fall back to Overview.
+  const activeTabExists = tabs.some((t) => t.id === activeTab)
+  const resolvedTab = activeTabExists ? activeTab : "overview"
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,20 +53,39 @@ function DashboardContent() {
               <h1 className="text-sm font-semibold text-foreground">
                 Meta Ads Dashboard
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 {monthInfo.dateRange}
+                {monthInfo.inProgress && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    In progress
+                  </span>
+                )}
               </p>
             </div>
           </div>
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value as MonthKey)}
-            className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
-          >
-            {MONTHS.map((m) => (
-              <option key={m.key} value={m.key}>{m.label}</option>
-            ))}
-          </select>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value as MonthKey)}
+              aria-label="Select reporting month"
+              className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
+            >
+              {MONTHS.map((m) => (
+                <option key={m.key} value={m.key}>{m.label}</option>
+              ))}
+            </select>
+            <select
+              value={comparisonMode}
+              onChange={(e) => setComparisonMode(e.target.value as ComparisonMode)}
+              aria-label="Select comparison period"
+              className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
+            >
+              {COMPARISON_OPTIONS.map((c) => (
+                <option key={c.key} value={c.key}>{c.label}</option>
+              ))}
+            </select>
+          </div>
         </header>
 
         {/* Navigation */}
@@ -66,7 +97,7 @@ function DashboardContent() {
               className={`
                 text-[13px] px-4 py-1.5 rounded-lg border transition-colors
                 ${
-                  activeTab === tab.id
+                  resolvedTab === tab.id
                     ? "bg-primary text-primary-foreground border-primary font-medium"
                     : "bg-card text-muted-foreground border-border/60 hover:bg-muted hover:text-foreground"
                 }
@@ -79,11 +110,12 @@ function DashboardContent() {
 
         {/* Tab Content */}
         <main>
-          {activeTab === "overview" && <OverviewTab />}
-          {activeTab === "daily" && <DailyTab />}
-          {activeTab === "ads" && <AdsTab />}
-          {activeTab === "audience-test" && <AudienceTestTab />}
-          {activeTab === "insights" && <InsightsTab />}
+          {resolvedTab === "overview" && <OverviewTab />}
+          {resolvedTab === "progress" && <ProgressTab />}
+          {resolvedTab === "daily" && <DailyTab />}
+          {resolvedTab === "ads" && <AdsTab />}
+          {resolvedTab === "audience-test" && <AudienceTestTab />}
+          {resolvedTab === "insights" && <InsightsTab />}
         </main>
       </div>
     </div>

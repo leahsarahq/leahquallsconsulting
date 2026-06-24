@@ -3,7 +3,8 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { KPICard } from "@/components/kpi-card"
 import { ChartSection } from "@/components/chart-section"
-import { getDataForMonth, Q1_BASELINE } from "@/lib/data"
+import { getDataForMonth } from "@/lib/data"
+import { getComparison } from "@/lib/data/comparisons"
 import { useMonth } from "@/lib/month-context"
 
 function Legend({ items }: { items: { color: string; label: string }[] }) {
@@ -22,71 +23,97 @@ function Legend({ items }: { items: { color: string; label: string }[] }) {
   )
 }
 
+// % change where higher is better (growth metrics)
+function pctDelta(current: number, baseline: number | null): number | null {
+  if (baseline == null || baseline === 0) return null
+  return Math.round(((current - baseline) / baseline) * 100)
+}
+
+// % improvement where lower is better (cost metrics like CPF)
+function pctImprovement(current: number, baseline: number | null): number | null {
+  if (baseline == null || baseline === 0) return null
+  return Math.round(((baseline - current) / baseline) * 100)
+}
+
+// Small inline delta badge: green for good, red for bad, muted dash when N/A.
+function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: string }) {
+  if (value == null) return <span className="text-xs text-muted-foreground">—</span>
+  if (value > 0) return <span className="text-xs font-medium text-green-600">+{value}{suffix}</span>
+  if (value < 0) return <span className="text-xs font-medium text-red-600">{value}{suffix}</span>
+  return <span className="text-xs text-muted-foreground">same</span>
+}
+
 export function OverviewTab() {
-  const { selectedMonth, monthInfo } = useMonth()
-  const { kpiData, spendByCampaign, weeklyFollows, previousMonth } = getDataForMonth(selectedMonth)
-  
-  // Month-over-month improvements (for May+)
-  const hasPreviousMonth = previousMonth !== null
-  
-  // Calculate lifts vs Q1 baseline (for April) or vs previous month (for May+)
-  const baselineFollows = Q1_BASELINE.avgMonthlyFollows
-  const baselineMessaging = Q1_BASELINE.march.messagingContacts
-  
-  // For months with previous month data, compare to previous month; otherwise use baseline
-  const comparisonFollows = hasPreviousMonth ? previousMonth.kpiData.followerGrowth : baselineFollows
-  const comparisonLabel = hasPreviousMonth ? previousMonth.label : "Jan–Mar avg"
-  const followsLift = Math.round(((kpiData.followerGrowth - comparisonFollows) / comparisonFollows) * 100)
-  const messagingLift = Math.round(((kpiData.messagingContacts - baselineMessaging) / baselineMessaging) * 100)
-  const followsMultiple = (kpiData.followerGrowth / (hasPreviousMonth ? previousMonth.kpiData.followerGrowth : baselineFollows)).toFixed(1)
-  
-  const cpfImprovement = hasPreviousMonth 
-    ? Math.round(((previousMonth.kpiData.blendedCPF - kpiData.blendedCPF) / previousMonth.kpiData.blendedCPF) * 100)
-    : 0
-  const ctrChange = hasPreviousMonth
-    ? Math.round(((kpiData.engagementCTR - previousMonth.kpiData.engagementCTR) / previousMonth.kpiData.engagementCTR) * 100)
-    : 0
-  const impressionsChange = hasPreviousMonth
-    ? Math.round(((kpiData.totalImpressions - previousMonth.kpiData.totalImpressions) / previousMonth.kpiData.totalImpressions) * 100)
-    : 0
-  const paidFollowsChange = hasPreviousMonth
-    ? Math.round(((kpiData.paidFollows - previousMonth.kpiData.paidFollows) / previousMonth.kpiData.paidFollows) * 100)
-    : 0
+  const { selectedMonth, monthInfo, comparisonMode } = useMonth()
+  const { kpiData, spendByCampaign, weeklyFollows } = getDataForMonth(selectedMonth)
+  const comparison = getComparison(selectedMonth, comparisonMode)
+
+  const baseline = comparison.metrics
+  const hasComparison = comparison.available
+
+  // Growth metrics (higher is better)
+  const followsDelta = pctDelta(kpiData.followerGrowth, baseline.followerGrowth)
+  const ctrDelta = pctDelta(kpiData.engagementCTR, baseline.engagementCTR)
+  const impressionsDelta = pctDelta(kpiData.totalImpressions, baseline.totalImpressions)
+  const paidFollowsDelta = pctDelta(kpiData.paidFollows, baseline.paidFollows)
+  const messagingDelta = pctDelta(kpiData.messagingContacts, baseline.messagingContacts)
+  // Cost metric (lower is better)
+  const cpfImprovement = pctImprovement(kpiData.blendedCPF, baseline.blendedCPF)
+
+  const followsMultiple =
+    baseline.followerGrowth && baseline.followerGrowth > 0
+      ? kpiData.followerGrowth / baseline.followerGrowth
+      : null
 
   return (
     <div className="space-y-4">
       {/* Key Wins */}
       <div className="bg-card border border-border rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">Key Wins — {monthInfo.label}</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-foreground">Key Wins — {monthInfo.label}</h3>
+          {hasComparison && (
+            <span className="text-[11px] text-muted-foreground">{comparison.label.startsWith("vs") ? comparison.label : `vs. ${comparison.label}`}</span>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Follower growth win */}
           <div className="flex gap-3">
             <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
-              {hasPreviousMonth ? (
+              {hasComparison && followsMultiple && followsMultiple >= 2 ? (
                 <>
-                  <p className="text-sm font-medium text-foreground">{followsLift > 0 ? "+" : ""}{followsLift}% follower growth vs. {previousMonth.label}</p>
+                  <p className="text-sm font-medium text-foreground">{followsMultiple.toFixed(1)}x follower growth vs. {comparison.label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {kpiData.followerGrowth.toLocaleString()} vs. {previousMonth.kpiData.followerGrowth.toLocaleString()} follows
+                    {kpiData.followerGrowth.toLocaleString()} vs. ~{Math.round(baseline.followerGrowth!).toLocaleString()} follows
+                  </p>
+                </>
+              ) : hasComparison && followsDelta != null ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">{followsDelta > 0 ? "+" : ""}{followsDelta}% follower growth vs. {comparison.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {kpiData.followerGrowth.toLocaleString()} vs. {Math.round(baseline.followerGrowth!).toLocaleString()} follows
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-foreground">{followsMultiple}x follower growth vs. baseline</p>
+                  <p className="text-sm font-medium text-foreground">{kpiData.followerGrowth.toLocaleString()} new follows</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {kpiData.followerGrowth.toLocaleString()} follows vs. ~{baselineFollows} avg (Jan–Mar, no ads)
+                    in {monthInfo.label}
+                    {kpiData.giveawayFollows ? ` · incl. ${kpiData.giveawayFollows} giveaway` : ""}
                   </p>
                 </>
               )}
             </div>
           </div>
+          {/* CPF win */}
           <div className="flex gap-3">
             <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
-              {hasPreviousMonth && cpfImprovement > 0 ? (
+              {hasComparison && cpfImprovement != null && cpfImprovement > 0 ? (
                 <>
-                  <p className="text-sm font-medium text-foreground">CPF improved {cpfImprovement}% from {previousMonth.label}</p>
+                  <p className="text-sm font-medium text-foreground">CPF improved {cpfImprovement}% vs. {comparison.label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    ${kpiData.blendedCPF.toFixed(2)} vs. ${previousMonth.kpiData.blendedCPF.toFixed(2)} last month
+                    ${kpiData.blendedCPF.toFixed(2)} vs. ${baseline.blendedCPF!.toFixed(2)}
                   </p>
                 </>
               ) : (
@@ -99,6 +126,7 @@ export function OverviewTab() {
               )}
             </div>
           </div>
+          {/* CTR win */}
           <div className="flex gap-3">
             <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
@@ -111,20 +139,18 @@ export function OverviewTab() {
         </div>
       </div>
 
-      {/* Month-over-Month Comparison */}
+      {/* Snapshot */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-xl p-3">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total follows</p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-xl font-semibold">{kpiData.followerGrowth.toLocaleString()}</span>
-            {followsLift > 0 ? (
-              <span className="text-xs font-medium text-green-600">+{followsLift}%</span>
-            ) : followsLift < 0 ? (
-              <span className="text-xs font-medium text-red-600">{followsLift}%</span>
-            ) : null}
+            {hasComparison && <DeltaBadge value={followsDelta} />}
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5">
-            vs. {comparisonLabel} ({comparisonFollows.toLocaleString()})
+            {hasComparison && baseline.followerGrowth != null
+              ? `vs. ${comparison.shortLabel} (${Math.round(baseline.followerGrowth).toLocaleString()})`
+              : "this month"}
             {kpiData.giveawayFollows && <span className="italic"> · incl. {kpiData.giveawayFollows} giveaway</span>}
           </p>
         </div>
@@ -132,6 +158,7 @@ export function OverviewTab() {
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total impressions</p>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-xl font-semibold">{(kpiData.totalImpressions / 1000).toFixed(0)}K</span>
+            {hasComparison && <DeltaBadge value={impressionsDelta} />}
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5">all campaigns</p>
         </div>
@@ -153,16 +180,20 @@ export function OverviewTab() {
         </div>
       </div>
 
-      {/* vs. Previous Month (only show if there's a previous month) */}
-      {hasPreviousMonth && (
-        <div className="bg-card border border-border rounded-xl p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">vs. {previousMonth.label}</h3>
+      {/* Comparison detail */}
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-3">
+          {monthInfo.label} vs. {comparison.label}
+        </h3>
+        {hasComparison ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide">CPF</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-lg font-semibold">${kpiData.blendedCPF.toFixed(2)}</span>
-                {cpfImprovement > 0 ? (
+                {cpfImprovement == null ? (
+                  <span className="text-xs text-muted-foreground">—</span>
+                ) : cpfImprovement > 0 ? (
                   <span className="text-xs font-medium text-green-600">{cpfImprovement}% better</span>
                 ) : cpfImprovement < 0 ? (
                   <span className="text-xs font-medium text-red-600">{Math.abs(cpfImprovement)}% higher</span>
@@ -170,53 +201,48 @@ export function OverviewTab() {
                   <span className="text-xs text-muted-foreground">same</span>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">was ${previousMonth.kpiData.blendedCPF.toFixed(2)}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {baseline.blendedCPF != null ? `was $${baseline.blendedCPF.toFixed(2)}` : "no ad spend in period"}
+              </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Engagement CTR</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-lg font-semibold">{kpiData.engagementCTR.toFixed(1)}%</span>
-                {ctrChange > 0 ? (
-                  <span className="text-xs font-medium text-green-600">+{ctrChange}%</span>
-                ) : ctrChange < 0 ? (
-                  <span className="text-xs font-medium text-red-600">{ctrChange}%</span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">same</span>
-                )}
+                <DeltaBadge value={ctrDelta} />
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">was {previousMonth.kpiData.engagementCTR.toFixed(1)}%</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {baseline.engagementCTR != null ? `was ${baseline.engagementCTR.toFixed(1)}%` : "no ads in period"}
+              </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Impressions</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-lg font-semibold">{(kpiData.totalImpressions / 1000).toFixed(0)}K</span>
-                {impressionsChange > 0 ? (
-                  <span className="text-xs font-medium text-green-600">+{impressionsChange}%</span>
-                ) : impressionsChange < 0 ? (
-                  <span className="text-xs font-medium text-red-600">{impressionsChange}%</span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">same</span>
-                )}
+                <DeltaBadge value={impressionsDelta} />
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">was {(previousMonth.kpiData.totalImpressions / 1000).toFixed(0)}K</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {baseline.totalImpressions != null ? `was ${(baseline.totalImpressions / 1000).toFixed(0)}K` : "no ads in period"}
+              </p>
             </div>
             <div>
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Paid Follows</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-lg font-semibold">{kpiData.paidFollows.toLocaleString()}</span>
-                {paidFollowsChange > 0 ? (
-                  <span className="text-xs font-medium text-green-600">+{paidFollowsChange}%</span>
-                ) : paidFollowsChange < 0 ? (
-                  <span className="text-xs font-medium text-red-600">{paidFollowsChange}%</span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">same</span>
-                )}
+                <DeltaBadge value={paidFollowsDelta} />
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">was {previousMonth.kpiData.paidFollows.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {baseline.paidFollows != null ? `was ${Math.round(baseline.paidFollows).toLocaleString()}` : "no ads in period"}
+              </p>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            No prior month available — {monthInfo.label} is the first month with ad data. Try
+            comparing vs. last quarter or YTD.
+          </p>
+        )}
+      </div>
 
       {/* Campaign Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -238,7 +264,11 @@ export function OverviewTab() {
         <KPICard
           label="Messaging contacts"
           value={kpiData.messagingContacts}
-          subtext={`+${messagingLift}% vs. baseline`}
+          subtext={
+            hasComparison && messagingDelta != null
+              ? `${messagingDelta > 0 ? "+" : ""}${messagingDelta}% vs. ${comparison.shortLabel}`
+              : "messaging contacts"
+          }
         />
       </div>
 
@@ -317,8 +347,6 @@ export function OverviewTab() {
           />
         </ChartSection>
       </div>
-
-      
     </div>
   )
 }
