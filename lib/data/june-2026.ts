@@ -1,8 +1,9 @@
-import type { Campaign, KPIData } from "./types"
+import type { Campaign, KPIData, IgDailyFollow, AudienceDemographics } from "./types"
 
-// June 2026 data — IN PROGRESS. Imported from Meta Ads Manager exports (Jun 1–24).
-// Follower numbers here are AD-ATTRIBUTED only; organic / IG Insights follows for
-// June have not been imported yet, so month-to-date totals are conservative.
+// June 2026 data — IN PROGRESS.
+// - Ad metrics (spend, ad-attributed follows): Meta Ads Manager exports, Jun 1–24.
+// - Total follower growth + demographics: IG Insights export, Jun 1–22.
+// Note the slight date mismatch: ad data runs through Jun 24, IG Insights through Jun 22.
 export const JUNE_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-06-01": { "Awareness Campaign": { spend: 59.3, follows: 0 }, "Engagement Campaign": { spend: 60.33, follows: 45 }, "Retailer Support": { spend: 189.18, follows: 0 } },
   "2026-06-02": { "Awareness Campaign": { spend: 96.78, follows: 0 }, "Engagement Campaign": { spend: 52.74, follows: 20 }, "Retailer Support": { spend: 215.22, follows: 0 } },
@@ -74,18 +75,84 @@ const retailerSpend = 2616
 const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 6558
 const attributedFollows = 1295 // ad-attributed follows MTD (1294 engagement + 1 retailer)
 
+// Total follower growth from IG Insights daily follows (Jun 1–22). Organic + paid combined.
+export const JUNE_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
+  { date: "2026-06-01", follows: 42 },
+  { date: "2026-06-02", follows: 32 },
+  { date: "2026-06-03", follows: 48 },
+  { date: "2026-06-04", follows: 63 },
+  { date: "2026-06-05", follows: 67 },
+  { date: "2026-06-06", follows: 70 },
+  { date: "2026-06-07", follows: 85 },
+  { date: "2026-06-08", follows: 75 },
+  { date: "2026-06-09", follows: 47 },
+  { date: "2026-06-10", follows: 53 },
+  { date: "2026-06-11", follows: 74 },
+  { date: "2026-06-12", follows: 64 },
+  { date: "2026-06-13", follows: 56 },
+  { date: "2026-06-14", follows: 81 },
+  { date: "2026-06-15", follows: 60 },
+  { date: "2026-06-16", follows: 42 },
+  { date: "2026-06-17", follows: 100 },
+  { date: "2026-06-18", follows: 68 },
+  { date: "2026-06-19", follows: 51 },
+  { date: "2026-06-20", follows: 75 },
+  { date: "2026-06-21", follows: 78 },
+  { date: "2026-06-22", follows: 81 },
+]
+
+// Total IG follower growth through Jun 22 (organic + paid).
+const igFollowerGrowth = JUNE_IG_DAILY_FOLLOWS.reduce((s, d) => s + d.follows, 0) // 1412
+
 export const JUNE_KPI_DATA: KPIData = {
   totalSpend: totalSpend,
-  followerGrowth: attributedFollows, // ad-attributed MTD (organic not yet imported)
-  paidFollows: attributedFollows,
+  followerGrowth: igFollowerGrowth, // IG Insights total (organic + paid), through Jun 22
+  paidFollows: attributedFollows, // ad-attributed only, through Jun 24
   startFollowers: 9677, // end of May
-  endFollowers: 9677 + attributedFollows, // MTD
-  blendedCPF: totalSpend / attributedFollows, // ~$5.06 (all spend ÷ attributed follows)
+  endFollowers: 9677 + igFollowerGrowth, // MTD (IG total)
+  blendedCPF: totalSpend / igFollowerGrowth, // ~$4.64 (all spend ÷ total IG follows)
   totalReach: 2540726,
   totalImpressions: 2668034,
   engagementCTR: 5.31,
   messagingContacts: 0, // not yet imported for June
   unfollows: 0, // not yet imported for June
+}
+
+// Audience demographics from IG Insights (Jun 1–22). Values are % of audience.
+export const JUNE_DEMOGRAPHICS: AudienceDemographics = {
+  asOf: "Jun 1–22, 2026",
+  topCountries: [
+    { name: "United States", pct: 85.8 },
+    { name: "Turkey", pct: 4.4 },
+    { name: "Canada", pct: 1.2 },
+    { name: "India", pct: 0.9 },
+    { name: "Brazil", pct: 0.7 },
+    { name: "Mexico", pct: 0.3 },
+    { name: "United Kingdom", pct: 0.3 },
+    { name: "Argentina", pct: 0.3 },
+    { name: "Australia", pct: 0.3 },
+    { name: "Indonesia", pct: 0.2 },
+  ],
+  ageGender: [
+    { range: "18–24", women: 2.3, men: 1.8 },
+    { range: "25–34", women: 14.3, men: 8.9 },
+    { range: "35–44", women: 21.1, men: 12 },
+    { range: "45–54", women: 13.3, men: 5 },
+    { range: "55–64", women: 10.9, men: 3.1 },
+    { range: "65+", women: 6, men: 1.3 },
+  ],
+  topCities: [
+    { name: "New York, NY", pct: 6 },
+    { name: "Istanbul, Turkey", pct: 4.2 },
+    { name: "Los Angeles, CA", pct: 1.8 },
+    { name: "Chicago, IL", pct: 1.6 },
+    { name: "Philadelphia, PA", pct: 0.9 },
+    { name: "Phoenix, AZ", pct: 0.6 },
+    { name: "Houston, TX", pct: 0.6 },
+    { name: "San Diego, CA", pct: 0.6 },
+    { name: "San Francisco, CA", pct: 0.5 },
+    { name: "Austin, TX", pct: 0.5 },
+  ],
 }
 
 export const JUNE_SPEND_BY_CAMPAIGN = [
@@ -94,9 +161,10 @@ export const JUNE_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
+// paid = ad-attributed follows (through Jun 24); total = IG Insights total (through Jun 22).
 export const JUNE_WEEKLY_FOLLOWS = [
-  { week: "Jun 1–7", paid: 350, total: 351 },
-  { week: "Jun 8–14", paid: 364, total: 364 },
-  { week: "Jun 15–21", paid: 419, total: 419 },
-  { week: "Jun 22–24", paid: 161, total: 161, note: "Partial week (through Jun 24)" },
+  { week: "Jun 1–7", paid: 350, total: 407 },
+  { week: "Jun 8–14", paid: 364, total: 450 },
+  { week: "Jun 15–21", paid: 419, total: 474 },
+  { week: "Jun 22–24", paid: 161, total: 81, note: "IG total is Jun 22 only; ad follows run through Jun 24" },
 ]

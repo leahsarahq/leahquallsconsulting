@@ -3,6 +3,7 @@
 // can be compared against the previous month's pace at the same point in time.
 
 type DailyData = Record<string, Record<string, { spend: number; follows: number }>>
+type IgDaily = { date: string; follows: number }[]
 
 const ENGAGEMENT = "Engagement Campaign"
 
@@ -29,6 +30,8 @@ export interface PacePoint {
   previous: number | null
   currentSpend: number | null
   previousSpend: number | null
+  /** Cumulative total follower growth (IG Insights) at this day, if available. */
+  igTotal: number | null
 }
 
 export interface MonthProgress {
@@ -40,9 +43,14 @@ export interface MonthProgress {
   mtdFollows: number
   mtdEngagementSpend: number
   engagementCPF: number | null
-  // Run-rate projections to end of month
+  // Run-rate projections to end of month (ad-attributed)
   projectedFollows: number
   projectedSpend: number
+  // Total follower growth from IG Insights (organic + paid), if available.
+  igAvailable: boolean
+  igMtdFollows: number | null
+  igDaysElapsed: number
+  igProjectedFollows: number | null
   // Pace vs previous month
   prevLabel: string
   prevAtSameDayFollows: number | null
@@ -98,6 +106,7 @@ export function getMonthProgress(
   prevDaily: DailyData | undefined,
   daysInMonth: number,
   prevLabel: string,
+  igDaily?: IgDaily | null,
 ): MonthProgress {
   const dates = Object.keys(daily).sort()
   const daysElapsed = dates.length ? dayOfMonth(dates[dates.length - 1]) : 0
@@ -124,6 +133,35 @@ export function getMonthProgress(
   const factor = daysElapsed > 0 ? daysInMonth / daysElapsed : 0
   const projectedFollows = Math.round(mtdFollows * factor)
   const projectedSpend = Math.round(mtdSpend * factor)
+
+  // Total follower growth from IG Insights (organic + paid). Tracked on its own
+  // day count because the IG export can lag the ad export by a day or two.
+  const igAvailable = !!(igDaily && igDaily.length)
+  let igMtdFollows: number | null = null
+  let igDaysElapsed = 0
+  let igProjectedFollows: number | null = null
+  const igCumByDay = new Map<number, number>()
+  if (igAvailable && igDaily) {
+    const sorted = [...igDaily].sort((a, b) => a.date.localeCompare(b.date))
+    let cum = 0
+    for (const d of sorted) {
+      cum += d.follows
+      igCumByDay.set(dayOfMonth(d.date), cum)
+    }
+    igMtdFollows = cum
+    igDaysElapsed = dayOfMonth(sorted[sorted.length - 1].date)
+    const igFactor = igDaysElapsed > 0 ? daysInMonth / igDaysElapsed : 0
+    igProjectedFollows = Math.round(cum * igFactor)
+  }
+  // Carry-forward lookup for IG cumulative at-or-before a given day.
+  const igAtDay = (day: number): number | null => {
+    if (!igAvailable) return null
+    let val: number | null = null
+    for (let d = 1; d <= day; d++) {
+      if (igCumByDay.has(d)) val = igCumByDay.get(d)!
+    }
+    return val
+  }
 
   // Weekly buckets: 1–7, 8–14, 15–21, 22–end
   const weekDefs: [number, number][] = [
@@ -173,6 +211,7 @@ export function getMonthProgress(
       previous: prev ? prev.follows : null,
       currentSpend: cur ? Math.round(cur.spend) : null,
       previousSpend: prev ? Math.round(prev.spend) : null,
+      igTotal: day <= igDaysElapsed ? igAtDay(day) : null,
     })
   }
 
@@ -194,6 +233,10 @@ export function getMonthProgress(
     engagementCPF,
     projectedFollows,
     projectedSpend,
+    igAvailable,
+    igMtdFollows,
+    igDaysElapsed,
+    igProjectedFollows,
     prevLabel,
     prevAtSameDayFollows,
     prevFinalFollows,

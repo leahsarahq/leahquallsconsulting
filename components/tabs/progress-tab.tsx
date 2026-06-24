@@ -21,6 +21,7 @@ type ViewMode = "trend" | "pace"
 
 const CURRENT_COLOR = "#D93732"
 const PREVIOUS_COLOR = "#660033"
+const ACCENT_COLOR = "#E8853A"
 
 function StatCard({
   label,
@@ -40,9 +41,27 @@ function StatCard({
   )
 }
 
+// Horizontal percentage bar for ranked lists (countries, cities).
+function PercentBar({ label, pct, max }: { label: string; pct: number; max: number }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="w-28 shrink-0 truncate text-muted-foreground" title={label}>
+        {label}
+      </span>
+      <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary"
+          style={{ width: `${max > 0 ? (pct / max) * 100 : 0}%` }}
+        />
+      </div>
+      <span className="w-10 shrink-0 text-right tabular-nums text-foreground">{pct}%</span>
+    </div>
+  )
+}
+
 export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { dailyData, previousMonth } = getDataForMonth(selectedMonth)
+  const { dailyData, previousMonth, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
 
   const prevLabel = previousMonth?.label ?? "last month"
@@ -51,6 +70,7 @@ export function ProgressTab() {
     previousMonth?.dailyData,
     monthInfo.daysInMonth,
     prevLabel,
+    igDailyFollows,
   )
 
   const pace = view === "pace"
@@ -63,6 +83,10 @@ export function ProgressTab() {
     engagementCPF,
     projectedFollows,
     projectedSpend,
+    igAvailable,
+    igMtdFollows,
+    igDaysElapsed,
+    igProjectedFollows,
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
@@ -75,6 +99,7 @@ export function ProgressTab() {
     day: `${monthInfo.label.slice(0, 3)} ${p.day}`,
     current: p.current,
     previous: p.previous,
+    igTotal: p.igTotal,
   }))
 
   // Weekly bar chart data (only weeks with activity)
@@ -112,22 +137,33 @@ export function ProgressTab() {
           />
         </div>
         <p className="text-[11px] text-muted-foreground mt-2 italic">
-          Month-to-date, ad-attributed follows only — organic / IG Insights follows for {monthInfo.label} not yet imported.
+          {igAvailable
+            ? `Follower growth from IG Insights (organic + paid) through day ${igDaysElapsed}; ad spend & ad-attributed follows through day ${daysElapsed}.`
+            : `Month-to-date, ad-attributed follows only — organic / IG Insights follows for ${monthInfo.label} not yet imported.`}
         </p>
       </div>
 
       {/* MTD stat row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <StatCard
+          label="Follower growth"
+          value={igAvailable && igMtdFollows != null ? `+${igMtdFollows.toLocaleString()}` : `+${mtdFollows.toLocaleString()}`}
+          sub={igAvailable ? `IG total · ${mtdFollows.toLocaleString()} ad-attributed` : "ad-attributed"}
+        />
         <StatCard label="MTD spend" value={`$${mtdSpend.toLocaleString()}`} sub={`through day ${daysElapsed}`} />
-        <StatCard label="MTD follows" value={mtdFollows.toLocaleString()} sub="ad-attributed" />
         <StatCard
           label="Engagement CPF"
           value={engagementCPF != null ? `$${engagementCPF.toFixed(2)}` : "—"}
           sub="follow-driving campaign"
         />
         <StatCard
+          label="Blended CPF"
+          value={igAvailable && igMtdFollows ? `$${(mtdSpend / igMtdFollows).toFixed(2)}` : "—"}
+          sub="all spend ÷ total follows"
+        />
+        <StatCard
           label={`Projected ${monthInfo.label.slice(0, 3)} total`}
-          value={`~${projectedFollows.toLocaleString()}`}
+          value={`~${(igAvailable && igProjectedFollows != null ? igProjectedFollows : projectedFollows).toLocaleString()}`}
           sub={`follows · ~$${projectedSpend.toLocaleString()} spend (run-rate)`}
         />
       </div>
@@ -192,8 +228,10 @@ export function ProgressTab() {
         title="Cumulative follows"
         subtitle={
           pace
-            ? `${monthInfo.label} month-to-date vs. ${prevLabel} at the same day-of-month`
-            : `${monthInfo.label} building day by day (ad-attributed follows)`
+            ? `${monthInfo.label} month-to-date vs. ${prevLabel} at the same day-of-month (ad-attributed)`
+            : igAvailable
+              ? `${monthInfo.label} building day by day — total IG growth vs. ad-attributed`
+              : `${monthInfo.label} building day by day (ad-attributed follows)`
         }
       >
         <div className="h-64">
@@ -230,10 +268,21 @@ export function ProgressTab() {
                   dot={false}
                 />
               )}
+              {!pace && igAvailable && (
+                <Line
+                  type="monotone"
+                  dataKey="igTotal"
+                  name="Total (IG)"
+                  stroke={ACCENT_COLOR}
+                  strokeWidth={2.5}
+                  dot={false}
+                  connectNulls
+                />
+              )}
               <Line
                 type="monotone"
                 dataKey="current"
-                name={monthInfo.label}
+                name={pace ? monthInfo.label : "Ad-attributed"}
                 stroke={CURRENT_COLOR}
                 strokeWidth={2.5}
                 dot={false}
@@ -242,9 +291,15 @@ export function ProgressTab() {
           </ResponsiveContainer>
         </div>
         <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-3">
+          {!pace && igAvailable && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: ACCENT_COLOR }} />
+              Total follower growth (IG)
+            </span>
+          )}
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CURRENT_COLOR }} />
-            {monthInfo.label} (MTD)
+            {pace ? `${monthInfo.label} (MTD)` : "Ad-attributed"}
           </span>
           {pace && (
             <span className="flex items-center gap-1.5">
@@ -333,6 +388,108 @@ export function ProgressTab() {
           ))}
         </p>
       </ChartSection>
+
+      {/* Audience demographics */}
+      {demographics && (
+        <div>
+          <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+            <h3 className="text-sm font-semibold text-foreground">Who you&apos;re reaching</h3>
+            <span className="text-[11px] text-muted-foreground">IG Insights · {demographics.asOf}</span>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            {/* Age & gender */}
+            <div className="bg-card border border-border rounded-xl p-4 lg:col-span-1">
+              {(() => {
+                const women = demographics.ageGender.reduce((s, a) => s + a.women, 0)
+                const men = demographics.ageGender.reduce((s, a) => s + a.men, 0)
+                return (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-medium text-foreground">Age &amp; gender</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        <span style={{ color: CURRENT_COLOR }}>{Math.round(women)}% women</span>
+                        {" · "}
+                        <span style={{ color: ACCENT_COLOR }}>{Math.round(men)}% men</span>
+                      </p>
+                    </div>
+                    <div className="h-44">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={demographics.ageGender}
+                          layout="vertical"
+                          margin={{ top: 0, right: 8, left: -8, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e8e4da" horizontal={false} />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 9, fill: "#888" }}
+                            axisLine={false}
+                            tickLine={false}
+                            tickFormatter={(v) => `${v}%`}
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="range"
+                            tick={{ fontSize: 10, fill: "#888" }}
+                            axisLine={false}
+                            tickLine={false}
+                            width={44}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#fbf9f4",
+                              border: "1px solid #e0ddd4",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                            }}
+                            formatter={(value: number, name: string) => [`${value}%`, name]}
+                          />
+                          <Bar dataKey="women" name="Women" fill={CURRENT_COLOR} radius={[0, 3, 3, 0]} />
+                          <Bar dataKey="men" name="Men" fill={ACCENT_COLOR} radius={[0, 3, 3, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Core audience is women 35–44 — your single largest segment.
+                    </p>
+                  </>
+                )
+              })()}
+            </div>
+
+            {/* Top countries */}
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-xs font-medium text-foreground mb-3">Top countries</p>
+              <div className="space-y-2">
+                {demographics.topCountries.slice(0, 6).map((c) => (
+                  <PercentBar
+                    key={c.name}
+                    label={c.name}
+                    pct={c.pct}
+                    max={demographics.topCountries[0].pct}
+                  />
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3">
+                {demographics.topCountries[0].pct}% U.S. — spend is reaching the right market.
+              </p>
+            </div>
+
+            {/* Top cities */}
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-xs font-medium text-foreground mb-3">Top cities</p>
+              <div className="space-y-2">
+                {demographics.topCities.slice(0, 6).map((c) => (
+                  <PercentBar key={c.name} label={c.name} pct={c.pct} max={demographics.topCities[0].pct} />
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3">
+                Concentrated in major metros — NY, LA, Chicago lead domestically.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

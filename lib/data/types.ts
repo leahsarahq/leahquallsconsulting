@@ -41,6 +41,21 @@ export interface WeeklyFollows {
   note?: string
 }
 
+// Daily follower growth from IG Insights (organic + paid combined).
+export interface IgDailyFollow {
+  date: string
+  follows: number
+}
+
+// Audience demographics from IG Insights.
+export interface AudienceDemographics {
+  // Date the snapshot covers, e.g. "Jun 1–22, 2026".
+  asOf: string
+  topCountries: { name: string; pct: number }[]
+  ageGender: { range: string; women: number; men: number }[]
+  topCities: { name: string; pct: number }[]
+}
+
 export interface AudienceTestResult {
   name: string
   dateRange: string
