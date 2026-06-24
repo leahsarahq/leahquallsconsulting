@@ -34,8 +34,16 @@ interface MonthContextType {
 
 const MonthContext = createContext<MonthContextType | undefined>(undefined)
 
+// Pick the month matching today's date; otherwise fall back to the most recent month we have data for.
+function getDefaultMonth(): MonthKey {
+  const now = new Date()
+  const key = `${now.toLocaleString("en-US", { month: "short" }).toLowerCase()}-${now.getFullYear()}` as MonthKey
+  if (MONTHS.some((m) => m.key === key)) return key
+  return MONTHS[MONTHS.length - 1].key
+}
+
 export function MonthProvider({ children }: { children: ReactNode }) {
-  const [selectedMonth, setSelectedMonth] = useState<MonthKey>("apr-2026")
+  const [selectedMonth, setSelectedMonth] = useState<MonthKey>(getDefaultMonth)
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("last-month")
 
   const monthInfo = MONTHS.find((m) => m.key === selectedMonth) || MONTHS[0]
