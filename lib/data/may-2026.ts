@@ -1,4 +1,4 @@
-import type { Campaign } from "./types"
+import type { Campaign, KPIData } from "./types"
 
 // May 2026 data (full month May 1-31)
 export const MAY_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
@@ -127,7 +127,7 @@ const totalSpend = engagementSpend + awarenessSpend + retailerSpend // ~5222
 const paidFollows = 1821 // Sum of engagement follows
 const totalReach = 817000
 
-export const MAY_KPI_DATA = {
+export const MAY_KPI_DATA: KPIData = {
   totalSpend: Math.round(totalSpend),
   followerGrowth: 2545, // From IG Insights CSV (May 1-30 daily follows)
   followerGrowthExclGiveaway: 2283, // Excluding 262 from May 10th giveaway

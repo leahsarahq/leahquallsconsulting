@@ -1,4 +1,4 @@
-import type { Campaign } from "./types"
+import type { Campaign, KPIData } from "./types"
 
 export const APRIL_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-04-09": { "Awareness Campaign": { spend: 5.84, follows: 0 }, "Engagement Campaign": { spend: 21.74, follows: 1 } },
@@ -47,7 +47,7 @@ export const APRIL_ADS_DATA = [
   { name: "Whole Foods CGI (Retailer)", spend: 117.86, impressions: 64757, clicks: 54, follows: 0, cpf: null, ctr: 0.08, campaign: "Retailer Support" as Campaign },
 ]
 
-export const APRIL_KPI_DATA = {
+export const APRIL_KPI_DATA: KPIData = {
   totalSpend: 2617,
   followerGrowth: 2200,
   startFollowers: 5136,

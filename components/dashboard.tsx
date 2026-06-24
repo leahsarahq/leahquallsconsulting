@@ -6,8 +6,9 @@ import { DailyTab } from "@/components/tabs/daily-tab"
 import { AdsTab } from "@/components/tabs/ads-tab"
 import { InsightsTab } from "@/components/tabs/insights-tab"
 import { AudienceTestTab } from "@/components/tabs/audience-test-tab"
-import { MonthProvider, useMonth, MONTHS, type MonthKey } from "@/lib/month-context"
+import { MonthProvider, useMonth, MONTHS, type MonthKey, type ComparisonMode } from "@/lib/month-context"
 import { getDataForMonth } from "@/lib/data"
+import { COMPARISON_OPTIONS } from "@/lib/data/comparisons"
 
 const baseTabs = [
   { id: "overview", label: "Overview" },
@@ -22,7 +23,7 @@ type TabId = (typeof baseTabs)[number]["id"] | "audience-test"
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
-  const { selectedMonth, setSelectedMonth, monthInfo } = useMonth()
+  const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
   const { audienceTest } = getDataForMonth(selectedMonth)
   
   // Build tabs list - include Audience Testing only if data exists
@@ -46,15 +47,28 @@ function DashboardContent() {
               </p>
             </div>
           </div>
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value as MonthKey)}
-            className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
-          >
-            {MONTHS.map((m) => (
-              <option key={m.key} value={m.key}>{m.label}</option>
-            ))}
-          </select>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value as MonthKey)}
+              aria-label="Select reporting month"
+              className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
+            >
+              {MONTHS.map((m) => (
+                <option key={m.key} value={m.key}>{m.label}</option>
+              ))}
+            </select>
+            <select
+              value={comparisonMode}
+              onChange={(e) => setComparisonMode(e.target.value as ComparisonMode)}
+              aria-label="Select comparison period"
+              className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-foreground font-medium"
+            >
+              {COMPARISON_OPTIONS.map((c) => (
+                <option key={c.key} value={c.key}>{c.label}</option>
+              ))}
+            </select>
+          </div>
         </header>
 
         {/* Navigation */}
