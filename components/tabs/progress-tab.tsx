@@ -80,6 +80,7 @@ export function ProgressTab() {
     pctElapsed,
     mtdSpend,
     mtdFollows,
+    mtdEngagementSpend,
     engagementCPF,
     projectedFollows,
     projectedSpend,
@@ -158,8 +159,8 @@ export function ProgressTab() {
         />
         <StatCard
           label="Blended CPF"
-          value={igAvailable && igMtdFollows ? `$${(mtdSpend / igMtdFollows).toFixed(2)}` : "—"}
-          sub="all spend ÷ total follows"
+          value={igAvailable && igMtdFollows ? `$${(mtdEngagementSpend / igMtdFollows).toFixed(2)}` : "—"}
+          sub="engagement spend ÷ total follows"
         />
         <StatCard
           label={`Projected ${monthInfo.label.slice(0, 3)} total`}

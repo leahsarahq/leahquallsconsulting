@@ -110,7 +110,7 @@ export const JUNE_KPI_DATA: KPIData = {
   paidFollows: attributedFollows, // ad-attributed only, through Jun 24
   startFollowers: 9677, // end of May
   endFollowers: 9677 + igFollowerGrowth, // MTD (IG total)
-  blendedCPF: totalSpend / igFollowerGrowth, // ~$4.64 (all spend ÷ total IG follows)
+  blendedCPF: engagementSpend / igFollowerGrowth, // ~$1.19 — engagement campaign spend ÷ total IG follows
   totalReach: 2540726,
   totalImpressions: 2668034,
   engagementCTR: 5.31,

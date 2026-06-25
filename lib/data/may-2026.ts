@@ -134,7 +134,7 @@ export const MAY_KPI_DATA: KPIData = {
   giveawayFollows: 262, // May 10th giveaway spike
   startFollowers: 7132, // End of April
   endFollowers: 9677, // 7132 + 2545
-  blendedCPF: totalSpend / 2545, // ~$2.05 using total IG follows
+  blendedCPF: engagementSpend / 2545, // ~$0.71 — engagement campaign spend ÷ total IG follows
   totalReach: totalReach,
   paidFollows: paidFollows,
   totalImpressions: 2800000, // Sum from all campaign data
