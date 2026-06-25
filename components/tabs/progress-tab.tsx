@@ -80,7 +80,6 @@ export function ProgressTab() {
     pctElapsed,
     mtdSpend,
     mtdFollows,
-    mtdEngagementSpend,
     engagementCPF,
     projectedFollows,
     projectedSpend,
@@ -113,21 +112,34 @@ export function ProgressTab() {
     }))
 
   const aheadOfPace = paceDeltaPct != null && paceDeltaPct >= 0
+  const inProgress = !!monthInfo.inProgress
+
+  // Average daily follower growth — uses IG total when available, else ad-attributed.
+  const followsPerDay =
+    igAvailable && igMtdFollows != null && igDaysElapsed > 0
+      ? Math.round(igMtdFollows / igDaysElapsed)
+      : daysElapsed > 0
+        ? Math.round(mtdFollows / daysElapsed)
+        : 0
 
   return (
     <div className="space-y-4">
-      {/* In-progress header */}
+      {/* Status header */}
       <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+              {inProgress && (
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+              )}
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-            <h3 className="text-sm font-semibold text-foreground">{monthInfo.label} — in progress</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {monthInfo.label} — {inProgress ? "in progress" : "complete"}
+            </h3>
           </div>
           <span className="text-[11px] text-muted-foreground">
-            Day {daysElapsed} of {daysInMonth} · {pctElapsed}% elapsed
+            {inProgress ? `Day ${daysElapsed} of ${daysInMonth} · ${pctElapsed}% elapsed` : `Full month · ${daysInMonth} days`}
           </span>
         </div>
         {/* Progress bar */}
@@ -140,7 +152,9 @@ export function ProgressTab() {
         <p className="text-[11px] text-muted-foreground mt-2 italic">
           {igAvailable
             ? `Follower growth from IG Insights (organic + paid) through day ${igDaysElapsed}; ad spend & ad-attributed follows through day ${daysElapsed}.`
-            : `Month-to-date, ad-attributed follows only — organic / IG Insights follows for ${monthInfo.label} not yet imported.`}
+            : inProgress
+              ? `Month-to-date, ad-attributed follows only — organic / IG Insights follows for ${monthInfo.label} not yet imported.`
+              : `Daily figures are ad-attributed follows. Total follower growth is on the Overview tab.`}
         </p>
       </div>
 
@@ -151,22 +165,34 @@ export function ProgressTab() {
           value={igAvailable && igMtdFollows != null ? `+${igMtdFollows.toLocaleString()}` : `+${mtdFollows.toLocaleString()}`}
           sub={igAvailable ? `IG total · ${mtdFollows.toLocaleString()} ad-attributed` : "ad-attributed"}
         />
-        <StatCard label="MTD spend" value={`$${mtdSpend.toLocaleString()}`} sub={`through day ${daysElapsed}`} />
+        <StatCard
+          label={inProgress ? "MTD spend" : "Total spend"}
+          value={`$${mtdSpend.toLocaleString()}`}
+          sub={inProgress ? `through day ${daysElapsed}` : "full month"}
+        />
         <StatCard
           label="Engagement CPF"
           value={engagementCPF != null ? `$${engagementCPF.toFixed(2)}` : "—"}
           sub="follow-driving campaign"
         />
         <StatCard
-          label="Blended CPF"
-          value={igAvailable && igMtdFollows ? `$${(mtdEngagementSpend / igMtdFollows).toFixed(2)}` : "—"}
-          sub="engagement spend ÷ total follows"
+          label="Follows / day"
+          value={`+${followsPerDay.toLocaleString()}`}
+          sub={igAvailable ? "avg daily IG growth" : "avg daily ad follows"}
         />
-        <StatCard
-          label={`Projected ${monthInfo.label.slice(0, 3)} total`}
-          value={`~${(igAvailable && igProjectedFollows != null ? igProjectedFollows : projectedFollows).toLocaleString()}`}
-          sub={`follows · ~$${projectedSpend.toLocaleString()} spend (run-rate)`}
-        />
+        {inProgress ? (
+          <StatCard
+            label={`Projected ${monthInfo.label.slice(0, 3)} total`}
+            value={`~${(igAvailable && igProjectedFollows != null ? igProjectedFollows : projectedFollows).toLocaleString()}`}
+            sub={`follows · ~$${projectedSpend.toLocaleString()} spend (run-rate)`}
+          />
+        ) : (
+          <StatCard
+            label={`${monthInfo.label.slice(0, 3)} total follows`}
+            value={(igAvailable && igMtdFollows != null ? igMtdFollows : mtdFollows).toLocaleString()}
+            sub={`$${mtdSpend.toLocaleString()} spend · full month`}
+          />
+        )}
       </div>
 
       {/* View toggle */}

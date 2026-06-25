@@ -26,14 +26,16 @@ type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "progress"
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
-  const { audienceTest } = getDataForMonth(selectedMonth)
+  const { audienceTest, previousMonth } = getDataForMonth(selectedMonth)
 
-  // Build tabs list: Progress (in-progress months only) sits right after Overview;
+  // Build tabs list: Progress sits right after Overview for any month we can track
+  // week-by-week (in-progress months, or completed months with a prior month to pace against);
   // Audience Testing is appended only when data exists.
+  const showProgress = monthInfo.inProgress || !!previousMonth
   const [overview, ...restBase] = baseTabs
   const tabs = [
     overview,
-    ...(monthInfo.inProgress ? [progressTab] : []),
+    ...(showProgress ? [progressTab] : []),
     ...restBase,
     ...(audienceTest ? [audienceTestTab] : []),
   ]
