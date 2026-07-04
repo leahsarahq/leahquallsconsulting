@@ -14,7 +14,7 @@ import { COMPARISON_OPTIONS } from "@/lib/data/comparisons"
 
 const baseTabs = [
   { id: "overview", label: "Overview" },
-  { id: "daily", label: "Daily spend & follows" },
+  { id: "daily", label: "Budget efficiency" },
   { id: "ads", label: "Ad creative" },
   { id: "insights", label: "Insights & Benchmarks" },
 ] as const
