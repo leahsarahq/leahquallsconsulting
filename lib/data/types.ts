@@ -85,6 +85,41 @@ export interface AudienceTest {
   winnerReason: string
 }
 
+// A single arm of a head-to-head test (challenger vs. control).
+export interface TestArm {
+  name: string
+  note: string
+  spend: number
+  impressions: number
+  clicks: number
+  follows: number
+  profileVisits: number
+  cpf: number | null
+  ctr: number
+  cpc: number
+}
+
+// Testing context for a month: one featured head-to-head test plus shorter
+// context notes explaining short-lived / carryover / promo test runs.
+export interface TestingContext {
+  featured: {
+    name: string
+    dateRange: string
+    hypothesis: string
+    kpiFocus: string
+    challenger: TestArm
+    control: TestArm
+    verdict: string
+  }
+  notes: {
+    title: string
+    dateRange: string
+    spend: number
+    status: string
+    detail: string
+  }[]
+}
+
 // Q1 2026 baseline (no paid ads) - for comparison
 export const Q1_BASELINE = {
   january: { follows: 350, messagingContacts: 180 },
