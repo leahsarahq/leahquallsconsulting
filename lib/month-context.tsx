@@ -21,7 +21,7 @@ export interface MonthInfo {
 export const MONTHS: MonthInfo[] = [
   { key: "apr-2026", label: "April 2026", dateRange: "Apr 9–30, 2026", daysInMonth: 30 },
   { key: "may-2026", label: "May 2026", dateRange: "May 1–31, 2026", daysInMonth: 31, prevMonthKey: "apr-2026" },
-  { key: "jun-2026", label: "June 2026", dateRange: "Jun 1–24, 2026", daysInMonth: 30, inProgress: true, prevMonthKey: "may-2026" },
+  { key: "jun-2026", label: "June 2026", dateRange: "Jun 1–30, 2026", daysInMonth: 30, prevMonthKey: "may-2026" },
 ]
 
 interface MonthContextType {

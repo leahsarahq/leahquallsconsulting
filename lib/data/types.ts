@@ -9,6 +9,9 @@ export interface KPIData {
   startFollowers: number
   endFollowers: number
   blendedCPF: number
+  // CPF using only the Engagement campaign spend ÷ its follows (the campaign
+  // actually built to drive follows). Excludes Awareness/Retailer spend.
+  engagementCPF: number
   totalReach: number
   paidFollows: number
   totalImpressions: number
@@ -83,6 +86,42 @@ export interface AudienceTest {
   tests: AudienceTestResult[]
   winner: string
   winnerReason: string
+}
+
+// A single arm of a head-to-head test (challenger vs. control).
+export interface TestArm {
+  name: string
+  note: string
+  spend: number
+  impressions: number
+  clicks: number
+  follows: number
+  profileVisits: number
+  cpf: number | null
+  ctr: number // link click-through rate (clicks ÷ impressions)
+  followRate: number // IG follow rate (follows ÷ profile visits) — distinct from CTR
+  cpc: number
+}
+
+// Testing context for a month: one featured head-to-head test plus shorter
+// context notes explaining short-lived / carryover / promo test runs.
+export interface TestingContext {
+  featured: {
+    name: string
+    dateRange: string
+    hypothesis: string
+    kpiFocus: string
+    challenger: TestArm
+    control: TestArm
+    verdict: string
+  }
+  notes: {
+    title: string
+    dateRange: string
+    spend: number
+    status: string
+    detail: string
+  }[]
 }
 
 // Q1 2026 baseline (no paid ads) - for comparison

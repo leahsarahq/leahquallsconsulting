@@ -62,66 +62,83 @@ export function InsightsTab() {
   const awarenessCreatives = adsData.filter((ad) => ad.campaign === "Awareness").length
   const retailerCreatives = adsData.filter((ad) => ad.campaign === "Retailer Support").length
 
+  // Top follow-driving creatives (keeps the learnings accurate month to month).
+  const engagementAds = adsData.filter((ad) => ad.campaign === "Engagement")
+  const totalPaidFollows = engagementAds.reduce((s, ad) => s + ad.follows, 0)
+  const topDrivers = [...engagementAds].sort((a, b) => b.follows - a.follows).slice(0, 2)
+  const topDriverShare = totalPaidFollows
+    ? Math.round((topDrivers.reduce((s, ad) => s + ad.follows, 0) / totalPaidFollows) * 100)
+    : 0
+  const cpmReach = (kpiData.totalSpend / kpiData.totalReach) * 1000
+
   return (
     <div className="space-y-4">
       {/* Benchmark Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <BenchmarkCard
-          metric="Blended CPF (Cost per Follow)"
-          value={`$${kpiData.blendedCPF.toFixed(2)}`}
+          metric="Cost per follow (Engagement)"
+          value={`$${kpiData.engagementCPF.toFixed(2)}`}
           benchmark="$2–5 for new CPG brands"
           verdict="excellent"
-          explanation={`$${kpiData.blendedCPF.toFixed(2)} CPF is 40-75% below industry average. This accounts for all ${kpiData.followerGrowth.toLocaleString()} followers gained in ${monthInfo.label}, including both paid-attributed and organic lift from awareness campaigns.`}
+          explanation={`It costs ~$${kpiData.engagementCPF.toFixed(2)} to earn a follower from the follow-driving campaign — well below the $2–5 brands typically pay.`}
         />
         <BenchmarkCard
-          metric="Total Reach"
-          value={`${(kpiData.totalReach / 1000).toFixed(0)}K`}
-          benchmark="Varies by spend; ~$5–8 CPM typical"
+          metric="Cost to reach 1,000 people"
+          value={`$${cpmReach.toFixed(2)}`}
+          benchmark="$8–14 typical for CPG"
           verdict="excellent"
-          explanation={`${(kpiData.totalReach / 1000).toFixed(0)}K reach on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend equals ~$${((kpiData.totalSpend / kpiData.totalReach) * 1000).toFixed(2)} CPM — roughly 60% below what most CPG brands pay.`}
+          explanation={`${(kpiData.totalReach / 1000000).toFixed(1)}M people reached on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — roughly 60% cheaper than the industry norm.`}
         />
         <BenchmarkCard
           metric="Engagement CTR"
           value={`${kpiData.engagementCTR}%`}
           benchmark="1–2% average; 3%+ is strong"
           verdict="excellent"
-          explanation={`${kpiData.engagementCTR}% CTR on engagement campaigns is exceptional — 3.6x industry average. Top performers like Cacio e Pepe Puffs (6.29%) show strong creative-audience fit.`}
+          explanation={`People click our engagement ads ~${(kpiData.engagementCTR / 1.5).toFixed(0)}x more than the industry average — a sign the creative resonates.`}
         />
         <BenchmarkCard
-          metric="Awareness Lift"
-          value={`+${kpiData.followerGrowth - kpiData.paidFollows}`}
-          benchmark="Hard to measure directly"
-          verdict="good"
-          explanation={`${kpiData.followerGrowth - kpiData.paidFollows} followers gained beyond paid attribution — a 6x increase over the Jan–Mar baseline (~341 avg follows/month with no ads). This halo effect from awareness campaigns is a key unmeasured benefit.`}
+          metric="Followers gained"
+          value={kpiData.followerGrowth.toLocaleString()}
+          benchmark="~341/mo before ads (Jan–Mar)"
+          verdict="excellent"
+          explanation={`${kpiData.followerGrowth.toLocaleString()} new followers in ${monthInfo.label} — more than 5x the pre-ads pace.`}
         />
       </div>
 
       {/* Creative Analysis */}
-      <ChartSection title="Ad creative breakdown">
+      <ChartSection title="What the creative told us">
         <div className="text-xs text-muted-foreground leading-relaxed space-y-3 mt-2">
           <p>
-            <span className="font-medium text-foreground">{totalCreatives} total ad creatives ran in {monthInfo.label}:</span>
+            {totalCreatives} creatives ran in {monthInfo.label}: {engagementCreatives} to drive follows, {awarenessCreatives} for reach, and {retailerCreatives} for retailer support.
           </p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li><span className="font-medium">{engagementCreatives} Engagement creatives</span> — optimized for follows and profile visits</li>
-            <li><span className="font-medium">{awarenessCreatives} Awareness creatives</span> — optimized for reach and impressions</li>
-            <li><span className="font-medium">{retailerCreatives} Retailer Support creatives</span> — optimized for link clicks to Whole Foods/Target</li>
-          </ul>
-          <p className="pt-2">
-            <span className="font-medium text-foreground">Key learnings:</span>
-          </p>
-          <ul className="list-disc list-inside space-y-2 ml-2">
-            <li>
-              <span className="font-medium">UGC-style content wins:</span> "Cacio e Pepe Puffs" and "Frozen Pasta Can&apos;t Be That Good" — both casual, native-feeling videos — drove 93% of paid follows at CPF under $1.
+          <ul className="space-y-2">
+            <li className="flex gap-2">
+              <span className="text-green-600 font-bold">+</span>
+              <span>
+                <span className="font-medium text-foreground">A couple of videos do the heavy lifting.</span>{" "}
+                {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")} — casual, native-feeling videos — drove {topDriverShare}% of paid follows at under $1.30 each.
+              </span>
             </li>
-            <li>
-              <span className="font-medium">Static images underperform on engagement:</span> Hero images and flatlays drove impressions but minimal follows. Save these for awareness objectives.
+            <li className="flex gap-2">
+              <span className="text-green-600 font-bold">+</span>
+              <span>
+                <span className="font-medium text-foreground">Creator ads grab attention.</span>{" "}
+                The Joe creator ads earned the highest click rates (up to ~10%) — but fewer of those clicks became follows, so we&apos;re iterating the follow ask (see Testing).
+              </span>
             </li>
-            <li>
-              <span className="font-medium">Quick iterations work:</span> Turning off underperformers (7 Minute Meal, Chicken Nugget Style) and adding new creative mid-flight kept efficiency high.
+            <li className="flex gap-2">
+              <span className="text-muted-foreground font-bold">–</span>
+              <span>
+                <span className="font-medium text-foreground">Static images are for reach, not follows.</span>{" "}
+                Hero images and product shots built big impressions but almost no follows — right for awareness and retailer support, not for growth.
+              </span>
             </li>
-            <li>
-              <span className="font-medium">Retailer-specific creative is early:</span> Target/Whole Foods CGI ads just launched; too early for conclusive learnings but initial CPC looks reasonable.
+            <li className="flex gap-2">
+              <span className="text-green-600 font-bold">+</span>
+              <span>
+                <span className="font-medium text-foreground">Cutting losers fast keeps costs low.</span>{" "}
+                Weak tests (e.g. Dark Lifestyle) were paused quickly and budget shifted to what worked.
+              </span>
             </li>
           </ul>
         </div>
@@ -146,19 +163,19 @@ export function InsightsTab() {
               <tr>
                 <td className="py-2.5 px-2 font-medium">Meta CPM</td>
                 <td className="py-2.5 px-2">$8–14</td>
-                <td className="py-2.5 px-2">~$3.20</td>
-                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">60% below avg</span></td>
+                <td className="py-2.5 px-2">~${((kpiData.totalSpend / kpiData.totalImpressions) * 1000).toFixed(2)}</td>
+                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">~75% below avg</span></td>
               </tr>
               <tr>
                 <td className="py-2.5 px-2 font-medium">Meta CTR (F&B)</td>
                 <td className="py-2.5 px-2">1.2–1.6%</td>
-                <td className="py-2.5 px-2">5.78% (engagement)</td>
-                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">3.6x above avg</span></td>
+                <td className="py-2.5 px-2">{kpiData.engagementCTR}% (engagement)</td>
+                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">~4x above avg</span></td>
               </tr>
               <tr>
                 <td className="py-2.5 px-2 font-medium">Meta CPC (F&B)</td>
                 <td className="py-2.5 px-2">$0.42–0.70</td>
-                <td className="py-2.5 px-2">$0.38 (engagement)</td>
+                <td className="py-2.5 px-2">$0.24 (engagement)</td>
                 <td className="py-2.5 px-2"><span className="text-green-700 font-medium">Below avg</span></td>
               </tr>
             </tbody>
@@ -167,7 +184,7 @@ export function InsightsTab() {
         <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
           <p className="text-xs text-foreground font-medium mb-1">Key takeaway</p>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Ripi is outperforming industry benchmarks across efficiency metrics (CPM, CTR, CPC). The high CTR suggests strong creative-audience fit. At current spend levels, the creative library is sufficient, but scaling to $10K+/month will require 2–3x more variants monthly.
+            Ripi beats industry benchmarks on cost and engagement across the board — the ads are cheap to run and people respond to them. To scale spend from here, the main need is more fresh creative each month to keep results this strong.
           </p>
         </div>
       </ChartSection>

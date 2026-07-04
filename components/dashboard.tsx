@@ -7,26 +7,28 @@ import { DailyTab } from "@/components/tabs/daily-tab"
 import { AdsTab } from "@/components/tabs/ads-tab"
 import { InsightsTab } from "@/components/tabs/insights-tab"
 import { AudienceTestTab } from "@/components/tabs/audience-test-tab"
+import { TestingTab } from "@/components/tabs/testing-tab"
 import { MonthProvider, useMonth, MONTHS, type MonthKey, type ComparisonMode } from "@/lib/month-context"
 import { getDataForMonth } from "@/lib/data"
 import { COMPARISON_OPTIONS } from "@/lib/data/comparisons"
 
 const baseTabs = [
   { id: "overview", label: "Overview" },
-  { id: "daily", label: "Daily spend & follows" },
+  { id: "daily", label: "Budget efficiency" },
   { id: "ads", label: "Ad creative" },
   { id: "insights", label: "Insights & Benchmarks" },
 ] as const
 
 const audienceTestTab = { id: "audience-test", label: "Audience Testing" } as const
+const testingTab = { id: "testing", label: "Testing" } as const
 const progressTab = { id: "progress", label: "Progress" } as const
 
-type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "progress"
+type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "testing" | "progress"
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
-  const { audienceTest } = getDataForMonth(selectedMonth)
+  const { audienceTest, testing } = getDataForMonth(selectedMonth)
 
   // Build tabs list: Progress (in-progress months only) sits right after Overview;
   // Audience Testing is appended only when data exists.
@@ -36,6 +38,7 @@ function DashboardContent() {
     ...(monthInfo.inProgress ? [progressTab] : []),
     ...restBase,
     ...(audienceTest ? [audienceTestTab] : []),
+    ...(testing ? [testingTab] : []),
   ]
 
   // If the active tab isn't available for the selected month, fall back to Overview.
@@ -115,6 +118,7 @@ function DashboardContent() {
           {resolvedTab === "daily" && <DailyTab />}
           {resolvedTab === "ads" && <AdsTab />}
           {resolvedTab === "audience-test" && <AudienceTestTab />}
+          {resolvedTab === "testing" && <TestingTab />}
           {resolvedTab === "insights" && <InsightsTab />}
         </main>
       </div>

@@ -1,9 +1,13 @@
-import type { Campaign, KPIData, IgDailyFollow, AudienceDemographics } from "./types"
+import type { Campaign, KPIData, IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
 
-// June 2026 data — IN PROGRESS.
-// - Ad metrics (spend, ad-attributed follows): Meta Ads Manager exports, Jun 1–24.
-// - Total follower growth + demographics: IG Insights export, Jun 1–22.
-// Note the slight date mismatch: ad data runs through Jun 24, IG Insights through Jun 22.
+// June 2026 data — FULL MONTH (Jun 1–30).
+// - Ad metrics (spend, reach, impressions, clicks, ad-attributed follows): Meta Ads
+//   Manager exports, Jun 1–30 (Campaigns / Ad sets / Ads).
+// - Demographics: IG Insights "Audience" export (snapshot as of Jun 30).
+// - Total follower growth: IG Insights daily follows are real through Jun 22; for
+//   Jun 23–30 only ad-attributed follows are available, so the total is a
+//   conservative floor (organic counted through Jun 22 only). Send the IG Insights
+//   daily "Follows" export for Jun 23–30 to layer the remaining organic lift back in.
 export const JUNE_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-06-01": { "Awareness Campaign": { spend: 59.3, follows: 0 }, "Engagement Campaign": { spend: 60.33, follows: 45 }, "Retailer Support": { spend: 189.18, follows: 0 } },
   "2026-06-02": { "Awareness Campaign": { spend: 96.78, follows: 0 }, "Engagement Campaign": { spend: 52.74, follows: 20 }, "Retailer Support": { spend: 215.22, follows: 0 } },
@@ -27,8 +31,14 @@ export const JUNE_DAILY_DATA: Record<string, Record<string, { spend: number; fol
   "2026-06-20": { "Awareness Campaign": { spend: 89.01, follows: 0 }, "Engagement Campaign": { spend: 69.71, follows: 52 }, "Retailer Support": { spend: 79.72, follows: 0 } },
   "2026-06-21": { "Awareness Campaign": { spend: 129.39, follows: 0 }, "Engagement Campaign": { spend: 84.35, follows: 83 }, "Retailer Support": { spend: 121.35, follows: 0 } },
   "2026-06-22": { "Awareness Campaign": { spend: 94.14, follows: 0 }, "Engagement Campaign": { spend: 77.38, follows: 61 }, "Retailer Support": { spend: 130.61, follows: 0 } },
-  "2026-06-23": { "Awareness Campaign": { spend: 44.07, follows: 0 }, "Engagement Campaign": { spend: 107.48, follows: 82 }, "Retailer Support": { spend: 231, follows: 0 } },
-  "2026-06-24": { "Awareness Campaign": { spend: 21.19, follows: 0 }, "Engagement Campaign": { spend: 32.7, follows: 18 }, "Retailer Support": { spend: 68.65, follows: 0 } },
+  "2026-06-23": { "Awareness Campaign": { spend: 44.07, follows: 0 }, "Engagement Campaign": { spend: 107.48, follows: 82 }, "Retailer Support": { spend: 231.04, follows: 0 } },
+  "2026-06-24": { "Awareness Campaign": { spend: 46.58, follows: 0 }, "Engagement Campaign": { spend: 106.59, follows: 70 }, "Retailer Support": { spend: 201.58, follows: 0 } },
+  "2026-06-25": { "Awareness Campaign": { spend: 43.45, follows: 0 }, "Engagement Campaign": { spend: 91.51, follows: 59 }, "Retailer Support": { spend: 156.89, follows: 0 } },
+  "2026-06-26": { "Awareness Campaign": { spend: 51.37, follows: 0 }, "Engagement Campaign": { spend: 94.09, follows: 36 }, "Retailer Support": { spend: 120.46, follows: 0 } },
+  "2026-06-27": { "Awareness Campaign": { spend: 44.47, follows: 0 }, "Engagement Campaign": { spend: 90.58, follows: 52 }, "Retailer Support": { spend: 47.43, follows: 0 } },
+  "2026-06-28": { "Awareness Campaign": { spend: 49.73, follows: 0 }, "Engagement Campaign": { spend: 110.34, follows: 47 }, "Retailer Support": { spend: 90.26, follows: 0 } },
+  "2026-06-29": { "Awareness Campaign": { spend: 49.05, follows: 0 }, "Engagement Campaign": { spend: 107.7, follows: 56 }, "Retailer Support": { spend: 75.12, follows: 0 } },
+  "2026-06-30": { "Awareness Campaign": { spend: 57.25, follows: 0 }, "Engagement Campaign": { spend: 104.39, follows: 40 }, "Retailer Support": { spend: 89.34, follows: 0 } },
 }
 
 export const JUNE_ADS_DATA: {
@@ -42,40 +52,42 @@ export const JUNE_ADS_DATA: {
   campaign: Campaign
 }[] = [
   // Engagement Campaign — follow-driving creative
-  { name: "Cacio e Pepe Puffs", spend: 710.39, impressions: 43846, clicks: 3063, follows: 627, cpf: 1.13, ctr: 6.99, campaign: "Engagement" },
-  { name: "Frozen Pasta Can't Be That Good", spend: 598.41, impressions: 42867, clicks: 1587, follows: 477, cpf: 1.25, ctr: 3.7, campaign: "Engagement" },
-  { name: "Target On Shelves", spend: 116.77, impressions: 7955, clicks: 397, follows: 73, cpf: 1.6, ctr: 4.99, campaign: "Engagement" },
+  { name: "Frozen Pasta Can't Be That Good", spend: 885.83, impressions: 60703, clicks: 2311, follows: 699, cpf: 1.27, ctr: 3.81, campaign: "Engagement" },
+  { name: "Cacio e Pepe Puffs", spend: 710.65, impressions: 43849, clicks: 3064, follows: 628, cpf: 1.13, ctr: 6.99, campaign: "Engagement" },
+  { name: "Joe Basil Pesto at Target", spend: 361.14, impressions: 33199, clicks: 3332, follows: 103, cpf: 3.51, ctr: 10.04, campaign: "Engagement" },
+  { name: "Target On Shelves", spend: 161.92, impressions: 10873, clicks: 549, follows: 98, cpf: 1.65, ctr: 5.05, campaign: "Engagement" },
   { name: "Basil Pesto x Caraway", spend: 111.24, impressions: 4115, clicks: 207, follows: 51, cpf: 2.18, ctr: 5.03, campaign: "Engagement" },
-  { name: "Joe Crispy Chicken Skin Crumble", spend: 38.69, impressions: 1986, clicks: 106, follows: 31, cpf: 1.25, ctr: 5.34, campaign: "Engagement" },
-  { name: "Joe Basil Pesto at Target", spend: 26.08, impressions: 1302, clicks: 109, follows: 16, cpf: 1.63, ctr: 8.37, campaign: "Engagement" },
-  { name: "Founder Message", spend: 22, impressions: 1889, clicks: 118, follows: 9, cpf: 2.44, ctr: 6.25, campaign: "Engagement" },
+  { name: "Joe Crispy Chicken Skin Crumble", spend: 42.36, impressions: 2220, clicks: 115, follows: 37, cpf: 1.14, ctr: 5.18, campaign: "Engagement" },
+  { name: "Monthly Rip", spend: 32.36, impressions: 1587, clicks: 34, follows: 3, cpf: 10.79, ctr: 2.14, campaign: "Engagement" },
   { name: "Founder Content", spend: 22.34, impressions: 1663, clicks: 82, follows: 5, cpf: 4.47, ctr: 4.93, campaign: "Engagement" },
-  { name: "Monthly Rip", spend: 31.97, impressions: 1566, clicks: 33, follows: 3, cpf: 10.66, ctr: 2.11, campaign: "Engagement" },
-  { name: "4 Easy Pasta Dinners", spend: 5.26, impressions: 282, clicks: 10, follows: 1, cpf: 5.26, ctr: 3.55, campaign: "Engagement" },
-  { name: "Joe Basil Pesto at Whole Foods", spend: 3.6, impressions: 221, clicks: 3, follows: 1, cpf: 3.6, ctr: 1.36, campaign: "Engagement" },
+  { name: "Founder Message", spend: 22, impressions: 1889, clicks: 118, follows: 9, cpf: 2.44, ctr: 6.25, campaign: "Engagement" },
+  { name: "4 Easy Pasta Dinners", spend: 5.74, impressions: 294, clicks: 13, follows: 2, cpf: 2.87, ctr: 4.42, campaign: "Engagement" },
+  { name: "Joe Basil Pesto at Whole Foods", spend: 3.67, impressions: 229, clicks: 3, follows: 1, cpf: 3.67, ctr: 1.31, campaign: "Engagement" },
   // Awareness Campaign — reach creative (low CTR, high impressions)
-  { name: "Us v. Them", spend: 1788.35, impressions: 885564, clicks: 923, follows: 0, cpf: null, ctr: 0.1, campaign: "Awareness" },
-  { name: "Us v. Them (Target)", spend: 319.85, impressions: 194481, clicks: 325, follows: 1, cpf: 319.85, ctr: 0.17, campaign: "Awareness" },
-  { name: "Us v. Them (Whole Foods)", spend: 266.66, impressions: 208303, clicks: 305, follows: 0, cpf: null, ctr: 0.15, campaign: "Awareness" },
+  { name: "Us v. Them", spend: 2109.06, impressions: 1014051, clicks: 1055, follows: 0, cpf: null, ctr: 0.1, campaign: "Awareness" },
   { name: "Sauce Splash", spend: 354.07, impressions: 158697, clicks: 176, follows: 0, cpf: null, ctr: 0.11, campaign: "Awareness" },
   { name: "Pasta Tower", spend: 97.05, impressions: 42157, clicks: 31, follows: 0, cpf: null, ctr: 0.07, campaign: "Awareness" },
   { name: "Dark Lifestyle", spend: 12.18, impressions: 5485, clicks: 3, follows: 0, cpf: null, ctr: 0.05, campaign: "Awareness" },
   { name: "Cacio e Pepe Hero Image", spend: 3.73, impressions: 1950, clicks: 0, follows: 0, cpf: null, ctr: 0, campaign: "Awareness" },
   // Retailer Support — product / logo creative
-  { name: "Basil Pesto Exclusive (Target)", spend: 970.49, impressions: 496268, clicks: 565, follows: 0, cpf: null, ctr: 0.11, campaign: "Retailer Support" },
-  { name: "Trio Logo (Whole Foods)", spend: 894.67, impressions: 507218, clicks: 591, follows: 0, cpf: null, ctr: 0.12, campaign: "Retailer Support" },
-  { name: "On Sale Basil Pesto", spend: 127.15, impressions: 38250, clicks: 69, follows: 0, cpf: null, ctr: 0.18, campaign: "Retailer Support" },
+  { name: "Basil Pesto Exclusive (Target)", spend: 1256.36, impressions: 621019, clicks: 665, follows: 0, cpf: null, ctr: 0.11, campaign: "Retailer Support" },
+  { name: "Trio Logo (Whole Foods)", spend: 1178.5, impressions: 633851, clicks: 673, follows: 0, cpf: null, ctr: 0.11, campaign: "Retailer Support" },
+  { name: "Us v. Them (Target)", spend: 319.85, impressions: 194481, clicks: 325, follows: 1, cpf: 319.85, ctr: 0.17, campaign: "Retailer Support" },
+  { name: "On Sale Basil Pesto", spend: 269.94, impressions: 95926, clicks: 102, follows: 0, cpf: null, ctr: 0.11, campaign: "Retailer Support" },
+  { name: "Us v. Them (Whole Foods)", spend: 266.66, impressions: 208303, clicks: 305, follows: 0, cpf: null, ctr: 0.15, campaign: "Retailer Support" },
   { name: "Basil Pesto Exclusive", spend: 37.25, impressions: 21966, clicks: 26, follows: 0, cpf: null, ctr: 0.12, campaign: "Retailer Support" },
 ]
 
-// Campaign spend totals (Jun 1–24)
-const engagementSpend = 1687
-const awarenessSpend = 2255
-const retailerSpend = 2616
-const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 6558
-const attributedFollows = 1295 // ad-attributed follows MTD (1294 engagement + 1 retailer)
+// Campaign spend totals (Jun 1–30, from Ads Manager)
+const engagementSpend = 2359 // $2,359.25
+const awarenessSpend = 2576 // $2,576.09
+const retailerSpend = 3328 // $3,328.56
+const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 8263
+const attributedFollows = 1637 // ad-attributed follows (1636 engagement + 1 retailer)
+const engagementFollows = 1636 // ad-attributed follows from the Engagement campaign
 
-// Total follower growth from IG Insights daily follows (Jun 1–22). Organic + paid combined.
+// Daily follower growth from IG Insights (organic + paid combined). Real values
+// are available only through Jun 22; days 23–30 are not in the provided export.
 export const JUNE_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-06-01", follows: 42 },
   { date: "2026-06-02", follows: 32 },
@@ -101,55 +113,61 @@ export const JUNE_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-06-22", follows: 81 },
 ]
 
-// Total IG follower growth through Jun 22 (organic + paid).
-const igFollowerGrowth = JUNE_IG_DAILY_FOLLOWS.reduce((s, d) => s + d.follows, 0) // 1412
+// Total IG follower growth (organic + paid). Real IG total for Jun 1–22 (1,412)
+// plus ad-attributed follows for Jun 23–30 (442). This is a conservative floor
+// because organic lift is only counted through Jun 22.
+const igThrough22 = JUNE_IG_DAILY_FOLLOWS.reduce((s, d) => s + d.follows, 0) // 1412
+const attributed23to30 = 442
+const followerGrowthFloor = igThrough22 + attributed23to30 // 1854
 
 export const JUNE_KPI_DATA: KPIData = {
   totalSpend: totalSpend,
-  followerGrowth: igFollowerGrowth, // IG Insights total (organic + paid), through Jun 22
-  paidFollows: attributedFollows, // ad-attributed only, through Jun 24
+  followerGrowth: followerGrowthFloor, // IG total (Jun 1–22) + ad follows (Jun 23–30); floor
+  paidFollows: attributedFollows, // ad-attributed, full month
   startFollowers: 9677, // end of May
-  endFollowers: 9677 + igFollowerGrowth, // MTD (IG total)
-  blendedCPF: totalSpend / igFollowerGrowth, // ~$4.64 (all spend ÷ total IG follows)
-  totalReach: 2540726,
-  totalImpressions: 2668034,
-  engagementCTR: 5.31,
-  messagingContacts: 0, // not yet imported for June
-  unfollows: 0, // not yet imported for June
+  endFollowers: 9677 + followerGrowthFloor,
+  blendedCPF: totalSpend / followerGrowthFloor, // ~$4.46 (all spend ÷ total follows)
+  engagementCPF: engagementSpend / engagementFollows, // ~$1.44 ($2,359 ÷ 1,636 follows)
+  totalReach: 3013494,
+  totalImpressions: 3158507,
+  engagementCTR: 6.12,
+  messagingContacts: 82,
+  unfollows: 0, // not imported for June
 }
 
-// Audience demographics from IG Insights (Jun 1–22). Values are % of audience.
+// Audience demographics from IG Insights "Audience" export (snapshot as of Jun 30).
+// Values are % of audience.
 export const JUNE_DEMOGRAPHICS: AudienceDemographics = {
-  asOf: "Jun 1–22, 2026",
+  asOf: "as of Jun 30, 2026",
   topCountries: [
-    { name: "United States", pct: 85.8 },
-    { name: "Turkey", pct: 4.4 },
+    { name: "United States", pct: 86.7 },
+    { name: "Turkey", pct: 4.2 },
     { name: "Canada", pct: 1.2 },
-    { name: "India", pct: 0.9 },
+    { name: "India", pct: 0.8 },
     { name: "Brazil", pct: 0.7 },
-    { name: "Mexico", pct: 0.3 },
     { name: "United Kingdom", pct: 0.3 },
+    { name: "Mexico", pct: 0.3 },
     { name: "Argentina", pct: 0.3 },
     { name: "Australia", pct: 0.3 },
     { name: "Indonesia", pct: 0.2 },
   ],
   ageGender: [
-    { range: "18–24", women: 2.3, men: 1.8 },
-    { range: "25–34", women: 14.3, men: 8.9 },
-    { range: "35–44", women: 21.1, men: 12 },
-    { range: "45–54", women: 13.3, men: 5 },
-    { range: "55–64", women: 10.9, men: 3.1 },
+    { range: "18–24", women: 2.3, men: 1.7 },
+    { range: "25–34", women: 14.3, men: 8.8 },
+    { range: "35–44", women: 20.8, men: 12 },
+    { range: "45–54", women: 13.2, men: 5.1 },
+    { range: "55–64", women: 11.1, men: 3.4 },
     { range: "65+", women: 6, men: 1.3 },
   ],
   topCities: [
     { name: "New York, NY", pct: 6 },
-    { name: "Istanbul, Turkey", pct: 4.2 },
+    { name: "Istanbul, Turkey", pct: 4 },
     { name: "Los Angeles, CA", pct: 1.8 },
-    { name: "Chicago, IL", pct: 1.6 },
-    { name: "Philadelphia, PA", pct: 0.9 },
-    { name: "Phoenix, AZ", pct: 0.6 },
-    { name: "Houston, TX", pct: 0.6 },
+    { name: "Chicago, IL", pct: 1.7 },
+    { name: "Philadelphia, PA", pct: 1 },
     { name: "San Diego, CA", pct: 0.6 },
+    { name: "Houston, TX", pct: 0.6 },
+    { name: "Phoenix, AZ", pct: 0.6 },
     { name: "San Francisco, CA", pct: 0.5 },
     { name: "Austin, TX", pct: 0.5 },
   ],
@@ -161,10 +179,80 @@ export const JUNE_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
-// paid = ad-attributed follows (through Jun 24); total = IG Insights total (through Jun 22).
+// paid = ad-attributed follows (full month); total = IG Insights total.
+// Jun 22–30 total uses IG data through Jun 22 + ad follows after, so it is a floor.
 export const JUNE_WEEKLY_FOLLOWS = [
-  { week: "Jun 1–7", paid: 350, total: 407 },
+  { week: "Jun 1–7", paid: 351, total: 407 },
   { week: "Jun 8–14", paid: 364, total: 450 },
   { week: "Jun 15–21", paid: 419, total: 474 },
-  { week: "Jun 22–24", paid: 161, total: 81, note: "IG total is Jun 22 only; ad follows run through Jun 24" },
+  { week: "Jun 22–30", paid: 503, total: 523, note: "Total counts organic through Jun 22 only; Jun 23–30 is ad-attributed" },
 ]
+
+// Testing context for June — surfaced on the Testing tab.
+export const JUNE_TESTING: TestingContext = {
+  featured: {
+    name: "Joe Audience Test",
+    dateRange: "Jun 22–30",
+    hypothesis:
+      "Run new creator-led creative to a lookalike audience built from the creator, and see if it drives follows more efficiently than our current engagement ad set (Existing Posts).",
+    kpiFocus: "Cost per follow (CPF) & IG follow rate",
+    challenger: {
+      name: "Joe Audience Test",
+      note: "New creator → creator lookalike",
+      spend: 407.17,
+      impressions: 35648,
+      clicks: 3450,
+      follows: 141,
+      profileVisits: 3438,
+      cpf: 2.89,
+      ctr: 9.68,
+      followRate: 4.1, // IG follow rate: 141 follows ÷ 3,438 profile visits
+      cpc: 0.12,
+    },
+    control: {
+      name: "Existing Posts",
+      note: "Current engagement ad set",
+      spend: 1952.08,
+      impressions: 124973,
+      clicks: 6378,
+      follows: 1495,
+      profileVisits: 5741,
+      cpf: 1.31,
+      ctr: 5.1,
+      followRate: 26.04, // IG follow rate: 1,495 follows ÷ 5,741 profile visits
+      cpc: 0.31,
+    },
+    verdict:
+      "Clicks and follows aren't the same thing. The creator ad won on clicks (9.68% vs. 5.10% CTR) but far fewer of those visitors followed — a 4.1% follow rate vs. 26.0% — so its cost per follow came in higher ($2.89 vs. $1.31). Bottom line: great at driving traffic, not yet at turning that traffic into follows. Next step: keep Existing Posts as the main follow driver and test new creator creative with a stronger reason to follow.",
+  },
+  notes: [
+    {
+      title: "May Target Launch",
+      dateRange: "Jun 1–2",
+      spend: 37,
+      status: "May carryover",
+      detail: "Basil Pesto Exclusive launch spending out from May. Not a June initiative.",
+    },
+    {
+      title: "Target Promo",
+      dateRange: "Jun 23–27",
+      spend: 270,
+      status: "In-store sale",
+      detail: "Short in-store sale push. Read it on reach, not follows: ~95.9K impressions, 102 clicks in 5 days.",
+    },
+    {
+      title: "Parents + Cooking Creative Test",
+      dateRange: "Jun 1–23",
+      spend: 1069,
+      status: "Paused Jun 23",
+      detail: "Awareness creative test in the Parents + Cooking audience. Standard awareness CTR (~0.10%).",
+    },
+    {
+      title: "Dark Lifestyle",
+      dateRange: "Jun 2–14",
+      spend: 12,
+      status: "Cut early",
+      detail: "Lifestyle creative test, cut fast on weak 0.05% CTR. A cheap read on a direction that didn't land.",
+    },
+  ],
+}

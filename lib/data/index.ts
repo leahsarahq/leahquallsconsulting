@@ -9,10 +9,11 @@ import {
   JUNE_WEEKLY_FOLLOWS,
   JUNE_IG_DAILY_FOLLOWS,
   JUNE_DEMOGRAPHICS,
+  JUNE_TESTING,
 } from "./june-2026"
-import type { IgDailyFollow, AudienceDemographics } from "./types"
+import type { IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
-export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics } from "./types"
+export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
 
 export function getDataForMonth(month: MonthKey) {
   switch (month) {
@@ -25,6 +26,7 @@ export function getDataForMonth(month: MonthKey) {
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
         audienceTest: null,
+        testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
       }
@@ -41,6 +43,7 @@ export function getDataForMonth(month: MonthKey) {
           dailyData: APRIL_DAILY_DATA,
         },
         audienceTest: MAY_AUDIENCE_TEST,
+        testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
       }
@@ -57,6 +60,7 @@ export function getDataForMonth(month: MonthKey) {
           dailyData: MAY_DAILY_DATA,
         },
         audienceTest: null,
+        testing: JUNE_TESTING as TestingContext | null,
         igDailyFollows: JUNE_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
         demographics: JUNE_DEMOGRAPHICS as AudienceDemographics | null,
       }
@@ -69,6 +73,7 @@ export function getDataForMonth(month: MonthKey) {
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
         audienceTest: null,
+        testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
       }
