@@ -135,6 +135,7 @@ export const MAY_KPI_DATA: KPIData = {
   startFollowers: 7132, // End of April
   endFollowers: 9677, // 7132 + 2545
   blendedCPF: totalSpend / 2545, // ~$2.05 using total IG follows
+  engagementCPF: engagementSpend / paidFollows, // ~$0.99 ($1,802.18 ÷ 1,821 follows)
   totalReach: totalReach,
   paidFollows: paidFollows,
   totalImpressions: 2800000, // Sum from all campaign data

@@ -84,6 +84,7 @@ const awarenessSpend = 2576 // $2,576.09
 const retailerSpend = 3328 // $3,328.56
 const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 8263
 const attributedFollows = 1637 // ad-attributed follows (1636 engagement + 1 retailer)
+const engagementFollows = 1636 // ad-attributed follows from the Engagement campaign
 
 // Daily follower growth from IG Insights (organic + paid combined). Real values
 // are available only through Jun 22; days 23–30 are not in the provided export.
@@ -126,6 +127,7 @@ export const JUNE_KPI_DATA: KPIData = {
   startFollowers: 9677, // end of May
   endFollowers: 9677 + followerGrowthFloor,
   blendedCPF: totalSpend / followerGrowthFloor, // ~$4.46 (all spend ÷ total follows)
+  engagementCPF: engagementSpend / engagementFollows, // ~$1.44 ($2,359 ÷ 1,636 follows)
   totalReach: 3013494,
   totalImpressions: 3158507,
   engagementCTR: 6.12,

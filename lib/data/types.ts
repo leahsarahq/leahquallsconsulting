@@ -9,6 +9,9 @@ export interface KPIData {
   startFollowers: number
   endFollowers: number
   blendedCPF: number
+  // CPF using only the Engagement campaign spend ÷ its follows (the campaign
+  // actually built to drive follows). Excludes Awareness/Retailer spend.
+  engagementCPF: number
   totalReach: number
   paidFollows: number
   totalImpressions: number

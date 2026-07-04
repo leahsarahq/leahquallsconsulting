@@ -59,6 +59,9 @@ export function OverviewTab() {
   const messagingDelta = pctDelta(kpiData.messagingContacts, baseline.messagingContacts)
   // Cost metric (lower is better)
   const cpfImprovement = pctImprovement(kpiData.blendedCPF, baseline.blendedCPF)
+  // Engagement-only CPF for the month-vs-month comparison (Engagement campaign
+  // spend ÷ its follows), lower is better.
+  const engagementCpfImprovement = pctImprovement(kpiData.engagementCPF, baseline.engagementCPF)
 
   const followsMultiple =
     baseline.followerGrowth && baseline.followerGrowth > 0
@@ -188,21 +191,21 @@ export function OverviewTab() {
         {hasComparison ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide">CPF</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Engagement CPF</p>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-lg font-semibold">${kpiData.blendedCPF.toFixed(2)}</span>
-                {cpfImprovement == null ? (
+                <span className="text-lg font-semibold">${kpiData.engagementCPF.toFixed(2)}</span>
+                {engagementCpfImprovement == null ? (
                   <span className="text-xs text-muted-foreground">—</span>
-                ) : cpfImprovement > 0 ? (
-                  <span className="text-xs font-medium text-green-600">{cpfImprovement}% better</span>
-                ) : cpfImprovement < 0 ? (
-                  <span className="text-xs font-medium text-red-600">{Math.abs(cpfImprovement)}% higher</span>
+                ) : engagementCpfImprovement > 0 ? (
+                  <span className="text-xs font-medium text-green-600">{engagementCpfImprovement}% better</span>
+                ) : engagementCpfImprovement < 0 ? (
+                  <span className="text-xs font-medium text-red-600">{Math.abs(engagementCpfImprovement)}% higher</span>
                 ) : (
                   <span className="text-xs text-muted-foreground">same</span>
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {baseline.blendedCPF != null ? `was $${baseline.blendedCPF.toFixed(2)}` : "no ad spend in period"}
+                {baseline.engagementCPF != null ? `was $${baseline.engagementCPF.toFixed(2)} · engagement spend only` : "no ad spend in period"}
               </p>
             </div>
             <div>

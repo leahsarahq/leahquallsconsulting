@@ -53,6 +53,7 @@ export const APRIL_KPI_DATA: KPIData = {
   startFollowers: 5136,
   endFollowers: 8355,
   blendedCPF: 1.19,
+  engagementCPF: 0.92, // Engagement spend $1,049 ÷ 1,137 follows
   totalReach: 817000,
   paidFollows: 1137,
   totalImpressions: 939000,
