@@ -266,11 +266,13 @@ export function OverviewTab() {
         />
         <KPICard
           label="Messaging contacts"
-          value={kpiData.messagingContacts}
+          value={kpiData.messagingContacts ? kpiData.messagingContacts : "—"}
           subtext={
-            hasComparison && messagingDelta != null
-              ? `${messagingDelta > 0 ? "+" : ""}${messagingDelta}% vs. ${comparison.shortLabel}`
-              : "messaging contacts"
+            !kpiData.messagingContacts
+              ? "not imported this month"
+              : hasComparison && messagingDelta != null
+                ? `${messagingDelta > 0 ? "+" : ""}${messagingDelta}% vs. ${comparison.shortLabel}`
+                : "messaging contacts"
           }
         />
       </div>
