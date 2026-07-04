@@ -131,7 +131,7 @@ export const JUNE_KPI_DATA: KPIData = {
   totalReach: 3013494,
   totalImpressions: 3158507,
   engagementCTR: 6.12,
-  messagingContacts: 0, // not imported for June
+  messagingContacts: 82,
   unfollows: 0, // not imported for June
 }
 
@@ -223,40 +223,36 @@ export const JUNE_TESTING: TestingContext = {
       cpc: 0.31,
     },
     verdict:
-      "Key learning: click-through rate and follow rate are two different things. The creator lookalike won decisively on clicks — 9.68% CTR vs. 5.10% and a $0.12 CPC vs. $0.31 — pulling a heavy volume of profile visits. But once people landed on the profile, far fewer actually followed: a 4.1% IG follow rate vs. 26.0% for Existing Posts, which pushed CPF higher ($2.89 vs. $1.31). So the creative is great at driving traffic but not yet at converting that traffic into follows. The takeaway is continued testing to find creator creative that encourages people to follow after the click — a stronger follow CTA and clearer reason-to-follow — while keeping Existing Posts as the primary follow driver.",
+      "Clicks and follows aren't the same thing. The creator ad won on clicks (9.68% vs. 5.10% CTR) but far fewer of those visitors followed — a 4.1% follow rate vs. 26.0% — so its cost per follow came in higher ($2.89 vs. $1.31). Bottom line: great at driving traffic, not yet at turning that traffic into follows. Next step: keep Existing Posts as the main follow driver and test new creator creative with a stronger reason to follow.",
   },
   notes: [
     {
-      title: "May Target Launch (carryover)",
+      title: "May Target Launch",
       dateRange: "Jun 1–2",
       spend: 37,
-      status: "Finished from May",
-      detail:
-        "The Basil Pesto Exclusive launch ad set finished spending out from the end of May over the first 2 days of June. Not a June initiative — treat its $37 as May carryover.",
+      status: "May carryover",
+      detail: "Basil Pesto Exclusive launch spending out from May. Not a June initiative.",
     },
     {
-      title: "Target Promo (in-store sale)",
+      title: "Target Promo",
       dateRange: "Jun 23–27",
       spend: 270,
-      status: "Short burst",
-      detail:
-        "\"On Sale Basil Pesto\" supported a short in-store Target sale — only ~5 days of delivery. The goal was to put the promo in front of as many people as possible and drive clicks during the sale window, so read it on impressions and clicks: ~95.9K impressions and 102 link clicks in 5 days. It was never meant to drive follows, so CPF doesn't apply.",
+      status: "In-store sale",
+      detail: "Short in-store sale push. Read it on reach, not follows: ~95.9K impressions, 102 clicks in 5 days.",
     },
     {
-      title: "[Parents + Cooking] Creative Test",
+      title: "Parents + Cooking Creative Test",
       dateRange: "Jun 1–23",
       spend: 1069,
-      status: "Ended Jun 23",
-      detail:
-        "Awareness creative test inside the Parents + Cooking audience. Ran the first three weeks then paused; standard awareness CTR (~0.10%).",
+      status: "Paused Jun 23",
+      detail: "Awareness creative test in the Parents + Cooking audience. Standard awareness CTR (~0.10%).",
     },
     {
-      title: "Dark Lifestyle (creative test)",
+      title: "Dark Lifestyle",
       dateRange: "Jun 2–14",
       spend: 12,
       status: "Cut early",
-      detail:
-        "Lifestyle creative test on the awareness objective. Minimal spend and a weak 0.05% CTR, so it was cut quickly — a fast, cheap read on a creative direction that didn't land.",
+      detail: "Lifestyle creative test, cut fast on weak 0.05% CTR. A cheap read on a direction that didn't land.",
     },
   ],
 }
