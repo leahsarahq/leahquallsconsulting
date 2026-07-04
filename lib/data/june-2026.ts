@@ -206,6 +206,7 @@ export const JUNE_TESTING: TestingContext = {
       profileVisits: 3438,
       cpf: 2.89,
       ctr: 9.68,
+      followRate: 4.1, // IG follow rate: 141 follows ÷ 3,438 profile visits
       cpc: 0.12,
     },
     control: {
@@ -218,10 +219,11 @@ export const JUNE_TESTING: TestingContext = {
       profileVisits: 5741,
       cpf: 1.31,
       ctr: 5.1,
+      followRate: 26.04, // IG follow rate: 1,495 follows ÷ 5,741 profile visits
       cpc: 0.31,
     },
     verdict:
-      "The creator lookalike was far more engaging — 9.68% CTR vs. 5.10% and a $0.12 CPC vs. $0.31 — and drove a heavy volume of profile visits. But it converted those visits to follows less efficiently, so CPF came in higher ($2.89 vs. $1.31). Net: great top-of-funnel engagement, weaker follow-through. Keep Existing Posts as the primary follow driver and iterate the Joe creative (stronger follow CTA) before scaling.",
+      "Key learning: click-through rate and follow rate are two different things. The creator lookalike won decisively on clicks — 9.68% CTR vs. 5.10% and a $0.12 CPC vs. $0.31 — pulling a heavy volume of profile visits. But once people landed on the profile, far fewer actually followed: a 4.1% IG follow rate vs. 26.0% for Existing Posts, which pushed CPF higher ($2.89 vs. $1.31). So the creative is great at driving traffic but not yet at converting that traffic into follows. The takeaway is continued testing to find creator creative that encourages people to follow after the click — a stronger follow CTA and clearer reason-to-follow — while keeping Existing Posts as the primary follow driver.",
   },
   notes: [
     {
@@ -238,7 +240,7 @@ export const JUNE_TESTING: TestingContext = {
       spend: 270,
       status: "Short burst",
       detail:
-        "\"On Sale Basil Pesto\" supported a short in-store Target sale — only ~5 days of delivery. Objective was awareness/clicks for the promo window, not follows, so judge it on reach/CTR (0.11%), not CPF.",
+        "\"On Sale Basil Pesto\" supported a short in-store Target sale — only ~5 days of delivery. The goal was to put the promo in front of as many people as possible and drive clicks during the sale window, so read it on impressions and clicks: ~95.9K impressions and 102 link clicks in 5 days. It was never meant to drive follows, so CPF doesn't apply.",
     },
     {
       title: "[Parents + Cooking] Creative Test",

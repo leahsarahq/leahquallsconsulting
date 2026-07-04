@@ -98,7 +98,8 @@ export interface TestArm {
   follows: number
   profileVisits: number
   cpf: number | null
-  ctr: number
+  ctr: number // link click-through rate (clicks ÷ impressions)
+  followRate: number // IG follow rate (follows ÷ profile visits) — distinct from CTR
   cpc: number
 }
 

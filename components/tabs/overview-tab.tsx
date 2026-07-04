@@ -90,9 +90,9 @@ export function OverviewTab() {
                     {kpiData.followerGrowth.toLocaleString()} vs. ~{Math.round(baseline.followerGrowth!).toLocaleString()} follows
                   </p>
                 </>
-              ) : hasComparison && followsDelta != null ? (
+              ) : hasComparison && followsDelta != null && followsDelta > 0 ? (
                 <>
-                  <p className="text-sm font-medium text-foreground">{followsDelta > 0 ? "+" : ""}{followsDelta}% follower growth vs. {comparison.label}</p>
+                  <p className="text-sm font-medium text-foreground">+{followsDelta}% follower growth vs. {comparison.label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {kpiData.followerGrowth.toLocaleString()} vs. {Math.round(baseline.followerGrowth!).toLocaleString()} follows
                   </p>

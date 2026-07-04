@@ -31,10 +31,10 @@ function MetricRow({
     const isWinner = winner === side
     return (
       <div
-        className={`text-sm font-semibold tabular-nums ${isWinner ? "text-primary" : "text-foreground"}`}
+        className={`text-sm font-semibold tabular-nums ${isWinner ? "text-green-600" : "text-foreground"}`}
       >
         {value == null ? "—" : format(value)}
-        {isWinner && <span className="ml-1 text-[10px] font-medium uppercase text-primary">best</span>}
+        {isWinner && <span className="ml-1 text-[10px] font-medium uppercase text-green-600">best</span>}
       </div>
     )
   }
@@ -98,7 +98,8 @@ export function TestingTab() {
           </div>
           <MetricRow label="Cost per follow" challenger={challenger.cpf} control={control.cpf} format={(v) => `$${v.toFixed(2)}`} lowerIsBetter />
           <MetricRow label="Follows" challenger={challenger.follows} control={control.follows} format={(v) => v.toLocaleString()} />
-          <MetricRow label="Follow rate (CTR)" challenger={challenger.ctr} control={control.ctr} format={(v) => `${v.toFixed(2)}%`} />
+          <MetricRow label="Click-through rate" challenger={challenger.ctr} control={control.ctr} format={(v) => `${v.toFixed(2)}%`} />
+          <MetricRow label="IG follow rate" challenger={challenger.followRate} control={control.followRate} format={(v) => `${v.toFixed(1)}%`} />
           <MetricRow label="CPC" challenger={challenger.cpc} control={control.cpc} format={(v) => `$${v.toFixed(2)}`} lowerIsBetter />
           <MetricRow label="Profile visits" challenger={challenger.profileVisits} control={control.profileVisits} format={(v) => v.toLocaleString()} />
           <MetricRow label="Spend" challenger={challenger.spend} control={control.spend} format={(v) => `$${Math.round(v).toLocaleString()}`} />
