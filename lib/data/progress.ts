@@ -2,7 +2,7 @@
 // Builds weekly buckets and a cumulative day-by-day series so the current month
 // can be compared against the previous month's pace at the same point in time.
 
-type DailyData = Record<string, Record<string, { spend: number; follows: number }>>
+export type DailyData = Record<string, Record<string, { spend: number; follows: number }>>
 type IgDaily = { date: string; follows: number }[]
 
 const ENGAGEMENT = "Engagement Campaign"
@@ -28,6 +28,8 @@ export interface PacePoint {
   current: number | null
   /** Cumulative follows for the previous month at the same day-of-month. */
   previous: number | null
+  /** Average cumulative follows across all prior months at the same day-of-month. */
+  average: number | null
   currentSpend: number | null
   previousSpend: number | null
   /** Cumulative total follower growth (IG Insights) at this day, if available. */
@@ -57,6 +59,15 @@ export interface MonthProgress {
   prevFinalFollows: number | null
   /** % current MTD follows are ahead/behind previous month at the same day. */
   paceDeltaPct: number | null
+  // Pace vs the average of all prior months
+  /** Number of prior months included in the average. */
+  avgMonthCount: number
+  /** Average cumulative follows across prior months at the current day-of-month. */
+  avgAtSameDayFollows: number | null
+  /** Average of prior months' full-month final follow totals. */
+  avgFinalFollows: number | null
+  /** % current MTD follows are ahead/behind the average month at the same day. */
+  avgPaceDeltaPct: number | null
   weeks: WeekProgress[]
   series: PacePoint[]
 }
@@ -107,6 +118,7 @@ export function getMonthProgress(
   daysInMonth: number,
   prevLabel: string,
   igDaily?: IgDaily | null,
+  priorDailyList?: DailyData[],
 ): MonthProgress {
   const dates = Object.keys(daily).sort()
   const daysElapsed = dates.length ? dayOfMonth(dates[dates.length - 1]) : 0
@@ -201,6 +213,22 @@ export function getMonthProgress(
   // Cumulative pace series — align current vs previous month by day-of-month
   const currentSeries = cumulativeSeries(daily)
   const prevSeries = prevDaily ? cumulativeSeries(prevDaily) : []
+
+  // Prior-months average: cumulative series for each prior month, averaged by
+  // day-of-month across the months that have data at that day.
+  const priorSeriesList = (priorDailyList ?? []).map(cumulativeSeries).filter((s) => s.length)
+  const avgMonthCount = priorSeriesList.length
+  const avgFollowsAtDay = (day: number): number | null => {
+    if (!avgMonthCount) return null
+    const vals: number[] = []
+    for (const s of priorSeriesList) {
+      const m = valueAtDay(s, day)
+      if (m) vals.push(m.follows)
+    }
+    if (!vals.length) return null
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
+  }
+
   const series: PacePoint[] = []
   for (let day = 1; day <= daysElapsed; day++) {
     const cur = valueAtDay(currentSeries, day)
@@ -209,6 +237,7 @@ export function getMonthProgress(
       day,
       current: cur ? cur.follows : null,
       previous: prev ? prev.follows : null,
+      average: avgFollowsAtDay(day),
       currentSpend: cur ? Math.round(cur.spend) : null,
       previousSpend: prev ? Math.round(prev.spend) : null,
       igTotal: day <= igDaysElapsed ? igAtDay(day) : null,
@@ -221,6 +250,18 @@ export function getMonthProgress(
   const paceDeltaPct =
     prevAtSameDayFollows && prevAtSameDayFollows > 0
       ? Math.round(((mtdFollows - prevAtSameDayFollows) / prevAtSameDayFollows) * 100)
+      : null
+
+  // Average-month pace: compare MTD follows to the prior-month average at the same day.
+  const avgAtSameDayFollows = avgFollowsAtDay(daysElapsed)
+  const avgFinalFollows = avgMonthCount
+    ? Math.round(
+        priorSeriesList.reduce((sum, s) => sum + s[s.length - 1].follows, 0) / avgMonthCount,
+      )
+    : null
+  const avgPaceDeltaPct =
+    avgAtSameDayFollows && avgAtSameDayFollows > 0
+      ? Math.round(((mtdFollows - avgAtSameDayFollows) / avgAtSameDayFollows) * 100)
       : null
 
   return {
@@ -241,6 +282,10 @@ export function getMonthProgress(
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
+    avgMonthCount,
+    avgAtSameDayFollows,
+    avgFinalFollows,
+    avgPaceDeltaPct,
     weeks,
     series,
   }

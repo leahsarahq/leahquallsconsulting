@@ -13,6 +13,7 @@ import {
 } from "./june-2026"
 import { JULY_DAILY_DATA, JULY_ADS_DATA, JULY_KPI_DATA, JULY_SPEND_BY_CAMPAIGN, JULY_WEEKLY_FOLLOWS } from "./july-2026"
 import type { IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
+import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
 
@@ -26,6 +27,7 @@ export function getDataForMonth(month: MonthKey) {
         spendByCampaign: APRIL_SPEND_BY_CAMPAIGN,
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
+        priorMonthsDaily: [] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
@@ -43,6 +45,7 @@ export function getDataForMonth(month: MonthKey) {
           label: "April",
           dailyData: APRIL_DAILY_DATA,
         },
+        priorMonthsDaily: [APRIL_DAILY_DATA] as DailyData[],
         audienceTest: MAY_AUDIENCE_TEST,
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
@@ -60,6 +63,7 @@ export function getDataForMonth(month: MonthKey) {
           label: "May",
           dailyData: MAY_DAILY_DATA,
         },
+        priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: JUNE_TESTING as TestingContext | null,
         igDailyFollows: JUNE_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
@@ -77,6 +81,7 @@ export function getDataForMonth(month: MonthKey) {
           label: "June",
           dailyData: JUNE_DAILY_DATA,
         },
+        priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
@@ -90,6 +95,7 @@ export function getDataForMonth(month: MonthKey) {
         spendByCampaign: APRIL_SPEND_BY_CAMPAIGN,
         weeklyFollows: APRIL_WEEKLY_FOLLOWS,
         previousMonth: null,
+        priorMonthsDaily: [] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
