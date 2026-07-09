@@ -11,6 +11,7 @@ import {
   JUNE_DEMOGRAPHICS,
   JUNE_TESTING,
 } from "./june-2026"
+import { JULY_DAILY_DATA, JULY_ADS_DATA, JULY_KPI_DATA, JULY_SPEND_BY_CAMPAIGN, JULY_WEEKLY_FOLLOWS } from "./july-2026"
 import type { IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
@@ -63,6 +64,23 @@ export function getDataForMonth(month: MonthKey) {
         testing: JUNE_TESTING as TestingContext | null,
         igDailyFollows: JUNE_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
         demographics: JUNE_DEMOGRAPHICS as AudienceDemographics | null,
+      }
+    case "jul-2026":
+      return {
+        dailyData: JULY_DAILY_DATA,
+        adsData: JULY_ADS_DATA,
+        kpiData: JULY_KPI_DATA,
+        spendByCampaign: JULY_SPEND_BY_CAMPAIGN,
+        weeklyFollows: JULY_WEEKLY_FOLLOWS,
+        previousMonth: {
+          kpiData: JUNE_KPI_DATA,
+          label: "June",
+          dailyData: JUNE_DAILY_DATA,
+        },
+        audienceTest: null,
+        testing: null as TestingContext | null,
+        igDailyFollows: null as IgDailyFollow[] | null,
+        demographics: null as AudienceDemographics | null,
       }
     default:
       return {

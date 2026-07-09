@@ -30,20 +30,21 @@ function DashboardContent() {
   const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
   const { audienceTest, testing } = getDataForMonth(selectedMonth)
 
-  // Build tabs list: Progress (in-progress months only) sits right after Overview;
-  // Audience Testing is appended only when data exists.
+  // While a month is in progress, the dashboard is scoped to weekly pace tracking —
+  // only the Progress tab is shown. Completed months show the full section set.
   const [overview, ...restBase] = baseTabs
-  const tabs = [
-    overview,
-    ...(monthInfo.inProgress ? [progressTab] : []),
-    ...restBase,
-    ...(audienceTest ? [audienceTestTab] : []),
-    ...(testing ? [testingTab] : []),
-  ]
+  const tabs = monthInfo.inProgress
+    ? [progressTab]
+    : [
+        overview,
+        ...restBase,
+        ...(audienceTest ? [audienceTestTab] : []),
+        ...(testing ? [testingTab] : []),
+      ]
 
-  // If the active tab isn't available for the selected month, fall back to Overview.
+  // If the active tab isn't available for the selected month, fall back to the first tab.
   const activeTabExists = tabs.some((t) => t.id === activeTab)
-  const resolvedTab = activeTabExists ? activeTab : "overview"
+  const resolvedTab = activeTabExists ? activeTab : tabs[0].id
 
   return (
     <div className="min-h-screen bg-background">
