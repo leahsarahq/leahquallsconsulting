@@ -214,20 +214,26 @@ export function getMonthProgress(
   const currentSeries = cumulativeSeries(daily)
   const prevSeries = prevDaily ? cumulativeSeries(prevDaily) : []
 
-  // Prior-months average: cumulative series for each prior month, averaged by
-  // day-of-month across the months that have data at that day.
+  // Prior-months average: averaged by ELAPSED days of activity (each month's Nth
+  // data day), not calendar day-of-month. Some months launched mid-month (e.g.
+  // April started on the 9th), so aligning on calendar dates would compare their
+  // opening day against other months' fully-ramped day 9 — distorting the average.
+  // Aligning on elapsed activity keeps "day N" = "N days into the campaign" for all.
   const priorSeriesList = (priorDailyList ?? []).map(cumulativeSeries).filter((s) => s.length)
   const avgMonthCount = priorSeriesList.length
-  const avgFollowsAtDay = (day: number): number | null => {
-    if (!avgMonthCount) return null
+  const avgFollowsAtElapsed = (elapsed: number): number | null => {
+    if (!avgMonthCount || elapsed < 1) return null
     const vals: number[] = []
     for (const s of priorSeriesList) {
-      const m = valueAtDay(s, day)
-      if (m) vals.push(m.follows)
+      // Clamp to the month's final point once its data runs out (cumulative is flat after end).
+      const p = s[Math.min(elapsed, s.length) - 1]
+      if (p) vals.push(p.follows)
     }
     if (!vals.length) return null
     return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
   }
+  // Elapsed activity days in the current month at a given calendar day-of-month.
+  const elapsedAtDay = (day: number): number => currentSeries.filter((p) => p.day <= day).length
 
   const series: PacePoint[] = []
   for (let day = 1; day <= daysElapsed; day++) {
@@ -237,7 +243,7 @@ export function getMonthProgress(
       day,
       current: cur ? cur.follows : null,
       previous: prev ? prev.follows : null,
-      average: avgFollowsAtDay(day),
+      average: avgFollowsAtElapsed(elapsedAtDay(day)),
       currentSpend: cur ? Math.round(cur.spend) : null,
       previousSpend: prev ? Math.round(prev.spend) : null,
       igTotal: day <= igDaysElapsed ? igAtDay(day) : null,
@@ -252,8 +258,9 @@ export function getMonthProgress(
       ? Math.round(((mtdFollows - prevAtSameDayFollows) / prevAtSameDayFollows) * 100)
       : null
 
-  // Average-month pace: compare MTD follows to the prior-month average at the same day.
-  const avgAtSameDayFollows = avgFollowsAtDay(daysElapsed)
+  // Average-month pace: compare MTD follows to the prior-month average at the same
+  // number of elapsed activity days.
+  const avgAtSameDayFollows = avgFollowsAtElapsed(currentSeries.length)
   const avgFinalFollows = avgMonthCount
     ? Math.round(
         priorSeriesList.reduce((sum, s) => sum + s[s.length - 1].follows, 0) / avgMonthCount,
