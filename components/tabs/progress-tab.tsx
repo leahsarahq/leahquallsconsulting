@@ -17,11 +17,12 @@ import { getDataForMonth } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
 
-type ViewMode = "trend" | "pace"
+type ViewMode = "trend" | "pace" | "avgPace"
 
 const CURRENT_COLOR = "#D93732"
 const PREVIOUS_COLOR = "#660033"
 const ACCENT_COLOR = "#E8853A"
+const AVERAGE_COLOR = "#8A8175"
 
 function StatCard({
   label,
@@ -61,7 +62,7 @@ function PercentBar({ label, pct, max }: { label: string; pct: number; max: numb
 
 export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { dailyData, previousMonth, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
+  const { dailyData, previousMonth, priorMonthsDaily, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
 
   const prevLabel = previousMonth?.label ?? "last month"
@@ -71,9 +72,11 @@ export function ProgressTab() {
     monthInfo.daysInMonth,
     prevLabel,
     igDailyFollows,
+    priorMonthsDaily,
   )
 
-  const pace = view === "pace"
+  const pace = view === "pace" || view === "avgPace"
+  const isAvg = view === "avgPace"
   const {
     daysElapsed,
     daysInMonth,
@@ -90,15 +93,26 @@ export function ProgressTab() {
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
+    avgMonthCount,
+    avgAtSameDayFollows,
+    avgFinalFollows,
+    avgPaceDeltaPct,
     weeks,
     series,
   } = progress
+
+  // Comparison values depend on which pace view is active (previous month vs. average).
+  const compLabel = isAvg ? "the average month" : `${prevLabel}`
+  const compAtSameDay = isAvg ? avgAtSameDayFollows : prevAtSameDayFollows
+  const compFinal = isAvg ? avgFinalFollows : prevFinalFollows
+  const compDelta = isAvg ? avgPaceDeltaPct : paceDeltaPct
 
   // Cumulative chart data
   const cumulativeData = series.map((p) => ({
     day: `${monthInfo.label.slice(0, 3)} ${p.day}`,
     current: p.current,
     previous: p.previous,
+    average: p.average,
     igTotal: p.igTotal,
   }))
 
@@ -111,7 +125,7 @@ export function ProgressTab() {
       spend: w.totalSpend,
     }))
 
-  const aheadOfPace = paceDeltaPct != null && paceDeltaPct >= 0
+  const aheadOfPace = compDelta != null && compDelta >= 0
 
   return (
     <div className="space-y-4">
@@ -190,6 +204,18 @@ export function ProgressTab() {
         >
           vs. {prevLabel}&apos;s pace
         </button>
+        {avgMonthCount >= 2 && (
+          <button
+            onClick={() => setView("avgPace")}
+            className={`text-[13px] px-4 py-1.5 rounded-lg border transition-colors ${
+              view === "avgPace"
+                ? "bg-primary text-primary-foreground border-primary font-medium"
+                : "bg-card text-muted-foreground border-border/60 hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            vs. average pace
+          </button>
+        )}
       </div>
 
       {/* Pace callout */}
@@ -199,25 +225,32 @@ export function ProgressTab() {
             aheadOfPace ? "border-green-600/30 bg-green-50" : "border-red-600/30 bg-red-50"
           }`}
         >
-          {paceDeltaPct != null && prevAtSameDayFollows != null ? (
+          {compDelta != null && compAtSameDay != null ? (
             <>
               <p className="text-sm font-medium text-foreground">
-                {aheadOfPace ? "Ahead of" : "Behind"} {prevLabel}&apos;s pace by{" "}
+                {aheadOfPace ? "Ahead of" : "Behind"} {compLabel}&apos;s pace by{" "}
                 <span className={aheadOfPace ? "text-green-700" : "text-red-700"}>
-                  {Math.abs(paceDeltaPct)}%
+                  {Math.abs(compDelta)}%
                 </span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {mtdFollows.toLocaleString()} follows so far vs. {prevAtSameDayFollows.toLocaleString()} that{" "}
-                {prevLabel} had by day {daysElapsed}.
-                {prevFinalFollows != null && (
-                  <> {prevLabel} finished with {prevFinalFollows.toLocaleString()} attributed follows.</>
+                {mtdFollows.toLocaleString()} follows so far vs. {compAtSameDay.toLocaleString()}{" "}
+                {isAvg
+                  ? `the average of the last ${avgMonthCount} months had by day ${daysElapsed}`
+                  : `that ${prevLabel} had by day ${daysElapsed}`}
+                .
+                {compFinal != null && (
+                  <>
+                    {" "}
+                    {isAvg ? "Those months averaged" : `${prevLabel} finished with`}{" "}
+                    {compFinal.toLocaleString()} attributed follows{isAvg ? " per month" : ""}.
+                  </>
                 )}
               </p>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No comparable {prevLabel} data available for this point in the month.
+              No comparable data available for this point in the month.
             </p>
           )}
         </div>
@@ -228,7 +261,9 @@ export function ProgressTab() {
         title="Cumulative follows"
         subtitle={
           pace
-            ? `${monthInfo.label} month-to-date vs. ${prevLabel} at the same day-of-month (ad-attributed)`
+            ? isAvg
+              ? `${monthInfo.label} month-to-date vs. the ${avgMonthCount}-month average at the same day-of-month (ad-attributed)`
+              : `${monthInfo.label} month-to-date vs. ${prevLabel} at the same day-of-month (ad-attributed)`
             : igAvailable
               ? `${monthInfo.label} building day by day — total IG growth vs. ad-attributed`
               : `${monthInfo.label} building day by day (ad-attributed follows)`
@@ -260,9 +295,9 @@ export function ProgressTab() {
               {pace && (
                 <Line
                   type="monotone"
-                  dataKey="previous"
-                  name={prevLabel}
-                  stroke={PREVIOUS_COLOR}
+                  dataKey={isAvg ? "average" : "previous"}
+                  name={isAvg ? `${avgMonthCount}-mo average` : prevLabel}
+                  stroke={isAvg ? AVERAGE_COLOR : PREVIOUS_COLOR}
                   strokeWidth={2}
                   strokeDasharray="5 4"
                   dot={false}
@@ -303,8 +338,11 @@ export function ProgressTab() {
           </span>
           {pace && (
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: PREVIOUS_COLOR }} />
-              {prevLabel} (same day-of-month)
+              <span
+                className="w-2.5 h-2.5 rounded-sm"
+                style={{ backgroundColor: isAvg ? AVERAGE_COLOR : PREVIOUS_COLOR }}
+              />
+              {isAvg ? `${avgMonthCount}-month average` : prevLabel} (same day-of-month)
             </span>
           )}
         </div>
