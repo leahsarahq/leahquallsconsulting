@@ -1,8 +1,8 @@
 import type { Campaign, KPIData } from "./types"
 
 // July 2026 data — IN PROGRESS (Jul 1–16).
-// Sources: Meta Ads Manager "Campaigns" export (Jul 1–9, all campaigns) +
-// "Ads" export (Jul 10–16, Engagement creatives only).
+// Source: Meta Ads Manager "Campaigns" exports covering all three campaigns for
+// every day Jul 1–16 (the Jul 9–16 pull includes the full day 9).
 // This month is intentionally scoped to weekly pace tracking vs. June — the full
 // set of dashboard sections (creative, insights, testing, demographics) will be
 // added once the month completes and the IG Insights exports are available.
@@ -18,28 +18,24 @@ export const JULY_DAILY_DATA: Record<string, Record<string, { spend: number; fol
   "2026-07-06": { "Awareness Campaign": { spend: 45.04, follows: 0 }, "Engagement Campaign": { spend: 100, follows: 52 }, "Retailer Support": { spend: 100.45, follows: 0 } },
   "2026-07-07": { "Awareness Campaign": { spend: 46.05, follows: 0 }, "Engagement Campaign": { spend: 92.72, follows: 69 }, "Retailer Support": { spend: 92.55, follows: 0 } },
   "2026-07-08": { "Awareness Campaign": { spend: 49.33, follows: 0 }, "Engagement Campaign": { spend: 94.61, follows: 71 }, "Retailer Support": { spend: 91.51, follows: 0 } },
-  "2026-07-09": { "Awareness Campaign": { spend: 11.18, follows: 0 }, "Engagement Campaign": { spend: 19.66, follows: 21 }, "Retailer Support": { spend: 30.38, follows: 0 } },
-  // Jul 10–16: Ads export included only the two Engagement creatives (Frozen Pasta
-  // Can't Be That Good + new "Imagine Hating On Me"). No Awareness/Retailer rows
-  // were in this export, so only Engagement spend/follows are recorded for these days.
-  "2026-07-10": { "Engagement Campaign": { spend: 42.79, follows: 35 } },
-  "2026-07-11": { "Engagement Campaign": { spend: 53.17, follows: 51 } },
-  "2026-07-12": { "Engagement Campaign": { spend: 58.4, follows: 75 } },
-  "2026-07-13": { "Engagement Campaign": { spend: 49.87, follows: 41 } },
-  "2026-07-14": { "Engagement Campaign": { spend: 47.85, follows: 45 } },
-  "2026-07-15": { "Engagement Campaign": { spend: 48.06, follows: 44 } },
-  "2026-07-16": { "Engagement Campaign": { spend: 13.82, follows: 6 } },
+  // Jul 9 now reflects the full day (the earlier pull was an early-morning partial).
+  "2026-07-09": { "Awareness Campaign": { spend: 42.42, follows: 0 }, "Engagement Campaign": { spend: 106.86, follows: 70 }, "Retailer Support": { spend: 90.45, follows: 0 } },
+  "2026-07-10": { "Awareness Campaign": { spend: 44.76, follows: 0 }, "Engagement Campaign": { spend: 147.1, follows: 62 }, "Retailer Support": { spend: 92.11, follows: 0 } },
+  "2026-07-11": { "Awareness Campaign": { spend: 49.05, follows: 0 }, "Engagement Campaign": { spend: 155.35, follows: 85 }, "Retailer Support": { spend: 101.59, follows: 0 } },
+  "2026-07-12": { "Awareness Campaign": { spend: 51.27, follows: 0 }, "Engagement Campaign": { spend: 176.74, follows: 107 }, "Retailer Support": { spend: 119.03, follows: 0 } },
+  "2026-07-13": { "Awareness Campaign": { spend: 53.01, follows: 0 }, "Engagement Campaign": { spend: 149.4, follows: 77 }, "Retailer Support": { spend: 102.08, follows: 0 } },
+  "2026-07-14": { "Awareness Campaign": { spend: 81.36, follows: 0 }, "Engagement Campaign": { spend: 140.81, follows: 64 }, "Retailer Support": { spend: 155.44, follows: 0 } },
+  "2026-07-15": { "Awareness Campaign": { spend: 43.61, follows: 0 }, "Engagement Campaign": { spend: 91.47, follows: 53 }, "Retailer Support": { spend: 92.27, follows: 0 } },
+  "2026-07-16": { "Awareness Campaign": { spend: 11.77, follows: 0 }, "Engagement Campaign": { spend: 28.01, follows: 10 }, "Retailer Support": { spend: 30.31, follows: 0 } },
 }
 
-// MTD campaign spend totals (Jul 1–16)
-// Engagement covers all 16 days. Awareness/Retailer only have Jul 1–9 data — the
-// Jul 10–16 Ads export contained only the two Engagement creatives, so those
-// campaigns' week-2 spend isn't yet reflected here.
-const engagementSpend = 1111.78 // 797.82 (wk1) + 313.96 (wk2)
-const awarenessSpend = 417.7 // Jul 1–9 only
-const retailerSpend = 891.45 // Jul 1–9 only
-const totalSpend = Math.round(engagementSpend + awarenessSpend + retailerSpend) // 2421
-const attributedFollows = 817 // all from the Engagement campaign (520 wk1 + 297 wk2)
+// MTD campaign spend totals (Jul 1–16) — full campaign-level data for all three
+// campaigns across all 16 days.
+const engagementSpend = 1773.9 // 778.16 (Jul 1–8) + 995.74 (Jul 9–16)
+const awarenessSpend = 783.77 // 406.52 (Jul 1–8) + 377.25 (Jul 9–16)
+const retailerSpend = 1644.35 // 861.07 (Jul 1–8) + 783.28 (Jul 9–16)
+const totalSpend = Math.round(engagementSpend + awarenessSpend + retailerSpend) // 4202
+const attributedFollows = 1027 // all from the Engagement campaign (499 Jul 1–8 + 528 Jul 9–16)
 
 // Month-to-date KPIs (ad-attributed; no IG Insights export for July yet).
 export const JULY_KPI_DATA: KPIData = {
@@ -48,11 +44,11 @@ export const JULY_KPI_DATA: KPIData = {
   paidFollows: attributedFollows,
   startFollowers: 11531, // end of June (9,677 + 1,854)
   endFollowers: 11531 + attributedFollows,
-  blendedCPF: totalSpend / attributedFollows, // ad-attributed MTD
-  engagementCPF: engagementSpend / attributedFollows, // ~$1.36
-  totalReach: 772248, // Jul 1–9 all campaigns + Jul 10–16 Engagement only (upper bound; not deduped)
-  totalImpressions: 814694,
-  engagementCTR: 6.12,
+  blendedCPF: totalSpend / attributedFollows, // ad-attributed MTD (~$4.09)
+  engagementCPF: engagementSpend / attributedFollows, // ~$1.73
+  totalReach: 1400000, // estimate; Jul 9–16 measured, Jul 1–8 approximated (not deduped)
+  totalImpressions: 1483565, // Jul 9–16 measured (703,565) + Jul 1–8 estimate (~780,000)
+  engagementCTR: 5.35, // avg engagement link CTR across Jul 9–16
   messagingContacts: 0, // not imported for July yet
   unfollows: 0,
 }
@@ -67,8 +63,8 @@ export const JULY_SPEND_BY_CAMPAIGN = [
 // included for shape consistency with other months).
 export const JULY_WEEKLY_FOLLOWS = [
   { week: "Jul 1–7", paid: 428, total: 428 },
-  { week: "Jul 8–14", paid: 339, total: 339 },
-  { week: "Jul 15–21", paid: 50, total: 50, note: "In progress — data through Jul 16" },
+  { week: "Jul 8–14", paid: 536, total: 536 },
+  { week: "Jul 15–21", paid: 63, total: 63, note: "In progress — data through Jul 16" },
 ]
 
 // Full creative-level data is not broken out while the month is in progress.
