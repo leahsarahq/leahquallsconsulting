@@ -5,44 +5,57 @@ import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { TestArm } from "@/lib/data/types"
 
-// Which arm is better for a given metric (lower-is-better for cost metrics).
-function betterArm(challenger: number | null, control: number | null, lowerIsBetter: boolean) {
-  if (challenger == null || control == null) return null
-  if (challenger === control) return "tie"
-  const challengerWins = lowerIsBetter ? challenger < control : challenger > control
-  return challengerWins ? "challenger" : "control"
+// Accent colors assigned to each arm, in order.
+const ARM_ACCENTS = ["#D93732", "#660033", "#E8853A"]
+
+// Index of the best value among the arms for a metric (lower-is-better for cost
+// metrics). Returns a Set so ties can all be highlighted; null values are ignored.
+function bestIndexes(values: (number | null)[], lowerIsBetter: boolean): Set<number> {
+  const valid = values.filter((v): v is number => v != null)
+  if (valid.length < 2) return new Set()
+  const best = lowerIsBetter ? Math.min(...valid) : Math.max(...valid)
+  const winners = new Set<number>()
+  values.forEach((v, i) => {
+    if (v === best) winners.add(i)
+  })
+  return winners
 }
 
 function MetricRow({
   label,
-  challenger,
-  control,
+  values,
   format,
+  gridTemplate,
   lowerIsBetter = false,
+  neutral = false,
 }: {
   label: string
-  challenger: number | null
-  control: number | null
+  values: (number | null)[]
   format: (v: number) => string
+  gridTemplate: string
   lowerIsBetter?: boolean
+  // Neutral metrics (e.g. spend) are context, not a win condition — don't highlight.
+  neutral?: boolean
 }) {
-  const winner = betterArm(challenger, control, lowerIsBetter)
-  const cell = (value: number | null, side: "challenger" | "control") => {
-    const isWinner = winner === side
-    return (
-      <div
-        className={`text-sm font-semibold tabular-nums ${isWinner ? "text-green-600" : "text-foreground"}`}
-      >
-        {value == null ? "—" : format(value)}
-        {isWinner && <span className="ml-1 text-[10px] font-medium uppercase text-green-600">best</span>}
-      </div>
-    )
-  }
+  const winners = neutral ? new Set<number>() : bestIndexes(values, lowerIsBetter)
   return (
-    <div className="grid grid-cols-[1.2fr_1fr_1fr] items-center gap-2 py-2 border-b border-border/40 last:border-0">
+    <div
+      className="grid items-center gap-2 py-2 border-b border-border/40 last:border-0"
+      style={{ gridTemplateColumns: gridTemplate }}
+    >
       <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
-      {cell(challenger, "challenger")}
-      {cell(control, "control")}
+      {values.map((value, i) => {
+        const isWinner = winners.has(i)
+        return (
+          <div
+            key={i}
+            className={`text-sm font-semibold tabular-nums ${isWinner ? "text-green-600" : "text-foreground"}`}
+          >
+            {value == null ? "—" : format(value)}
+            {isWinner && <span className="ml-1 text-[10px] font-medium uppercase text-green-600">best</span>}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -51,7 +64,7 @@ function ArmHeader({ arm, accent }: { arm: TestArm; accent: string }) {
   return (
     <div>
       <div className="flex items-center gap-1.5">
-        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: accent }} />
+        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: accent }} />
         <span className="text-sm font-semibold text-foreground">{arm.name}</span>
       </div>
       <p className="text-[10px] text-muted-foreground mt-0.5">{arm.note}</p>
@@ -72,7 +85,10 @@ export function TestingTab() {
   }
 
   const { featured, notes } = testing
-  const { challenger, control } = featured
+  // Support both two-arm (challenger/control) and multi-arm (arms) tests.
+  const arms: TestArm[] = featured.arms ?? [featured.challenger, featured.control].filter(Boolean as unknown as (a: TestArm | undefined) => a is TestArm)
+  // Grid: a wider label column followed by one equal column per arm.
+  const gridTemplate = `1.2fr ${arms.map(() => "1fr").join(" ")}`
 
   return (
     <div className="space-y-4">
@@ -89,20 +105,24 @@ export function TestingTab() {
       </div>
 
       {/* Head-to-head metric comparison */}
-      <ChartSection title="Head-to-head" subtitle="Challenger vs. control · best value highlighted">
+      <ChartSection
+        title={arms.length > 2 ? `${arms.length}-way comparison` : "Head-to-head"}
+        subtitle="Best value per metric highlighted"
+      >
         <div className="mt-2">
-          <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-2 pb-2 border-b border-border">
+          <div className="grid gap-2 pb-2 border-b border-border" style={{ gridTemplateColumns: gridTemplate }}>
             <span />
-            <ArmHeader arm={challenger} accent="#D93732" />
-            <ArmHeader arm={control} accent="#E8853A" />
+            {arms.map((arm, i) => (
+              <ArmHeader key={arm.name} arm={arm} accent={ARM_ACCENTS[i % ARM_ACCENTS.length]} />
+            ))}
           </div>
-          <MetricRow label="Cost per follow" challenger={challenger.cpf} control={control.cpf} format={(v) => `$${v.toFixed(2)}`} lowerIsBetter />
-          <MetricRow label="Follows" challenger={challenger.follows} control={control.follows} format={(v) => v.toLocaleString()} />
-          <MetricRow label="Click-through rate" challenger={challenger.ctr} control={control.ctr} format={(v) => `${v.toFixed(2)}%`} />
-          <MetricRow label="IG follow rate" challenger={challenger.followRate} control={control.followRate} format={(v) => `${v.toFixed(1)}%`} />
-          <MetricRow label="CPC" challenger={challenger.cpc} control={control.cpc} format={(v) => `$${v.toFixed(2)}`} lowerIsBetter />
-          <MetricRow label="Profile visits" challenger={challenger.profileVisits} control={control.profileVisits} format={(v) => v.toLocaleString()} />
-          <MetricRow label="Spend" challenger={challenger.spend} control={control.spend} format={(v) => `$${Math.round(v).toLocaleString()}`} />
+          <MetricRow label="Cost per follow" values={arms.map((a) => a.cpf)} format={(v) => `$${v.toFixed(2)}`} gridTemplate={gridTemplate} lowerIsBetter />
+          <MetricRow label="Follows" values={arms.map((a) => a.follows)} format={(v) => v.toLocaleString()} gridTemplate={gridTemplate} />
+          <MetricRow label="Click-through rate" values={arms.map((a) => a.ctr)} format={(v) => `${v.toFixed(2)}%`} gridTemplate={gridTemplate} />
+          <MetricRow label="IG follow rate" values={arms.map((a) => a.followRate)} format={(v) => `${v.toFixed(1)}%`} gridTemplate={gridTemplate} />
+          <MetricRow label="CPC" values={arms.map((a) => a.cpc)} format={(v) => `$${v.toFixed(2)}`} gridTemplate={gridTemplate} lowerIsBetter />
+          <MetricRow label="Profile visits" values={arms.map((a) => a.profileVisits)} format={(v) => v.toLocaleString()} gridTemplate={gridTemplate} />
+          <MetricRow label="Spend" values={arms.map((a) => a.spend)} format={(v) => `$${Math.round(v).toLocaleString()}`} gridTemplate={gridTemplate} neutral />
         </div>
       </ChartSection>
 

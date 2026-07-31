@@ -197,49 +197,56 @@ export const JULY_WEEKLY_FOLLOWS = [
 // Testing context for July — surfaced on the Testing tab.
 export const JULY_TESTING: TestingContext = {
   featured: {
-    name: "OnKatiesPlate Creative Test",
-    dateRange: "Jul 9–23",
+    name: "Creator Creative Test: OnKatiesPlate vs. Joe vs. Existing Posts",
+    dateRange: "Jul 1–23",
     hypothesis:
-      "Run a new creator's content (@OnKatiesPlate) to a creator-lookalike audience to see if fresh creator creative drives follows more efficiently than our always-on engagement ad set (Existing Posts).",
+      "Two creator creatives (@OnKatiesPlate and Joe) ran to creator-lookalike audiences against our always-on engagement ad set (Existing Posts) to see whether fresh creator content can drive follows as efficiently as the proven control.",
     kpiFocus: "Cost per follow (CPF) & IG follow rate",
-    challenger: {
-      name: "OnKatiesPlate Creative Test",
-      note: "New creator → creator lookalike",
-      spend: 689.51,
-      impressions: 56491,
-      clicks: 2848,
-      follows: 152,
-      profileVisits: 2852,
-      cpf: 4.54,
-      ctr: 5.04,
-      followRate: 5.33, // 152 follows ÷ 2,852 profile visits
-      cpc: 0.24,
-    },
-    control: {
-      name: "Existing Posts",
-      note: "Current engagement ad set",
-      spend: 1694.19,
-      impressions: 114816,
-      clicks: 4929,
-      follows: 1284,
-      profileVisits: 3758,
-      cpf: 1.32,
-      ctr: 4.29,
-      followRate: 34.17, // 1,284 follows ÷ 3,758 profile visits
-      cpc: 0.34,
-    },
+    arms: [
+      {
+        name: "OnKatiesPlate",
+        note: "New creator → creator lookalike · Jul 9–23",
+        spend: 689.51,
+        impressions: 56491,
+        clicks: 2848,
+        follows: 152,
+        profileVisits: 2852,
+        cpf: 4.54,
+        ctr: 5.04,
+        followRate: 5.33, // 152 follows ÷ 2,852 profile visits
+        cpc: 0.24,
+      },
+      {
+        name: "Joe",
+        note: "Creator → creator lookalike (Jun carryover) · Jul 1–15",
+        spend: 707.13,
+        impressions: 55749,
+        clicks: 3824,
+        follows: 302,
+        profileVisits: 3775,
+        cpf: 2.34, // 707.13 ÷ 302 follows
+        ctr: 6.86, // 3,824 clicks ÷ 55,749 impressions
+        followRate: 8.0, // 302 follows ÷ 3,775 profile visits
+        cpc: 0.18, // 707.13 ÷ 3,824 clicks
+      },
+      {
+        name: "Existing Posts",
+        note: "Current engagement ad set (control)",
+        spend: 1694.19,
+        impressions: 114816,
+        clicks: 4929,
+        follows: 1284,
+        profileVisits: 3758,
+        cpf: 1.32,
+        ctr: 4.29,
+        followRate: 34.17, // 1,284 follows ÷ 3,758 profile visits
+        cpc: 0.34,
+      },
+    ],
     verdict:
-      "Same pattern as June's creator test. OnKatiesPlate pulled a higher click rate (5.04% vs. 4.29% CTR) but far fewer of those visitors followed — a 5.3% follow rate vs. 34.2% — so its cost per follow landed well above the control ($4.54 vs. $1.32). Great at driving traffic, not yet at converting it to follows. Keep Existing Posts as the follow engine and give creator creative a clearer reason to follow before scaling it.",
+      "Both creator creatives drove strong click rates (Joe 6.9%, OnKatiesPlate 5.0% vs. Existing Posts' 4.3% CTR) but far fewer of those visitors actually followed — an 8.0% and 5.3% follow rate against the control's 34.2%. Joe converted better than OnKatiesPlate and roughly halved its cost per follow ($2.34 vs. $4.54), but both still ran well above Existing Posts at $1.32. Creator content is winning the top of the funnel; it's the follow conversion that lags. Keep Existing Posts as the follow engine and give creator creative a sharper reason to follow before scaling it.",
   },
   notes: [
-    {
-      title: "Joe Audience Test",
-      dateRange: "Jul 1–15",
-      spend: 707,
-      status: "June carryover",
-      detail:
-        "Creator → creator-lookalike test carried over from June. Efficiency improved (CPF $2.34, 8.0% follow rate) but still ran above Existing Posts, so it was wound down mid-month.",
-    },
     {
       title: "Imagine Hating On Me",
       dateRange: "Jul 12–31",
