@@ -111,8 +111,11 @@ export interface TestingContext {
     dateRange: string
     hypothesis: string
     kpiFocus: string
-    challenger: TestArm
-    control: TestArm
+    // Two-arm tests use challenger/control. Multi-arm tests (3+) provide `arms`
+    // instead, ordered as they should appear left-to-right in the comparison.
+    challenger?: TestArm
+    control?: TestArm
+    arms?: TestArm[]
     verdict: string
   }
   notes: {
