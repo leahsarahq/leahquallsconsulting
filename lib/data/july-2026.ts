@@ -181,15 +181,17 @@ export const JULY_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
-// paid = ad-attributed follows; total = IG Insights daily follows (organic + paid).
-// The Jul 22–28 total jumps well above paid — a late-month organic spike (peaking
-// Jul 24 at +375/day). Jul 29–31 total counts IG through Jul 29 + ad follows for 30–31.
+// Bucketed by calendar week (Mon–Sun). July 1, 2026 is a Wednesday, so the first
+// week is a partial Wed–Sun. paid = ad-attributed follows; total = IG Insights daily
+// follows (organic + paid). The Jul 20–26 total spikes well above paid — a late-month
+// organic surge (peaking Jul 24 at +375/day). The final week (Jul 27–31) counts IG
+// through Jul 29 plus ad-attributed follows for Jul 30–31 (not yet in the IG export).
 export const JULY_WEEKLY_FOLLOWS = [
-  { week: "Jul 1–7", paid: 428, total: 418 },
-  { week: "Jul 8–14", paid: 536, total: 555 },
-  { week: "Jul 15–21", paid: 355, total: 437 },
-  { week: "Jul 22–28", paid: 319, total: 1053 },
-  { week: "Jul 29–31", paid: 100, total: 125 },
+  { week: "Jul 1–5", paid: 307, total: 308 },
+  { week: "Jul 6–12", paid: 516, total: 523 },
+  { week: "Jul 13–19", paid: 386, total: 442 },
+  { week: "Jul 20–26", paid: 345, total: 906 },
+  { week: "Jul 27–31", paid: 184, total: 409 },
 ]
 
 // Testing context for July — surfaced on the Testing tab.
