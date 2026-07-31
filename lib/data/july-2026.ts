@@ -1,12 +1,12 @@
-import type { Campaign, KPIData, AudienceDemographics, TestingContext } from "./types"
+import type { Campaign, KPIData, AudienceDemographics, TestingContext, IgDailyFollow } from "./types"
 
 // July 2026 data — FULL MONTH (Jul 1–31).
 // - Ad metrics (spend, reach, impressions, clicks, ad-attributed follows): Meta Ads
 //   Manager exports, Jul 1–31 (Campaigns / Ad sets / Ads).
 // - Demographics: IG Insights "Audience" export (snapshot as of Jul 31).
-// - Total follower growth: no IG Insights daily "Follows" export was provided for
-//   July, so followerGrowth is set to the ad-attributed follows only (a conservative
-//   floor). Send the IG Insights daily Follows export to layer organic lift back in.
+// - Total follower growth: IG Insights daily "Follows" export (organic + paid),
+//   Jul 1–29. Days 30–31 weren't in the export, so those two days fall back to
+//   ad-attributed follows — making followerGrowth a slight floor.
 export const JULY_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-07-01": { "Awareness Campaign": { spend: 72.11, follows: 0 }, "Engagement Campaign": { spend: 85.4, follows: 56 }, "Retailer Support": { spend: 117.39, follows: 0 } },
   "2026-07-02": { "Awareness Campaign": { spend: 38.62, follows: 0 }, "Engagement Campaign": { spend: 88.88, follows: 70 }, "Retailer Support": { spend: 122.72, follows: 0 } },
@@ -79,15 +79,56 @@ const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 7841
 const attributedFollows = 1738 // ad-attributed follows (all from the Engagement campaign)
 const engagementFollows = 1738
 
-// Month-to-date KPIs. No IG Insights daily "Follows" export for July, so
-// followerGrowth = ad-attributed follows (a conservative floor; organic not layered in).
+// Daily follower growth from IG Insights (organic + paid combined). Real values
+// are available for Jul 1–29; days 30–31 were not in the provided export.
+export const JULY_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
+  { date: "2026-07-01", follows: 49 },
+  { date: "2026-07-02", follows: 73 },
+  { date: "2026-07-03", follows: 50 },
+  { date: "2026-07-04", follows: 54 },
+  { date: "2026-07-05", follows: 82 },
+  { date: "2026-07-06", follows: 43 },
+  { date: "2026-07-07", follows: 67 },
+  { date: "2026-07-08", follows: 68 },
+  { date: "2026-07-09", follows: 78 },
+  { date: "2026-07-10", follows: 70 },
+  { date: "2026-07-11", follows: 100 },
+  { date: "2026-07-12", follows: 97 },
+  { date: "2026-07-13", follows: 79 },
+  { date: "2026-07-14", follows: 63 },
+  { date: "2026-07-15", follows: 56 },
+  { date: "2026-07-16", follows: 65 },
+  { date: "2026-07-17", follows: 54 },
+  { date: "2026-07-18", follows: 67 },
+  { date: "2026-07-19", follows: 58 },
+  { date: "2026-07-20", follows: 70 },
+  { date: "2026-07-21", follows: 67 },
+  { date: "2026-07-22", follows: 59 },
+  { date: "2026-07-23", follows: 58 },
+  { date: "2026-07-24", follows: 375 },
+  { date: "2026-07-25", follows: 158 },
+  { date: "2026-07-26", follows: 119 },
+  { date: "2026-07-27", follows: 125 },
+  { date: "2026-07-28", follows: 159 },
+  { date: "2026-07-29", follows: 74 },
+]
+
+// Total IG follower growth (organic + paid). Real IG total for Jul 1–29 (2,537)
+// plus ad-attributed follows for Jul 30–31 (51). This is a slight floor because
+// organic lift is only counted through Jul 29.
+const igThrough29 = JULY_IG_DAILY_FOLLOWS.reduce((s, d) => s + d.follows, 0) // 2537
+const attributed30to31 = 51 // Engagement follows on Jul 30 (31) + Jul 31 (20)
+const followerGrowthFloor = igThrough29 + attributed30to31 // 2588
+
+// Full-month KPIs. followerGrowth = total IG growth (organic + paid); paidFollows =
+// ad-attributed follows.
 export const JULY_KPI_DATA: KPIData = {
   totalSpend,
-  followerGrowth: attributedFollows, // ad-attributed only (organic/IG total not imported)
-  paidFollows: attributedFollows,
+  followerGrowth: followerGrowthFloor, // IG total (Jul 1–29) + ad follows (Jul 30–31); floor
+  paidFollows: attributedFollows, // ad-attributed, full month
   startFollowers: 11531, // end of June (9,677 + 1,854)
-  endFollowers: 11531 + attributedFollows,
-  blendedCPF: totalSpend / attributedFollows, // ~$4.51 (all spend ÷ follows)
+  endFollowers: 11531 + followerGrowthFloor,
+  blendedCPF: totalSpend / followerGrowthFloor, // ~$3.03 (all spend ÷ total follows)
   engagementCPF: engagementSpend / engagementFollows, // ~$1.78 ($3,091 ÷ 1,738 follows)
   totalReach: 2600114, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 2714573,
@@ -140,13 +181,15 @@ export const JULY_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
-// paid = ad-attributed follows; total = same (no IG Insights total for July yet).
+// paid = ad-attributed follows; total = IG Insights daily follows (organic + paid).
+// The Jul 22–28 total jumps well above paid — a late-month organic spike (peaking
+// Jul 24 at +375/day). Jul 29–31 total counts IG through Jul 29 + ad follows for 30–31.
 export const JULY_WEEKLY_FOLLOWS = [
-  { week: "Jul 1–7", paid: 428, total: 428 },
-  { week: "Jul 8–14", paid: 536, total: 536 },
-  { week: "Jul 15–21", paid: 355, total: 355 },
-  { week: "Jul 22–28", paid: 319, total: 319 },
-  { week: "Jul 29–31", paid: 100, total: 100 },
+  { week: "Jul 1–7", paid: 428, total: 418 },
+  { week: "Jul 8–14", paid: 536, total: 555 },
+  { week: "Jul 15–21", paid: 355, total: 437 },
+  { week: "Jul 22–28", paid: 319, total: 1053 },
+  { week: "Jul 29–31", paid: 100, total: 125 },
 ]
 
 // Testing context for July — surfaced on the Testing tab.
