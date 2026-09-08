@@ -36,6 +36,7 @@ import {
   SEPTEMBER_SPEND_BY_CAMPAIGN,
   SEPTEMBER_WEEKLY_FOLLOWS,
   SEPTEMBER_OVERVIEW_ANALYSIS,
+  SEPTEMBER_IG_DAILY_FOLLOWS,
 } from "./september-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 import type { DailyData } from "./progress"
@@ -150,7 +151,7 @@ export function getDataForMonth(month: MonthKey) {
         priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
-        igDailyFollows: null as IgDailyFollow[] | null,
+        igDailyFollows: SEPTEMBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }

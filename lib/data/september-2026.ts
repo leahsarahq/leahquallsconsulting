@@ -1,11 +1,13 @@
-import type { Campaign, KPIData, OverviewAnalysis } from "./types"
+import type { Campaign, KPIData, OverviewAnalysis, IgDailyFollow } from "./types"
 
 // September 2026 data — MONTH-TO-DATE (Sept 1–8), still in progress.
 // - All metrics come from Meta Ads Manager exports, Sept 1–8 (Campaigns / Ad sets / Ads).
 // - Sept 8 is a PARTIAL reporting day (spend/follows well below the daily run rate).
-// - No IG Insights "Instagram follows" export is in yet, so `followerGrowth` is an
-//   ad-attributed FLOOR (506 total ad follows) and `blendedCPF` is therefore inflated.
-//   `engagementCPF` ($2.76) is the apples-to-apples paid efficiency figure.
+// - IG Insights "Instagram follows" export is now in through Sept 6 only (IG's
+//   follower metric lags the ad export by ~2 days, so Sept 7–8 aren't reported yet).
+//   Over Sept 1–6, IG total follows = 523 vs. 427 ad-attributed → ~96 organic (~18%),
+//   so there IS real organic lift. `engagementCPF` ($2.76) is still the apples-to-apples
+//   PAID efficiency figure; IG total is tracked on its own (shorter) day count.
 //
 // Headline: the structural fix recommended after August landed. The Engagement
 // campaign is back to TWO parallel ad sets — the proven "Existing Posts (Lookalike)"
@@ -68,21 +70,36 @@ const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 3482 (exa
 const engagementFollows = 505 // ad-attributed follows from the Engagement campaign
 const totalAdFollows = 506 // all ad-attributed follows (505 Engagement + 1 stray Retailer)
 
-// followerGrowth is the ad-attributed FLOOR — no IG Insights export yet this month.
+// IG Insights total follows (organic + paid), from the "Instagram follows" export.
+// Only Sept 1–6 is reported — IG's follower metric lags the ad export by ~2 days,
+// so Sept 7–8 aren't in yet. Total through Sept 6 = 523. The Progress view tracks
+// this on its own (shorter) day count and derives the organic gap vs. ad-attributed.
+export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
+  { date: "2026-09-01", follows: 84 },
+  { date: "2026-09-02", follows: 98 },
+  { date: "2026-09-03", follows: 107 },
+  { date: "2026-09-04", follows: 65 },
+  { date: "2026-09-05", follows: 69 },
+  { date: "2026-09-06", follows: 100 },
+]
+const igTotalThrough6 = 523 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–6)
+
+// followerGrowth uses the IG total (through Sept 6); paidFollows is the ad-attributed
+// figure through Sept 8. Over the matched Sept 1–6 window, IG 523 vs. 427 ad = ~96 organic.
 export const SEPTEMBER_KPI_DATA: KPIData = {
   totalSpend,
-  followerGrowth: totalAdFollows, // ad-attributed floor (no IG export yet)
+  followerGrowth: igTotalThrough6, // IG total through Sept 6 (organic + paid)
   paidFollows: totalAdFollows,
   startFollowers: 15455, // end of August (14,119 + 1,336)
-  endFollowers: 15455 + totalAdFollows,
-  blendedCPF: totalSpend / totalAdFollows, // ~$6.88 (inflated — all spend ÷ ad follows only)
+  endFollowers: 15455 + igTotalThrough6,
+  blendedCPF: totalSpend / totalAdFollows, // reference only — spend and IG follows cover different windows this month
   engagementCPF: 1395.75 / engagementFollows, // ~$2.76 ($1,395.75 ÷ 505 follows)
   totalReach: 642580, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 671368,
   engagementCTR: 6.55, // Engagement link CTR (6,662 clicks ÷ 101,727 impressions)
   messagingContacts: 0, // not imported
   unfollows: 0,
-  organicExportMissing: true, // no IG Insights follows export yet — floor only
+  organicExportMissing: false, // IG follows now in through Sept 6
 }
 
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
@@ -106,7 +123,7 @@ export const SEPTEMBER_WEEKLY_FOLLOWS = [
 // not a structural one — the same high-reach/low-convert pattern as August's video.
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
   executiveSummary:
-    "Through the first 8 days, September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has actually landed. The Engagement campaign is back to two parallel ad sets, and the new broader-audience set is converting better than the original so far: $2.76 blended engagement cost-per-follow, ahead of August's $2.96 and pacing at ~63 follows/day vs. August's ~32. What's holding overall cost-per-follow above July's level now looks like a creative issue in the flagship Lookalike ad set specifically (a new, low-converting collab post), not a structural or budget one. Figures are month-to-date and ad-attributed only — no IG Insights follows export is in yet, so organic lift isn't counted here.",
+    "Through the first 8 days, September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has actually landed. The Engagement campaign is back to two parallel ad sets, and the new broader-audience set is converting better than the original so far: $2.76 engagement cost-per-follow, ahead of August's $2.96 and pacing at ~63 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–6 window (the IG follows export lags ~2 days), Instagram counted 523 total follows vs. 427 ad-attributed, meaning roughly 96 (~18%) came from organic reach. What's holding overall cost-per-follow above July's level now looks like a creative issue in the flagship Lookalike ad set specifically (a new, low-converting collab post), not a structural or budget one.",
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
