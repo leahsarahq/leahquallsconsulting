@@ -27,11 +27,12 @@ import {
   AUGUST_SPEND_BY_CAMPAIGN,
   AUGUST_WEEKLY_FOLLOWS,
   AUGUST_TESTING,
+  AUGUST_OVERVIEW_ANALYSIS,
 } from "./august-2026"
-import type { IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
+import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
-export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, TestingContext } from "./types"
+export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 
 export function getDataForMonth(month: MonthKey) {
   switch (month) {
@@ -48,6 +49,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
+        overviewAnalysis: null as OverviewAnalysis | null,
       }
     case "may-2026":
       return {
@@ -66,6 +68,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
+        overviewAnalysis: null as OverviewAnalysis | null,
       }
     case "jun-2026":
       return {
@@ -84,6 +87,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: JUNE_TESTING as TestingContext | null,
         igDailyFollows: JUNE_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
         demographics: JUNE_DEMOGRAPHICS as AudienceDemographics | null,
+        overviewAnalysis: null as OverviewAnalysis | null,
       }
     case "jul-2026":
       return {
@@ -102,6 +106,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: JULY_TESTING as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: JULY_DEMOGRAPHICS as AudienceDemographics | null,
+        overviewAnalysis: null as OverviewAnalysis | null,
       }
     case "aug-2026":
       return {
@@ -120,6 +125,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: AUGUST_TESTING as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
+        overviewAnalysis: AUGUST_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }
     default:
       return {
@@ -134,6 +140,7 @@ export function getDataForMonth(month: MonthKey) {
         testing: null as TestingContext | null,
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
+        overviewAnalysis: null as OverviewAnalysis | null,
       }
   }
 }

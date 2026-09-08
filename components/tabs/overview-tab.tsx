@@ -45,7 +45,7 @@ function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: st
 
 export function OverviewTab() {
   const { selectedMonth, monthInfo, comparisonMode } = useMonth()
-  const { kpiData, spendByCampaign, weeklyFollows } = getDataForMonth(selectedMonth)
+  const { kpiData, spendByCampaign, weeklyFollows, overviewAnalysis } = getDataForMonth(selectedMonth)
   const comparison = getComparison(selectedMonth, comparisonMode)
 
   const baseline = comparison.metrics
@@ -70,7 +70,19 @@ export function OverviewTab() {
 
   return (
     <div className="space-y-4">
-      {/* Key Wins */}
+      {/* Executive Summary (months with a narrative analysis, e.g. August) */}
+      {overviewAnalysis && (
+        <div className="bg-card border border-border rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1 h-4 bg-primary rounded-full" />
+            <h3 className="text-sm font-semibold text-foreground">Executive Summary — {monthInfo.label}</h3>
+          </div>
+          <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{overviewAnalysis.executiveSummary}</p>
+        </div>
+      )}
+
+      {/* Key Wins — hidden for months that carry a narrative analysis instead */}
+      {!overviewAnalysis && (
       <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-foreground">Key Wins — {monthInfo.label}</h3>
@@ -149,6 +161,7 @@ export function OverviewTab() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Snapshot */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -371,6 +384,138 @@ export function OverviewTab() {
           />
         </ChartSection>
       </div>
+
+      {overviewAnalysis && (
+        <>
+          {/* Campaign Objectives — judge each campaign on its own goal, not a blended standard */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Campaign Objectives</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {overviewAnalysis.campaignObjectives.map((c) => (
+                <div key={c.name} className="bg-card border border-border rounded-xl p-4 flex flex-col gap-2">
+                  <p className="text-sm font-semibold text-foreground text-balance">{c.name}</p>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Objective</p>
+                    <p className="text-xs text-foreground mt-0.5">{c.objective}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Judge on</p>
+                    <p className="text-xs text-foreground mt-0.5">{c.judgeOn}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-1">{c.stat}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* July → August: What Changed */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">
+              {overviewAnalysis.monthChange.priorLabel} → {overviewAnalysis.monthChange.currentLabel}: What Changed
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[11px] text-muted-foreground uppercase tracking-wide border-b border-border">
+                    <th className="font-medium py-2 pr-4">Metric</th>
+                    <th className="font-medium py-2 px-3 text-right">{overviewAnalysis.monthChange.priorLabel}</th>
+                    <th className="font-medium py-2 px-3 text-right">{overviewAnalysis.monthChange.currentLabel}</th>
+                    <th className="font-medium py-2 pl-3 text-right">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewAnalysis.monthChange.rows.map((row) => (
+                    <tr key={row.metric} className="border-b border-border/60 last:border-0">
+                      <td className="py-2 pr-4 text-foreground">{row.metric}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{row.prior}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-foreground font-medium">{row.current}</td>
+                      <td
+                        className={`py-2 pl-3 text-right tabular-nums font-medium ${
+                          row.dir === "bad"
+                            ? "text-red-600"
+                            : row.dir === "good"
+                              ? "text-green-600"
+                              : "text-muted-foreground"
+                        }`}
+                      >
+                        {row.change}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
+              {overviewAnalysis.monthChange.explanation}
+            </p>
+            {overviewAnalysis.monthChange.caveat && (
+              <div className="mt-3 border-l-2 border-border pl-3">
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">Caveat</p>
+                <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
+                  {overviewAnalysis.monthChange.caveat}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Follower Growth Deep Dive */}
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">{overviewAnalysis.deepDive.title}</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[11px] text-muted-foreground uppercase tracking-wide border-b border-border">
+                    <th className="font-medium py-2 pr-3">Week</th>
+                    <th className="font-medium py-2 px-3 text-right">Spend</th>
+                    <th className="font-medium py-2 px-3 text-right">Follows</th>
+                    <th className="font-medium py-2 px-3 text-right">Cost/Follow</th>
+                    <th className="font-medium py-2 px-3 text-right">Profile Visits</th>
+                    <th className="font-medium py-2 pl-3 text-right">Visit→Follow</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewAnalysis.deepDive.weekly.map((w) => (
+                    <tr key={w.week} className="border-b border-border/60 last:border-0">
+                      <td className="py-2 pr-3 text-foreground">{w.week}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{w.spend}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-foreground">{w.follows}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{w.costPerFollow}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{w.profileVisits}</td>
+                      <td className="py-2 pl-3 text-right tabular-nums text-foreground font-medium">{w.visitToFollow}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="overflow-x-auto mt-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[11px] text-muted-foreground uppercase tracking-wide border-b border-border">
+                    <th className="font-medium py-2 pr-3">Ad</th>
+                    <th className="font-medium py-2 px-3">Ran</th>
+                    <th className="font-medium py-2 px-3 text-right">Profile Visits</th>
+                    <th className="font-medium py-2 px-3 text-right">Follows</th>
+                    <th className="font-medium py-2 pl-3 text-right">Visit→Follow</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overviewAnalysis.deepDive.creative.map((ad) => (
+                    <tr key={ad.ad} className="border-b border-border/60 last:border-0">
+                      <td className="py-2 pr-3 text-foreground text-pretty">{ad.ad}</td>
+                      <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">{ad.ran}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{ad.profileVisits}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-foreground">{ad.follows}</td>
+                      <td className="py-2 pl-3 text-right tabular-nums text-foreground font-medium">{ad.visitToFollow}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">{overviewAnalysis.deepDive.caption}</p>
+          </div>
+        </>
+      )}
     </div>
   )
 }
