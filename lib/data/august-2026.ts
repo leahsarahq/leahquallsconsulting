@@ -1,4 +1,4 @@
-import type { Campaign, KPIData, TestingContext } from "./types"
+import type { Campaign, KPIData, OverviewAnalysis, TestingContext } from "./types"
 
 // August 2026 data — FULL MONTH (Aug 1–31).
 // - All metrics (spend, reach, impressions, clicks, ad-attributed follows, profile
@@ -124,6 +124,76 @@ export const AUGUST_WEEKLY_FOLLOWS = [
   { week: "Aug 22–28", paid: 288, total: 288, note: "Visits surge (~5.7K), follow rate ~5% — new video launches" },
   { week: "Aug 29–31", paid: 67, total: 67, note: "Visit→follow ~2% — rotation problem at its peak" },
 ]
+
+// Overview narrative for August. Replaces the generic "40–75% below benchmark"
+// headline with the real read: the follower decline is concentrated in ONE
+// campaign (Engagement) for a specific, fixable, structural reason — three
+// parallel follower-growth ad sets in July were consolidated into one in August,
+// nearly doubling that ad set's daily spend and buying low-intent profile traffic
+// instead of more follows. Retailer Support and Awareness stayed roughly flat.
+export const AUGUST_OVERVIEW_ANALYSIS: OverviewAnalysis = {
+  executiveSummary:
+    "Retailer Support and the evergreen Instagram Awareness campaign are healthy and roughly flat month over month. The follower decline is entirely concentrated in the Instagram Engagement Campaign, and it's structural: in July, follower growth ran across three parallel ad sets; in August it was consolidated into one, which nearly doubled that ad set's daily spend without a matching increase in creative variety. The extra spend bought a lot of low-intent profile traffic rather than more followers.",
+  campaignObjectives: [
+    {
+      name: "Instagram Engagement Campaign",
+      objective: "Follower growth",
+      judgeOn: "Cost per follow, visit-to-follow rate",
+      stat: "$2,947.72 spend · 997 follows · $2.96 CPF — but conversion swung from 34% down to 2% within the month.",
+    },
+    {
+      name: "Retailer Support (Traffic + Awareness)",
+      objective: "Whole Foods & Target retail support",
+      judgeOn: "CTR/CPC (traffic phase), CPM/reach (awareness phase)",
+      stat: "$3,367.54 spend · 8,899 clicks · steady 3.5–3.6% CTR in the traffic phase.",
+    },
+    {
+      name: "Instagram Awareness Campaign",
+      objective: "Evergreen broad-reach brand awareness — not follows or clicks",
+      judgeOn: "CPM and frequency",
+      stat: "$1,564.17 spend · frequency pinned near 1.0 all month (continuously reaching new people, no fatigue) · CPM $1.95–2.86.",
+    },
+  ],
+  monthChange: {
+    priorLabel: "July",
+    currentLabel: "August",
+    rows: [
+      { metric: "Engagement campaign spend", prior: "$3,117.84", current: "$2,947.72", change: "-5.5%", dir: "neutral" },
+      { metric: "Engagement campaign follows", prior: "1,743", current: "997", change: "-42.8%", dir: "bad" },
+      { metric: "Cost per follow", prior: "$1.79", current: "$2.96", change: "+65%", dir: "bad" },
+      { metric: "Active follower-growth ad sets", prior: "3", current: "1", change: "-2", dir: "bad" },
+    ],
+    explanation:
+      "In July, follower growth ran across three ad sets at once: Existing Posts ($1,721 spend, 1,289 follows, $1.34 CPF), Joe Audience Test ($707, 302 follows, $2.34 CPF), and OnKatiesPlate Creative Test ($690, 152 follows, $4.54 CPF). By August, only Existing Posts remained, absorbing the other two ad sets' budget — its daily spend nearly doubled, from $55.52/day to $95.09/day. Profile visits to that ad set jumped 3.3x (3,781 → 12,592), but follows fell, because the visit-to-follow rate — a steady 27–41% every week in July — collapsed to single digits in August. Ad frequency barely moved (1.04 → 1.06), so this isn't classic audience fatigue; it's that concentrating spend onto one ad set without proportionally more creative variety bought a lot of visits from people who were never going to follow.",
+    caveat:
+      "The platform-level follower export shows July at 2,621 total vs August's 1,336 (-49%), but July includes one anomalous day — July 24, with 375 new followers against a normal 40–100/day range and no matching spend spike, almost certainly organic/viral rather than ad-driven. Excluding that day, July averages 74.9 followers/day vs August's 43.1/day — a real ~42% decline, smaller than the raw headline suggests.",
+  },
+  deepDive: {
+    title: "Follower Growth Deep Dive — Engagement campaign, Existing Posts ad set",
+    weekly: [
+      { week: "Aug 1–7", spend: "$547", follows: "145", costPerFollow: "$3.77", profileVisits: "467", visitToFollow: "34.1%" },
+      { week: "Aug 8–14", spend: "$682", follows: "198", costPerFollow: "$3.44", profileVisits: "1,785", visitToFollow: "21.5%" },
+      { week: "Aug 15–21", spend: "$735", follows: "299", costPerFollow: "$2.46", profileVisits: "2,006", visitToFollow: "26.3%" },
+      { week: "Aug 22–28", spend: "$680", follows: "288", costPerFollow: "$2.36", profileVisits: "5,808", visitToFollow: "5.5%" },
+      { week: "Aug 29–31", spend: "$304", follows: "67", costPerFollow: "$4.53", profileVisits: "3,041", visitToFollow: "2.3%" },
+    ],
+    creative: [
+      { ad: "Imagine Hating On Me", ran: "Aug 1–13", profileVisits: "694", follows: "226", visitToFollow: "32.6%" },
+      { ad: "4 Easy Pasta Dinners", ran: "Aug 13–18", profileVisits: "260", follows: "87", visitToFollow: "33.5%" },
+      { ad: "Frozen Pasta Can't Be That Good", ran: "Aug 17–31", profileVisits: "528", follows: "178", visitToFollow: "33.7%" },
+      { ad: "Cacio e Pepe Puffs", ran: "Aug 20–31", profileVisits: "3,956", follows: "395", visitToFollow: "10.0%" },
+      { ad: "What Did I Just Witness", ran: "Aug 23–31", profileVisits: "5,717", follows: "7", visitToFollow: "0.12%" },
+    ],
+    caption:
+      "\"What Did I Just Witness\" drove more profile traffic than any other creative all month but converted almost none of it — 0.12% vs. 30%+ for the earlier posts. Whatever hook or format \"Imagine Hating On Me,\" \"4 Easy Pasta Dinners,\" and \"Frozen Pasta Can't Be That Good\" share is what's actually driving growth.",
+  },
+  recommendations: [
+    "Split the Engagement campaign's budget back across multiple ad sets rather than concentrating it in one — July's three-way split converted at a blended $1.79 cost per follow with a steady 27–41% weekly visit-to-follow rate; one consolidated ad set at nearly double the daily spend hasn't matched that.",
+    "Retire or pair \"What Did I Just Witness\" with a stronger follow-oriented CTA, and lean into whatever \"Imagine Hating On Me,\" \"4 Easy Pasta Dinners,\" and \"Frozen Pasta Can't Be That Good\" have in common.",
+    "For Retailer Support, confirm whether dropping the dedicated WFM/Target awareness ads after the Aug 13 campaign split was intentional.",
+    "Track cost-per-follow and visit-to-follow rate weekly rather than monthly for the Engagement campaign — the swing from $11 to $2.36 back to $13 in a single month shows a monthly average hides real volatility.",
+  ],
+}
 
 // Testing context for August — the headline story lives here. A 3-way read of the
 // Engagement creative shows the classic "rising profile visits, falling follow rate"

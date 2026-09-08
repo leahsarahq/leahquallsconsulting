@@ -132,6 +132,55 @@ export interface TestingContext {
   }[]
 }
 
+// A per-month narrative analysis block for the Overview tab. When present it
+// replaces the generic benchmark framing with the real, campaign-specific read:
+// an executive summary, per-objective judging, month-over-month change, a
+// follower-growth deep dive, and recommendations. Only months that provide this
+// (currently August) render these sections; other months are unaffected.
+export interface OverviewAnalysis {
+  executiveSummary: string
+  campaignObjectives: {
+    name: string
+    objective: string
+    judgeOn: string
+    stat: string
+  }[]
+  monthChange: {
+    priorLabel: string
+    currentLabel: string
+    rows: {
+      metric: string
+      prior: string
+      current: string
+      change: string
+      // "bad" | "good" | "neutral" — controls the change badge color.
+      dir: "bad" | "good" | "neutral"
+    }[]
+    explanation: string
+    caveat: string
+  }
+  deepDive: {
+    title: string
+    weekly: {
+      week: string
+      spend: string
+      follows: string
+      costPerFollow: string
+      profileVisits: string
+      visitToFollow: string
+    }[]
+    creative: {
+      ad: string
+      ran: string
+      profileVisits: string
+      follows: string
+      visitToFollow: string
+    }[]
+    caption: string
+  }
+  recommendations: string[]
+}
+
 // Q1 2026 baseline (no paid ads) - for comparison
 export const Q1_BASELINE = {
   january: { follows: 350, messagingContacts: 180 },
