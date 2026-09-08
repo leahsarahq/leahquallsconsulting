@@ -82,6 +82,7 @@ export function ProgressTab() {
     daysInMonth,
     pctElapsed,
     mtdSpend,
+    mtdEngagementSpend,
     mtdFollows,
     engagementCPF,
     projectedFollows,
@@ -164,7 +165,11 @@ export function ProgressTab() {
           value={igAvailable && igMtdFollows != null ? `+${igMtdFollows.toLocaleString()}` : `+${mtdFollows.toLocaleString()}`}
           sub={igAvailable ? `IG total · ${mtdFollows.toLocaleString()} ad-attributed` : "ad-attributed"}
         />
-        <StatCard label="MTD spend" value={`$${mtdSpend.toLocaleString()}`} sub={`through day ${daysElapsed}`} />
+        <StatCard
+          label="MTD spend (Engagement)"
+          value={`$${mtdEngagementSpend.toLocaleString()}`}
+          sub={`Engagement campaign only · through day ${daysElapsed}`}
+        />
         <StatCard
           label="Engagement CPF"
           value={engagementCPF != null ? `$${engagementCPF.toFixed(2)}` : "—"}
@@ -172,8 +177,8 @@ export function ProgressTab() {
         />
         <StatCard
           label="Blended CPF"
-          value={igAvailable && igMtdFollows ? `$${(mtdSpend / igMtdFollows).toFixed(2)}` : "—"}
-          sub="all spend ÷ total follows"
+          value={igAvailable && igMtdFollows && igDaysElapsed === daysElapsed ? `$${(mtdSpend / igMtdFollows).toFixed(2)}` : "—"}
+          sub={igAvailable && igMtdFollows && igDaysElapsed !== daysElapsed ? `IG follows only through day ${igDaysElapsed}` : "all spend ÷ total follows"}
         />
         <StatCard
           label={`Projected ${monthInfo.label.slice(0, 3)} total`}

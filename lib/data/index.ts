@@ -29,6 +29,15 @@ import {
   AUGUST_TESTING,
   AUGUST_OVERVIEW_ANALYSIS,
 } from "./august-2026"
+import {
+  SEPTEMBER_DAILY_DATA,
+  SEPTEMBER_ADS_DATA,
+  SEPTEMBER_KPI_DATA,
+  SEPTEMBER_SPEND_BY_CAMPAIGN,
+  SEPTEMBER_WEEKLY_FOLLOWS,
+  SEPTEMBER_OVERVIEW_ANALYSIS,
+  SEPTEMBER_IG_DAILY_FOLLOWS,
+} from "./september-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
@@ -126,6 +135,25 @@ export function getDataForMonth(month: MonthKey) {
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: AUGUST_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
+      }
+    case "sep-2026":
+      return {
+        dailyData: SEPTEMBER_DAILY_DATA,
+        adsData: SEPTEMBER_ADS_DATA,
+        kpiData: SEPTEMBER_KPI_DATA,
+        spendByCampaign: SEPTEMBER_SPEND_BY_CAMPAIGN,
+        weeklyFollows: SEPTEMBER_WEEKLY_FOLLOWS,
+        previousMonth: {
+          kpiData: AUGUST_KPI_DATA,
+          label: "August",
+          dailyData: AUGUST_DAILY_DATA,
+        },
+        priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA] as DailyData[],
+        audienceTest: null,
+        testing: null as TestingContext | null,
+        igDailyFollows: SEPTEMBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
+        demographics: null as AudienceDemographics | null,
+        overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }
     default:
       return {
