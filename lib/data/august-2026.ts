@@ -3,11 +3,13 @@ import type { Campaign, KPIData, OverviewAnalysis, TestingContext } from "./type
 // August 2026 data — FULL MONTH (Aug 1–31).
 // - All metrics (spend, reach, impressions, clicks, ad-attributed follows, profile
 //   visits) come from Meta Ads Manager exports, Aug 1–31 (Campaigns / Ad sets / Ads).
-// - NOTE: No IG Insights "Follows" (organic + paid) export was provided this month,
-//   so `followerGrowth` falls back to ad-attributed Engagement follows — i.e. it is
-//   a FLOOR that omits organic lift. Prior months (Apr–Jul) layered an IG total on
-//   top, so the month-over-month followerGrowth comparison understates August. The
-//   apples-to-apples numbers this month are `paidFollows` and `engagementCPF`.
+// - The IG Insights "Instagram follows" export (Aug 1–31) is now included: it totals
+//   1,336 gross new follows for the month vs. 997 ad-attributed (Engagement) follows.
+//   The difference — 339 follows (~25% of growth) — is organic/non-ad-attributed lift.
+//   So `followerGrowth` is the true IG total (1,336), `paidFollows` is the ad-attributed
+//   floor (997), and the gap is real organic lift. `engagementCPF` ($2.96) remains the
+//   apples-to-apples paid efficiency figure; `blendedCPF` ($5.90) spreads all spend
+//   across paid+organic follows.
 //
 // Campaign structure note: "Retailer Support" combines two phases that share one
 // objective (supporting Whole Foods + Target placement). Aug 1–13 ran an
@@ -88,23 +90,25 @@ const awarenessSpend = 1564 // $1,564.17
 const retailerSpend = 3368 // $3,367.54 ($1,499.34 awareness + $1,868.20 traffic)
 const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 7880
 const engagementFollows = 997 // ad-attributed follows, all from the Engagement campaign
+const totalIgFollows = 1336 // IG Insights "Instagram follows" export, Aug 1–31 (gross new follows)
+const organicFollows = totalIgFollows - engagementFollows // 339 non-ad-attributed follows (~25%)
 
-// followerGrowth = ad-attributed follows only (FLOOR). No IG Insights organic export
-// was provided for August, so organic lift is not counted this month.
+// followerGrowth = TRUE IG total (paid + organic) now that the IG Insights export is in.
+// paidFollows stays the ad-attributed figure; the gap (339) is organic lift.
 export const AUGUST_KPI_DATA: KPIData = {
   totalSpend,
-  followerGrowth: engagementFollows, // FLOOR — ad-attributed only (no IG export)
+  followerGrowth: totalIgFollows, // TRUE total from IG Insights (997 paid + 339 organic)
   paidFollows: engagementFollows, // ad-attributed, full month
   startFollowers: 14119, // end of July (11,531 + 2,588)
-  endFollowers: 14119 + engagementFollows, // floor; organic not counted this month
-  blendedCPF: totalSpend / engagementFollows, // ~$7.90 (all spend ÷ ad follows) — inflated w/o organic
-  engagementCPF: engagementSpend / engagementFollows, // ~$2.96 ($2,948 ÷ 997 follows)
+  endFollowers: 14119 + totalIgFollows, // true IG total
+  blendedCPF: totalSpend / totalIgFollows, // ~$5.90 (all spend ÷ total follows, paid + organic)
+  engagementCPF: engagementSpend / engagementFollows, // ~$2.96 ($2,948 ÷ 997 paid follows)
   totalReach: 1782800, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 1848317,
   engagementCTR: 8.74, // Engagement link CTR (13,333 clicks ÷ 152,541 impressions) — inflated by "What Did I Just Witness"
   messagingContacts: 0, // not imported for August
   unfollows: 0,
-  organicExportMissing: true, // no IG Insights export — followerGrowth is a floor
+  organicExportMissing: false, // IG Insights export included — followerGrowth is the true total
 }
 
 export const AUGUST_SPEND_BY_CAMPAIGN = [
@@ -113,16 +117,17 @@ export const AUGUST_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
-// Weekly ad-attributed Engagement follows (Mon–Sun buckets). No IG organic export
-// this month, so total = paid. The story is in the visit-to-follow RATE, not the
-// follow count: profile visits climbed hard in weeks 4–5 while follows fell as the
-// non-converting "What Did I Just Witness" video absorbed volume (see Testing tab).
+// Weekly follows (Mon–Sun buckets): paid = ad-attributed Engagement follows;
+// total = IG Insights "Instagram follows" export. The gap between the two bars is
+// organic/non-ad lift (339 for the month, ~25%). Organic was strongest in week 1
+// (161 of 306) and thinned out later — the paid engine carried the back half of
+// the month while the visit-to-follow RATE collapsed (see Testing tab).
 export const AUGUST_WEEKLY_FOLLOWS = [
-  { week: "Aug 1–7", paid: 145, total: 145, note: "Visit→follow ~33% — proven converters (Imagine Hating On Me)" },
-  { week: "Aug 8–14", paid: 198, total: 198, note: "Visit→follow ~12% — Multi Post absorbs visits" },
-  { week: "Aug 15–21", paid: 299, total: 299, note: "Best week — visit→follow ~17%, CPF ~$2.46" },
-  { week: "Aug 22–28", paid: 288, total: 288, note: "Visits surge (~5.7K), follow rate ~5% — new video launches" },
-  { week: "Aug 29–31", paid: 67, total: 67, note: "Visit→follow ~2% — rotation problem at its peak" },
+  { week: "Aug 1–7", paid: 145, total: 306, note: "Strong organic lift (+161) on top of paid; visit→follow ~34%" },
+  { week: "Aug 8–14", paid: 198, total: 245, note: "Organic +47; paid visit→follow ~22%" },
+  { week: "Aug 15–21", paid: 299, total: 345, note: "Best paid week — CPF ~$2.46; organic +46" },
+  { week: "Aug 22–28", paid: 288, total: 358, note: "Organic +70 (Aug 23 spike); paid follow rate ~5% as new video launches" },
+  { week: "Aug 29–31", paid: 67, total: 82, note: "Organic +15; paid visit→follow ~2% — rotation problem at its peak" },
 ]
 
 // Overview narrative for August. Replaces the generic "40–75% below benchmark"
@@ -133,7 +138,7 @@ export const AUGUST_WEEKLY_FOLLOWS = [
 // instead of more follows. Retailer Support and Awareness stayed roughly flat.
 export const AUGUST_OVERVIEW_ANALYSIS: OverviewAnalysis = {
   executiveSummary:
-    "Retailer Support and the evergreen Instagram Awareness campaign are healthy and roughly flat month over month. The follower decline is entirely concentrated in the Instagram Engagement Campaign, and it's structural: in July, follower growth ran across three parallel ad sets; in August it was consolidated into one, which nearly doubled that ad set's daily spend without a matching increase in creative variety. The extra spend bought a lot of low-intent profile traffic rather than more followers.",
+    "The account added 1,336 followers in August (per the IG Insights export): 997 ad-attributed (75%) and 339 organic (25%), so there was genuine organic lift on top of paid — strongest in the first week. Retailer Support and the evergreen Instagram Awareness campaign are healthy and roughly flat month over month. The follower decline is concentrated in the Instagram Engagement Campaign, and it's structural: in July, follower growth ran across three parallel ad sets; in August it was consolidated into one, which nearly doubled that ad set's daily spend without a matching increase in creative variety. The extra spend bought a lot of low-intent profile traffic rather than more followers.",
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
