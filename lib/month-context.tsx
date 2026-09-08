@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from "react"
 
-export type MonthKey = "apr-2026" | "may-2026" | "jun-2026" | "jul-2026"
+export type MonthKey = "apr-2026" | "may-2026" | "jun-2026" | "jul-2026" | "aug-2026"
 
 export type ComparisonMode = "last-month" | "last-quarter" | "ytd"
 
@@ -23,6 +23,7 @@ export const MONTHS: MonthInfo[] = [
   { key: "may-2026", label: "May 2026", dateRange: "May 1–31, 2026", daysInMonth: 31, prevMonthKey: "apr-2026" },
   { key: "jun-2026", label: "June 2026", dateRange: "Jun 1–30, 2026", daysInMonth: 30, prevMonthKey: "may-2026" },
   { key: "jul-2026", label: "July 2026", dateRange: "Jul 1–31, 2026", daysInMonth: 31, prevMonthKey: "jun-2026" },
+  { key: "aug-2026", label: "August 2026", dateRange: "Aug 1–31, 2026", daysInMonth: 31, prevMonthKey: "jul-2026" },
 ]
 
 interface MonthContextType {
