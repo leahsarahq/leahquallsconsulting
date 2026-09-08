@@ -3,7 +3,6 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { KPICard } from "@/components/kpi-card"
 import { ChartSection } from "@/components/chart-section"
-import { SeptemberTracking } from "@/components/september-tracking"
 import { getDataForMonth } from "@/lib/data"
 import { getComparison } from "@/lib/data/comparisons"
 import { useMonth } from "@/lib/month-context"
@@ -515,8 +514,6 @@ export function OverviewTab() {
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">{overviewAnalysis.deepDive.caption}</p>
           </div>
-
-          <SeptemberTracking />
         </>
       )}
     </div>

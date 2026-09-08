@@ -4,6 +4,7 @@ import { MAY_KPI_DATA } from "./may-2026"
 import { JUNE_KPI_DATA } from "./june-2026"
 import { JULY_KPI_DATA } from "./july-2026"
 import { AUGUST_KPI_DATA } from "./august-2026"
+import { SEPTEMBER_KPI_DATA } from "./september-2026"
 
 export const COMPARISON_OPTIONS: { key: ComparisonMode; label: string }[] = [
   { key: "last-month", label: "vs. last month" },
@@ -123,6 +124,18 @@ const MONTH_SERIES: MonthlyMetrics[] = [
     paidFollows: AUGUST_KPI_DATA.paidFollows,
     // August messaging not imported — null so it's excluded from averages.
     messagingContacts: AUGUST_KPI_DATA.messagingContacts || null,
+  },
+  {
+    key: "sep-2026",
+    label: "September",
+    followerGrowth: SEPTEMBER_KPI_DATA.followerGrowth,
+    blendedCPF: SEPTEMBER_KPI_DATA.blendedCPF,
+    engagementCPF: SEPTEMBER_KPI_DATA.engagementCPF,
+    engagementCTR: SEPTEMBER_KPI_DATA.engagementCTR,
+    totalImpressions: SEPTEMBER_KPI_DATA.totalImpressions,
+    paidFollows: SEPTEMBER_KPI_DATA.paidFollows,
+    // September messaging not imported — null so it's excluded from averages.
+    messagingContacts: SEPTEMBER_KPI_DATA.messagingContacts || null,
   },
 ]
 
