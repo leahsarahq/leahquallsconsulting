@@ -108,11 +108,19 @@ export function OverviewTab() {
               )}
             </div>
           </div>
-          {/* CPF win */}
+          {/* CPF win — lead with Engagement CPF when no organic export exists,
+              since blended CPF is inflated and not an apples-to-apples figure. */}
           <div className="flex gap-3">
             <div className="w-1 bg-primary rounded-full flex-shrink-0" />
             <div>
-              {hasComparison && cpfImprovement != null && cpfImprovement > 0 ? (
+              {kpiData.organicExportMissing ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">Engagement CPF ${kpiData.engagementCPF.toFixed(2)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    follow-driving campaign · within $2–5 benchmark for new CPG brands
+                  </p>
+                </>
+              ) : hasComparison && cpfImprovement != null && cpfImprovement > 0 ? (
                 <>
                   <p className="text-sm font-medium text-foreground">CPF improved {cpfImprovement}% vs. {comparison.label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -175,11 +183,22 @@ export function OverviewTab() {
         </div>
         <div className="bg-card border border-border rounded-xl p-3">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Awareness lift</p>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-semibold">+{kpiData.followerGrowth - kpiData.paidFollows}</span>
-            <span className="text-xs text-muted-foreground">follows</span>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">unattributed (organic + halo)</p>
+          {kpiData.organicExportMissing ? (
+            <>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-semibold">n/a</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">no IG Insights export this month</p>
+            </>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-semibold">+{kpiData.followerGrowth - kpiData.paidFollows}</span>
+                <span className="text-xs text-muted-foreground">follows</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-0.5">unattributed (organic + halo)</p>
+            </>
+          )}
         </div>
       </div>
 
@@ -255,9 +274,9 @@ export function OverviewTab() {
           subtext={monthInfo.dateRange}
         />
         <KPICard
-          label="Blended CPF"
+          label={kpiData.organicExportMissing ? "Blended CPF (inflated)" : "Blended CPF"}
           value={`$${kpiData.blendedCPF.toFixed(2)}`}
-          subtext="cost per follower"
+          subtext={kpiData.organicExportMissing ? "all spend ÷ paid follows · see Engagement CPF" : "cost per follower"}
         />
         <KPICard
           label="Total reach"
@@ -316,7 +335,7 @@ export function OverviewTab() {
           />
         </ChartSection>
 
-        <ChartSection title="Follower growth by week" subtitle="Total follows from Instagram Insights">
+        <ChartSection title="Follower growth by week" subtitle={kpiData.organicExportMissing ? "Ad-attributed follows only — no IG Insights export this month" : "Total follows from Instagram Insights"}>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyFollows}>
