@@ -104,6 +104,7 @@ export const AUGUST_KPI_DATA: KPIData = {
   engagementCTR: 8.74, // Engagement link CTR (13,333 clicks ÷ 152,541 impressions) — inflated by "What Did I Just Witness"
   messagingContacts: 0, // not imported for August
   unfollows: 0,
+  organicExportMissing: true, // no IG Insights export — followerGrowth is a floor
 }
 
 export const AUGUST_SPEND_BY_CAMPAIGN = [

@@ -18,6 +18,11 @@ export interface KPIData {
   engagementCTR: number
   messagingContacts: number
   unfollows: number
+  // True when no IG Insights "Follows" export was provided for the month, so
+  // `followerGrowth` is an ad-attributed FLOOR (organic lift not counted) and
+  // `blendedCPF` is therefore inflated. Overview demotes blended CPF and hides
+  // the unattributed "Awareness lift" figure when this is set.
+  organicExportMissing?: boolean
 }
 
 export interface AdData {
