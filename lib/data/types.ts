@@ -178,7 +178,6 @@ export interface OverviewAnalysis {
     }[]
     caption: string
   }
-  recommendations: string[]
 }
 
 // Q1 2026 baseline (no paid ads) - for comparison

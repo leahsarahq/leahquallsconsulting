@@ -187,12 +187,6 @@ export const AUGUST_OVERVIEW_ANALYSIS: OverviewAnalysis = {
     caption:
       "\"What Did I Just Witness\" drove more profile traffic than any other creative all month but converted almost none of it — 0.12% vs. 30%+ for the earlier posts. Whatever hook or format \"Imagine Hating On Me,\" \"4 Easy Pasta Dinners,\" and \"Frozen Pasta Can't Be That Good\" share is what's actually driving growth.",
   },
-  recommendations: [
-    "Split the Engagement campaign's budget back across multiple ad sets rather than concentrating it in one — July's three-way split converted at a blended $1.79 cost per follow with a steady 27–41% weekly visit-to-follow rate; one consolidated ad set at nearly double the daily spend hasn't matched that.",
-    "Retire or pair \"What Did I Just Witness\" with a stronger follow-oriented CTA, and lean into whatever \"Imagine Hating On Me,\" \"4 Easy Pasta Dinners,\" and \"Frozen Pasta Can't Be That Good\" have in common.",
-    "For Retailer Support, confirm whether dropping the dedicated WFM/Target awareness ads after the Aug 13 campaign split was intentional.",
-    "Track cost-per-follow and visit-to-follow rate weekly rather than monthly for the Engagement campaign — the swing from $11 to $2.36 back to $13 in a single month shows a monthly average hides real volatility.",
-  ],
 }
 
 // Testing context for August — the headline story lives here. A 3-way read of the

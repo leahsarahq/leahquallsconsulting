@@ -512,19 +512,6 @@ export function OverviewTab() {
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">{overviewAnalysis.deepDive.caption}</p>
           </div>
-
-          {/* Recommendations */}
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Recommendations</h3>
-            <ul className="flex flex-col gap-2.5">
-              {overviewAnalysis.recommendations.map((rec, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="text-xs font-semibold text-primary tabular-nums mt-0.5">{i + 1}</span>
-                  <p className="text-xs text-muted-foreground leading-relaxed text-pretty">{rec}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
         </>
       )}
     </div>
