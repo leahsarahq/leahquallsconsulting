@@ -8,7 +8,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'Ripi Foods — Meta Ads Dashboard',
-  description: 'April 2026 Meta Ads Performance Dashboard for Ripi Foods',
+  description: 'Meta Ads performance dashboard for Ripi Foods (Apr–Aug 2026)',
   generator: 'v0.app',
   icons: {
     icon: [
