@@ -448,12 +448,14 @@ export function OverviewTab() {
             <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
               {overviewAnalysis.monthChange.explanation}
             </p>
-            <div className="mt-3 border-l-2 border-border pl-3">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">Caveat</p>
-              <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
-                {overviewAnalysis.monthChange.caveat}
-              </p>
-            </div>
+            {overviewAnalysis.monthChange.caveat && (
+              <div className="mt-3 border-l-2 border-border pl-3">
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">Caveat</p>
+                <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
+                  {overviewAnalysis.monthChange.caveat}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Follower Growth Deep Dive */}

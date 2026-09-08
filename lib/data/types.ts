@@ -157,7 +157,7 @@ export interface OverviewAnalysis {
       dir: "bad" | "good" | "neutral"
     }[]
     explanation: string
-    caveat: string
+    caveat?: string
   }
   deepDive: {
     title: string
