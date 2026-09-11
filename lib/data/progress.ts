@@ -144,7 +144,10 @@ export function getMonthProgress(
   // Run-rate projections
   const factor = daysElapsed > 0 ? daysInMonth / daysElapsed : 0
   const projectedFollows = Math.round(mtdFollows * factor)
-  const projectedSpend = Math.round(mtdSpend * factor)
+  // Engagement-only run-rate so the projected spend matches the engagement-scoped
+  // MTD spend, follows, and CPF shown throughout this view (total-account spend
+  // would both mismatch the tracked metric and mix day windows across campaigns).
+  const projectedSpend = Math.round(mtdEngagementSpend * factor)
 
   // Total follower growth from IG Insights (organic + paid). Tracked on its own
   // day count because the IG export can lag the ad export by a day or two.
