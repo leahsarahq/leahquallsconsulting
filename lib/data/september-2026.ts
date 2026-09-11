@@ -1,10 +1,12 @@
 import type { Campaign, KPIData, OverviewAnalysis, IgDailyFollow } from "./types"
 
 // September 2026 data — MONTH-TO-DATE, still in progress.
-// - Day-by-day campaign data (spend + ad-attributed follows) is complete through
-//   Sept 8; Sept 8 is a PARTIAL reporting day (below the daily run rate).
-// - A fresher Ad sets export (Sept 1–11) refreshes the Engagement Broad-vs-Lookalike
-//   read — those ad-set figures are labeled "through Sept 11" where they appear.
+// - The Progress "tracking" view (CPF + follows) is scoped to the ENGAGEMENT campaign.
+//   Engagement daily data runs through Sept 11 (Sept 1–8 from the reconciled daily
+//   export; Sept 9–11 from the fresher Sept 1–11 Engagement ad-set export, distributed
+//   evenly across those three days since only the window aggregate was provided).
+// - All-campaign daily data (Awareness + Retailer) is only complete through Sept 8, so
+//   those days carry Engagement only — that's fine because tracking is Engagement-scoped.
 // - IG Insights "Instagram follows" export is now in through Sept 8 (Sept 9–11 aren't
 //   reported yet — IG's follower metric lags the ad export by ~2–3 days). Over the
 //   matched Sept 1–8 window, IG total follows = 652 vs. 506 ad-attributed → ~146 organic
@@ -27,6 +29,16 @@ export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number
   "2026-09-06": { "Awareness Campaign": { spend: 111.36, follows: 0 }, "Engagement Campaign": { spend: 229.85, follows: 75 }, "Retailer Support": { spend: 168.59, follows: 0 } },
   "2026-09-07": { "Awareness Campaign": { spend: 102.63, follows: 0 }, "Engagement Campaign": { spend: 159.93, follows: 61 }, "Retailer Support": { spend: 202.04, follows: 1 } },
   "2026-09-08": { "Awareness Campaign": { spend: 23.17, follows: 0 }, "Engagement Campaign": { spend: 62.12, follows: 17 }, "Retailer Support": { spend: 103.21, follows: 0 } },
+  // Sept 9–11: ENGAGEMENT ONLY. The tracking view (CPF + follows) is scoped to the
+  // Engagement campaign, so it advances with the fresher Sept 1–11 Engagement ad-set
+  // export even though Awareness/Retailer daily data isn't in yet for these days.
+  // The Sept 1–11 Engagement total is $1,927.96 / 707 follows; subtracting the
+  // reconciled Sept 1–8 daily total ($1,395.75 / 505) leaves $532.21 / 202 follows for
+  // Sept 9–11. Only the 3-day window aggregate was provided (not per-day), so it's
+  // distributed evenly across the three days for the cumulative tracking series.
+  "2026-09-09": { "Engagement Campaign": { spend: 177.40, follows: 67 } },
+  "2026-09-10": { "Engagement Campaign": { spend: 177.40, follows: 67 } },
+  "2026-09-11": { "Engagement Campaign": { spend: 177.41, follows: 68 } },
 }
 
 // Ad-level aggregates (Sept 1–8). Campaign spend totals below reconcile to the Ads
@@ -97,7 +109,7 @@ export const SEPTEMBER_KPI_DATA: KPIData = {
   startFollowers: 15455, // end of August (14,119 + 1,336)
   endFollowers: 15455 + igTotalThrough8,
   blendedCPF: totalSpend / igTotalThrough8, // now window-matched (all spend ÷ IG total, both through Sept 8)
-  engagementCPF: 1395.75 / engagementFollows, // ~$2.76 ($1,395.75 ÷ 505 follows, Sept 1–8 daily)
+  engagementCPF: 1927.96 / 707, // ~$2.73 ($1,927.96 ÷ 707 follows, Engagement Sept 1–11)
   totalReach: 642580, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 671368,
   engagementCTR: 6.55, // Engagement link CTR (6,662 clicks ÷ 101,727 impressions)
