@@ -123,7 +123,7 @@ export function ProgressTab() {
     .map((w) => ({
       name: w.label,
       follows: w.paidFollows,
-      spend: w.totalSpend,
+      spend: w.engagementSpend,
     }))
 
   const aheadOfPace = compDelta != null && compDelta >= 0
@@ -385,7 +385,7 @@ export function ProgressTab() {
                     </div>
                     <div className="flex items-baseline justify-between">
                       <span className="text-[11px] text-muted-foreground">Spend</span>
-                      <span className="text-sm">${w.totalSpend.toLocaleString()}</span>
+                      <span className="text-sm">${w.engagementSpend.toLocaleString()}</span>
                     </div>
                     <div className="flex items-baseline justify-between">
                       <span className="text-[11px] text-muted-foreground">CPF</span>
@@ -402,7 +402,7 @@ export function ProgressTab() {
       </div>
 
       {/* Weekly follows + spend bar chart */}
-      <ChartSection title="Weekly follows & spend" subtitle={`${monthInfo.label} · paid follows and total spend per week`}>
+      <ChartSection title="Weekly follows & spend" subtitle={`${monthInfo.label} · engagement-campaign follows and spend per week`}>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weekChartData} margin={{ top: 5, right: 8, left: -10, bottom: 5 }}>
@@ -422,7 +422,7 @@ export function ProgressTab() {
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] text-muted-foreground mt-2">
-          Follows are engagement-campaign attributed. Spend shown per week:{" "}
+          Follows and spend are engagement-campaign only. Spend shown per week:{" "}
           {weekChartData.map((w, i) => (
             <span key={w.name}>
               {i > 0 && " · "}
