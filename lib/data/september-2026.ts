@@ -1,21 +1,23 @@
 import type { Campaign, KPIData, OverviewAnalysis, IgDailyFollow } from "./types"
 
-// September 2026 data — MONTH-TO-DATE (Sept 1–8), still in progress.
-// - All metrics come from Meta Ads Manager exports, Sept 1–8 (Campaigns / Ad sets / Ads).
-// - Sept 8 is a PARTIAL reporting day (spend/follows well below the daily run rate).
-// - IG Insights "Instagram follows" export is now in through Sept 6 only (IG's
-//   follower metric lags the ad export by ~2 days, so Sept 7–8 aren't reported yet).
-//   Over Sept 1–6, IG total follows = 523 vs. 427 ad-attributed → ~96 organic (~18%),
-//   so there IS real organic lift. `engagementCPF` ($2.76) is still the apples-to-apples
-//   PAID efficiency figure; IG total is tracked on its own (shorter) day count.
+// September 2026 data — MONTH-TO-DATE, still in progress.
+// - Day-by-day campaign data (spend + ad-attributed follows) is complete through
+//   Sept 8; Sept 8 is a PARTIAL reporting day (below the daily run rate).
+// - A fresher Ad sets export (Sept 1–11) refreshes the Engagement Broad-vs-Lookalike
+//   read — those ad-set figures are labeled "through Sept 11" where they appear.
+// - IG Insights "Instagram follows" export is now in through Sept 8 (Sept 9–11 aren't
+//   reported yet — IG's follower metric lags the ad export by ~2–3 days). Over the
+//   matched Sept 1–8 window, IG total follows = 652 vs. 506 ad-attributed → ~146 organic
+//   (~22%), so there IS real organic lift. `engagementCPF` (~$2.7) is still the
+//   apples-to-apples PAID efficiency figure; IG total is tracked on its own day count.
 //
 // Headline: the structural fix recommended after August landed. The Engagement
 // campaign is back to TWO parallel ad sets — the proven "Existing Posts (Lookalike)"
-// and a new "Existing Posts (Broad + 24-64)" testing a wider audience. Early results
-// favor Broad ($2.38 CPF, 8.78% visit→follow) over Lookalike ($3.22, 5.30%). What's
-// holding blended cost-per-follow above July's level now looks like a creative issue
-// in the Lookalike set specifically (new low-converting "Ripi x sourmilk" collab),
-// not a structural or budget one.
+// and a new "Existing Posts (Broad + 24-64)" testing a wider audience. Through Sept 11
+// the gap has widened in Broad's favor ($2.17 CPF, 10.9% visit→follow) over Lookalike
+// ($3.51, 6.1%). What's holding blended cost-per-follow above July's level now looks
+// like a creative issue in the Lookalike set specifically (new low-converting
+// "Ripi x sourmilk" collab), not a structural or budget one.
 export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-09-01": { "Awareness Campaign": { spend: 131.46, follows: 0 }, "Engagement Campaign": { spend: 185.67, follows: 63 }, "Retailer Support": { spend: 182.23, follows: 0 } },
   "2026-09-02": { "Awareness Campaign": { spend: 101.54, follows: 0 }, "Engagement Campaign": { spend: 150.99, follows: 84 }, "Retailer Support": { spend: 177.37, follows: 0 } },
@@ -70,10 +72,10 @@ const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 3482 (exa
 const engagementFollows = 505 // ad-attributed follows from the Engagement campaign
 const totalAdFollows = 506 // all ad-attributed follows (505 Engagement + 1 stray Retailer)
 
-// IG Insights total follows (organic + paid), from the "Instagram follows" export.
-// Only Sept 1–6 is reported — IG's follower metric lags the ad export by ~2 days,
-// so Sept 7–8 aren't in yet. Total through Sept 6 = 523. The Progress view tracks
-// this on its own (shorter) day count and derives the organic gap vs. ad-attributed.
+// IG Insights total follows (organic + paid), from the "Instagram follows" export,
+// now reported through Sept 8 (Sept 9–11 aren't in yet — IG's follower metric lags
+// the ad export by ~2–3 days). Total through Sept 8 = 652. The Progress view tracks
+// this alongside ad-attributed follows and derives the organic gap.
 export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-09-01", follows: 84 },
   { date: "2026-09-02", follows: 98 },
@@ -81,19 +83,21 @@ export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-09-04", follows: 65 },
   { date: "2026-09-05", follows: 69 },
   { date: "2026-09-06", follows: 100 },
+  { date: "2026-09-07", follows: 74 },
+  { date: "2026-09-08", follows: 55 },
 ]
-const igTotalThrough6 = 523 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–6)
+const igTotalThrough8 = 652 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–8)
 
-// followerGrowth uses the IG total (through Sept 6); paidFollows is the ad-attributed
-// figure through Sept 8. Over the matched Sept 1–6 window, IG 523 vs. 427 ad = ~96 organic.
+// followerGrowth uses the IG total (through Sept 8); paidFollows is the ad-attributed
+// figure through Sept 8. Over the matched Sept 1–8 window, IG 652 vs. 506 ad = ~146 organic.
 export const SEPTEMBER_KPI_DATA: KPIData = {
   totalSpend,
-  followerGrowth: igTotalThrough6, // IG total through Sept 6 (organic + paid)
+  followerGrowth: igTotalThrough8, // IG total through Sept 8 (organic + paid)
   paidFollows: totalAdFollows,
   startFollowers: 15455, // end of August (14,119 + 1,336)
-  endFollowers: 15455 + igTotalThrough6,
-  blendedCPF: totalSpend / totalAdFollows, // reference only — spend and IG follows cover different windows this month
-  engagementCPF: 1395.75 / engagementFollows, // ~$2.76 ($1,395.75 ÷ 505 follows)
+  endFollowers: 15455 + igTotalThrough8,
+  blendedCPF: totalSpend / igTotalThrough8, // now window-matched (all spend ÷ IG total, both through Sept 8)
+  engagementCPF: 1395.75 / engagementFollows, // ~$2.76 ($1,395.75 ÷ 505 follows, Sept 1–8 daily)
   totalReach: 642580, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 671368,
   engagementCTR: 6.55, // Engagement link CTR (6,662 clicks ÷ 101,727 impressions)
@@ -108,12 +112,12 @@ export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
   { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
 ]
 
-// Weekly follows: paid = ad-attributed Engagement follows. No IG export yet, so
-// total == paid (organicExportMissing hides the misleading "organic gap" framing).
+// Weekly follows: paid = ad-attributed Engagement follows; total = IG Insights total
+// (organic + paid), now available through Sept 8. The gap is the organic lift.
 // Sept 8 is a partial reporting day.
 export const SEPTEMBER_WEEKLY_FOLLOWS = [
-  { week: "Sep 1–7", paid: 488, total: 488, note: "Full week · Engagement CPF ~$2.73 · Broad audience outconverting Lookalike" },
-  { week: "Sep 8", paid: 17, total: 17, note: "Partial reporting day — not a full day of data" },
+  { week: "Sep 1–7", paid: 488, total: 597, note: "Full week · 488 ad-attributed + ~109 organic (IG) · Broad audience outconverting Lookalike" },
+  { week: "Sep 8", paid: 17, total: 55, note: "Partial reporting day — not a full day of data" },
 ]
 
 // Overview narrative for September (MTD). The structural fix recommended after
@@ -123,13 +127,13 @@ export const SEPTEMBER_WEEKLY_FOLLOWS = [
 // not a structural one — the same high-reach/low-convert pattern as August's video.
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
   executiveSummary:
-    "Through the first 8 days, September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has actually landed. The Engagement campaign is back to two parallel ad sets, and the new broader-audience set is converting better than the original so far: $2.76 engagement cost-per-follow, ahead of August's $2.96 and pacing at ~63 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–6 window (the IG follows export lags ~2 days), Instagram counted 523 total follows vs. 427 ad-attributed, meaning roughly 96 (~18%) came from organic reach. What's holding overall cost-per-follow above July's level now looks like a creative issue in the flagship Lookalike ad set specifically (a new, low-converting collab post), not a structural or budget one.",
+    "September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has actually landed. The Engagement campaign is back to two parallel ad sets, and the new broader-audience set is converting better than the original: $2.73 engagement cost-per-follow through Sept 11, ahead of August's $2.96 and pacing at ~64 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–8 window (the IG follows export lags ~2–3 days), Instagram counted 652 total follows vs. 506 ad-attributed, meaning roughly 146 (~22%) came from organic reach. What's holding overall cost-per-follow above July's level now looks like a creative issue in the flagship Lookalike ad set specifically (a new, low-converting collab post), not a structural or budget one.",
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
       objective: "Follower growth",
       judgeOn: "Cost per follow, visit-to-follow rate",
-      stat: "$1,395.75 spend · 505 follows · $2.76 CPF. Restructured to two ad sets — new Broad audience ($2.38 CPF, 8.78% visit→follow) is outconverting the Lookalike set ($3.22 CPF, 5.30%).",
+      stat: "$1,927.96 spend · 707 follows · $2.73 CPF (through Sept 11). Restructured to two ad sets — the new Broad audience ($2.17 CPF, 10.9% visit→follow) is outconverting the Lookalike set ($3.51 CPF, 6.1%).",
     },
     {
       name: "Retailer Support (Traffic + Awareness)",
@@ -148,15 +152,15 @@ export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
     priorLabel: "August",
     currentLabel: "September (pace)",
     rows: [
-      { metric: "Engagement follows / day", prior: "32.2", current: "63.1", change: "+96%", dir: "good" },
-      { metric: "Engagement cost per follow", prior: "$2.96", current: "$2.76", change: "-7%", dir: "good" },
+      { metric: "Engagement follows / day", prior: "32.2", current: "64.3", change: "+100%", dir: "good" },
+      { metric: "Engagement cost per follow", prior: "$2.96", current: "$2.73", change: "-8%", dir: "good" },
       { metric: "Active follower-growth ad sets", prior: "1", current: "2", change: "+1", dir: "good" },
       { metric: "Total spend / day", prior: "$254", current: "$435", change: "+71%", dir: "neutral" },
     ],
     explanation:
-      "The structural fix from August's review is in: the Engagement campaign now runs two parallel ad sets — the proven 'Existing Posts (Lookalike)' plus a new 'Existing Posts (Broad + 24-64)' testing a wider, non-lookalike audience. Early results favor the new audience (Broad $2.38 CPF and 8.78% visit-to-follow vs. Lookalike's $3.22 and 5.30%), so daily follows nearly doubled while cost-per-follow came down from August. The clear next lever is the Lookalike set's creative mix — if the Broad gap holds, shifting more budget toward it is worth testing.",
+      "The structural fix from August's review is in: the Engagement campaign now runs two parallel ad sets — the proven 'Existing Posts (Lookalike)' plus a new 'Existing Posts (Broad + 24-64)' testing a wider, non-lookalike audience. Through Sept 11 the new audience is pulling further ahead (Broad $2.17 CPF and 10.9% visit-to-follow vs. Lookalike's $3.51 and 6.1%), so daily follows roughly doubled while cost-per-follow came down from August. The clear next lever is the Lookalike set's creative mix — if the Broad gap holds, shifting more budget toward it is worth testing.",
     caveat:
-      "September figures are month-to-date (Sept 1–8) and the 8th is a partial reporting day, so per-day pace is the fair comparison to August's full month. No IG Insights follows export is in yet, so follower counts here are ad-attributed only.",
+      "September is month-to-date. Day-by-day spend and ad-attributed follows are complete through Sept 8 (the 8th is a partial reporting day), while the Engagement ad-set breakdown reflects a fresher Sept 1–11 pull — per-day pace is the fair comparison to August's full month. IG Insights follows are now in through Sept 8, showing ~22% organic lift on top of the paid follows.",
   },
   deepDive: {
     title: "Follower Growth Deep Dive — Engagement campaign, Broad vs. Lookalike",
@@ -165,13 +169,13 @@ export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       { week: "Sep 8 (partial)", spend: "$62", follows: "17", costPerFollow: "$3.65", profileVisits: "217", visitToFollow: "7.8%" },
     ],
     creative: [
-      { ad: "Existing Posts — Broad + 24-64 (ad set)", ran: "Sep 1–8", profileVisits: "3,144", follows: "276", visitToFollow: "8.78%" },
-      { ad: "Existing Posts — Lookalike 1% (ad set)", ran: "Sep 1–8", profileVisits: "4,320", follows: "229", visitToFollow: "5.30%" },
+      { ad: "Existing Posts — Broad + 24-64 (ad set)", ran: "Sep 1–11", profileVisits: "3,789", follows: "413", visitToFollow: "10.90%" },
+      { ad: "Existing Posts — Lookalike 1% (ad set)", ran: "Sep 1–11", profileVisits: "4,794", follows: "294", visitToFollow: "6.13%" },
       { ad: "Frozen Pasta Can't Be That Good", ran: "Sep 1–8", profileVisits: "800", follows: "168", visitToFollow: "21.0%" },
       { ad: "Cacio e Pepe Puffs", ran: "Sep 1–8", profileVisits: "3,515", follows: "269", visitToFollow: "7.65%" },
       { ad: "Ripi x sourmilk", ran: "Sep 1–8 (new)", profileVisits: "1,444", follows: "63", visitToFollow: "4.36%" },
     ],
     caption:
-      "The new Broad audience is outconverting the Lookalike set (8.78% vs. 5.30% visit-to-follow) — a plausible result of it running the proven Frozen Pasta / Cacio e Pepe Puffs combo. Inside the Lookalike set, the new \"Ripi x sourmilk\" collab is pulling strong visit volume but converting at only ~4% — the same high-reach, low-convert pattern as August's \"What Did I Just Witness.\" Worth deciding whether it belongs in the follower-growth set or a reach/awareness placement.",
+      "The new Broad audience is outconverting the Lookalike set (10.9% vs. 6.1% visit-to-follow through Sept 11) — a plausible result of it running the proven Frozen Pasta / Cacio e Pepe Puffs combo. Inside the Lookalike set, the new \"Ripi x sourmilk\" collab is pulling strong visit volume but converting at only ~4% — the same high-reach, low-convert pattern as August's \"What Did I Just Witness.\" Worth deciding whether it belongs in the follower-growth set or a reach/awareness placement.",
   },
 }
