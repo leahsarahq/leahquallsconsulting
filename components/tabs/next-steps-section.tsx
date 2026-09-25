@@ -27,14 +27,7 @@ const THIS_WEEK: ChecklistItem[] = [
     why: "\u201CFrozen Pasta Can't Be That Good\u201D is our most efficient ad, and we'll let it run uninterrupted.",
   },
   {
-    yourInput: true,
     action: "New creative for October.",
-    why: "We're looking for 1\u20132 new posts in the spirit of \u201CFrozen Pasta Can't Be That Good\u201D: a bold, witty hook that makes people want to follow, not just watch.",
-  },
-  {
-    yourInput: true,
-    action: "Approve October budget.",
-    why: "We recommend about $4,200 for the month, trimming our second audience slightly while it proves itself.",
   },
 ]
 
@@ -53,10 +46,6 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
       {
         action: "Launch new creative.",
         why: "We'll introduce new posts one at a time so we can see clearly what's working.",
-      },
-      {
-        action: "Set October budget.",
-        why: "Spend shifts toward our most efficient audience, with room to scale back up if the second audience catches up.",
       },
     ],
   },
