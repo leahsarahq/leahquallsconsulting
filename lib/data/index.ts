@@ -186,33 +186,27 @@ function engagementCPF(ads: AdData[]): number | null {
   return follows > 0 ? spend / follows : null
 }
 
-// CPF comparisons for the Progress tab's cumulative-CPF line. The running line itself
-// is computed in getMonthProgress from the daily engagement spend/follows; here we
-// provide the prior-month and prior-months average CPF from each month's ad-level
-// aggregate for the reference lines.
-export function getCpfDataForMonth(month: MonthKey): {
-  prevEngagementCPF: number | null
-  prevCpfLabel: string | null
-  avgEngagementCPF: number | null
-  avgCpfMonthCount: number
-} {
-  switch (month) {
-    case "sep-2026": {
-      const priorAds = [APRIL_ADS_DATA, MAY_ADS_DATA, JUNE_ADS_DATA, JULY_ADS_DATA, AUGUST_ADS_DATA]
-      const priorCpfs = priorAds.map(engagementCPF).filter((v): v is number => v != null)
-      return {
-        prevEngagementCPF: engagementCPF(AUGUST_ADS_DATA),
-        prevCpfLabel: "August",
-        avgEngagementCPF: priorCpfs.length ? priorCpfs.reduce((a, b) => a + b, 0) / priorCpfs.length : null,
-        avgCpfMonthCount: priorCpfs.length,
-      }
-    }
-    default:
-      return {
-        prevEngagementCPF: null,
-        prevCpfLabel: null,
-        avgEngagementCPF: null,
-        avgCpfMonthCount: 0,
-      }
-  }
+// Engagement CPF by month since the campaign launched in April, up to and including
+// the selected month. Each earlier month is its final CPF; the latest (in-progress)
+// month is month-to-date. Powers the Progress tab's "CPF since launch" trend chart.
+const CPF_HISTORY_MONTHS: { key: MonthKey; label: string; ads: AdData[] }[] = [
+  { key: "apr-2026", label: "Apr", ads: APRIL_ADS_DATA },
+  { key: "may-2026", label: "May", ads: MAY_ADS_DATA },
+  { key: "jun-2026", label: "Jun", ads: JUNE_ADS_DATA },
+  { key: "jul-2026", label: "Jul", ads: JULY_ADS_DATA },
+  { key: "aug-2026", label: "Aug", ads: AUGUST_ADS_DATA },
+  { key: "sep-2026", label: "Sep", ads: SEPTEMBER_ADS_DATA },
+]
+
+// September is the only in-progress month right now, so its CPF is month-to-date.
+const IN_PROGRESS_MONTH: MonthKey = "sep-2026"
+
+export function getCpfHistory(month: MonthKey): { label: string; cpf: number | null; mtd: boolean }[] {
+  const idx = CPF_HISTORY_MONTHS.findIndex((m) => m.key === month)
+  if (idx < 0) return []
+  return CPF_HISTORY_MONTHS.slice(0, idx + 1).map((m) => ({
+    label: m.label,
+    cpf: engagementCPF(m.ads),
+    mtd: m.key === IN_PROGRESS_MONTH && m.key === month,
+  }))
 }
