@@ -13,6 +13,7 @@ import {
   CartesianGrid,
 } from "recharts"
 import { ChartSection } from "@/components/chart-section"
+import { NextStepsSection } from "@/components/tabs/next-steps-section"
 import { getDataForMonth } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
@@ -355,6 +356,9 @@ export function ProgressTab() {
           )}
         </div>
       </ChartSection>
+
+      {/* Next Steps */}
+      <NextStepsSection />
 
       {/* Weekly breakdown cards */}
       <div>
