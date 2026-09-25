@@ -405,9 +405,6 @@ export function ProgressTab() {
         </div>
       </div>
 
-      {/* Next Steps */}
-      <NextStepsSection />
-
       {/* Weekly follows + spend bar chart */}
       <ChartSection title="Weekly follows & spend" subtitle={`${monthInfo.label} · engagement-campaign follows and spend per week`}>
         <div className="h-56">
@@ -438,6 +435,9 @@ export function ProgressTab() {
           ))}
         </p>
       </ChartSection>
+
+      {/* Next Steps */}
+      <NextStepsSection />
 
       {/* Audience demographics */}
       {demographics && (
