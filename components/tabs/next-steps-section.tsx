@@ -19,6 +19,7 @@ const THIS_WEEK: ChecklistItem[] = [
     why: "Instagram has been bringing in followers at about half the cost of Facebook.",
   },
   {
+    complete: true,
     action: "Retiring one underperforming ad.",
     why: "\u201CImagine Hating On Me\u201D has run its course, so its budget moves to stronger ads.",
   },
