@@ -28,7 +28,7 @@ const THIS_WEEK: ChecklistItem[] = [
   },
   {
     action: "New creative for October.",
-    why: "We'll need one new post every 10 days: the first by Sep 30, then Oct 10 and Oct 20. Bold, witty hooks in the spirit of \u201CFrozen Pasta Can't Be That Good\u201D perform best.",
+        why: "Three new posts will be tested through October, one every 10 days: Ripi & Dip Ranch (Oct 1), Tomato Martini (Oct 11), and a third to be announced (Oct 21).",
   },
 ]
 
@@ -63,7 +63,7 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
     label: "Oct 11",
     items: [
       {
-        action: "First test results and next new ad.",
+        action: "First test results; Tomato Martini goes live.",
       },
     ],
   },
