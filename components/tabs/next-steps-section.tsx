@@ -29,7 +29,7 @@ const THIS_WEEK: ChecklistItem[] = [
   },
   {
     action: "New creative for October.",
-        why: "Three new posts will be tested through October, one every 10 days: Ripi & Dip Ranch (Oct 1), Tomato Martini (Oct 11), and a third to be announced (Oct 21).",
+        why: "Three new posts will be tested through October, one every 10 days: Ripi & Dip Ranch (Oct 1), Tomato Martini (Oct 11), and a third to be determined (Oct 21).",
   },
 ]
 
@@ -72,7 +72,7 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
 
 const TARGETS = [
   { label: "Cost per follower", value: "about $2.00", sub: "September to date: $2.45" },
-  { label: "Profile visitors who follow", value: "20%+", sub: "September to date: 12.5%" },
+    { label: "Profile visitors who follow", value: "20%+", sub: "Last two weeks: about 21%" },
   { label: "Follower-growth spend on Instagram", value: "100%", sub: "September to date: about 75%" },
 ]
 
