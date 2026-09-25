@@ -34,8 +34,8 @@ export interface PacePoint {
   previousSpend: number | null
   /** Cumulative total follower growth (IG Insights) at this day, if available. */
   igTotal: number | null
-  /** Running cumulative engagement CPM (cumulative spend ÷ impressions × 1000), if available. */
-  cpm: number | null
+  /** Running cumulative engagement CPF (cumulative spend ÷ cumulative follows), if available. */
+  cpf: number | null
 }
 
 export interface MonthProgress {
@@ -55,9 +55,8 @@ export interface MonthProgress {
   igMtdFollows: number | null
   igDaysElapsed: number
   igProjectedFollows: number | null
-  // Running engagement CPM (cost per 1,000 impressions), if daily impressions provided.
-  cpmAvailable: boolean
-  mtdEngagementCPM: number | null
+  // Running engagement CPF (cost per follow) line availability. The MTD value is `engagementCPF`.
+  cpfAvailable: boolean
   // Pace vs previous month
   prevLabel: string
   prevAtSameDayFollows: number | null
@@ -124,7 +123,6 @@ export function getMonthProgress(
   prevLabel: string,
   igDaily?: IgDaily | null,
   priorDailyList?: DailyData[],
-  engDailyImpressions?: Record<string, number> | null,
 ): MonthProgress {
   const dates = Object.keys(daily).sort()
   const daysElapsed = dates.length ? dayOfMonth(dates[dates.length - 1]) : 0
@@ -184,30 +182,29 @@ export function getMonthProgress(
     return val
   }
 
-  // Running cumulative engagement CPM (cost per 1,000 impressions). Uses the
-  // engagement daily spend from `daily` and the daily impressions series, both
-  // keyed by the same days. Tracked as a running cumulative so the line reflects
-  // the month-to-date CPM as it evolves rather than noisy single-day spikes.
-  const cpmAvailable = !!(engDailyImpressions && Object.keys(engDailyImpressions).length)
-  const cpmCumByDay = new Map<number, number>()
-  let mtdEngagementCPM: number | null = null
-  if (cpmAvailable && engDailyImpressions) {
-    const idts = Object.keys(engDailyImpressions).sort()
+  // Running cumulative engagement CPF (cost per follow). Uses the engagement
+  // daily spend and follows from `daily`, keyed by day. Tracked as a running
+  // cumulative so the line reflects the month-to-date CPF as it evolves rather
+  // than noisy single-day spikes.
+  const cpfAvailable = mtdEngagementFollows > 0
+  const cpfCumByDay = new Map<number, number>()
+  if (cpfAvailable) {
     let cs = 0
-    let ci = 0
-    for (const dt of idts) {
-      const eng = daily[dt]?.[ENGAGEMENT]
-      cs += eng ? eng.spend : 0
-      ci += engDailyImpressions[dt] || 0
-      cpmCumByDay.set(dayOfMonth(dt), ci > 0 ? (cs / ci) * 1000 : 0)
+    let cf = 0
+    for (const date of dates) {
+      const eng = daily[date][ENGAGEMENT]
+      if (eng) {
+        cs += eng.spend
+        cf += eng.follows
+      }
+      cpfCumByDay.set(dayOfMonth(date), cf > 0 ? cs / cf : 0)
     }
-    mtdEngagementCPM = ci > 0 ? (cs / ci) * 1000 : null
   }
-  const cpmAtDay = (day: number): number | null => {
-    if (!cpmAvailable) return null
+  const cpfAtDay = (day: number): number | null => {
+    if (!cpfAvailable) return null
     let val: number | null = null
     for (let d = 1; d <= day; d++) {
-      if (cpmCumByDay.has(d)) val = cpmCumByDay.get(d)!
+      if (cpfCumByDay.has(d)) val = cpfCumByDay.get(d)!
     }
     return val
   }
@@ -284,7 +281,7 @@ export function getMonthProgress(
       currentSpend: cur ? Math.round(cur.spend) : null,
       previousSpend: prev ? Math.round(prev.spend) : null,
       igTotal: day <= igDaysElapsed ? igAtDay(day) : null,
-      cpm: cpmAtDay(day),
+      cpf: cpfAtDay(day),
     })
   }
 
@@ -331,8 +328,7 @@ export function getMonthProgress(
     avgAtSameDayFollows,
     avgFinalFollows,
     avgPaceDeltaPct,
-    cpmAvailable,
-    mtdEngagementCPM,
+    cpfAvailable,
     weeks,
     series,
   }

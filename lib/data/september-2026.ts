@@ -57,37 +57,6 @@ export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number
 }
 
 // Daily ENGAGEMENT-campaign impressions, keyed to the same days as the spend/follows
-// series above. Used to plot a running cumulative CPM (cost per 1,000 impressions)
-// on the Progress tab. Sept 1–17 are exact per-day figures from the Sept 1–17 per-ad
-// export; Sept 13 had no delivery (absent). Sept 18–24 carry the ad-level remainder —
-// Sept 1–24 total impressions (222,077) minus the exact Sept 1–17 sum (159,963) =
-// 62,114 — spread evenly across those 7 days, matching how spend/follows were carried.
-export const SEPTEMBER_ENGAGEMENT_DAILY_IMPRESSIONS: Record<string, number> = {
-  "2026-09-01": 12222,
-  "2026-09-02": 9258,
-  "2026-09-03": 13886,
-  "2026-09-04": 17256,
-  "2026-09-05": 14398,
-  "2026-09-06": 18236,
-  "2026-09-07": 12017,
-  "2026-09-08": 9138,
-  "2026-09-09": 9183,
-  "2026-09-10": 8064,
-  "2026-09-11": 8572,
-  "2026-09-12": 3241,
-  "2026-09-14": 4689,
-  "2026-09-15": 9079,
-  "2026-09-16": 8274,
-  "2026-09-17": 2450,
-  "2026-09-18": 8873,
-  "2026-09-19": 8873,
-  "2026-09-20": 8873,
-  "2026-09-21": 8873,
-  "2026-09-22": 8873,
-  "2026-09-23": 8873,
-  "2026-09-24": 8876,
-}
-
 // Ad-level aggregates (Sept 1–8). Campaign spend totals below reconcile to the Ads
 // Manager campaign export: Engagement $1,395.75, Retailer $1,260.52 (exact), Awareness
 // $825.33 (the two evergreen reach creatives account for ~$819 of it).

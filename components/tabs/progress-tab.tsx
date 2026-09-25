@@ -14,7 +14,7 @@ import {
   ReferenceLine,
 } from "recharts"
 import { ChartSection } from "@/components/chart-section"
-import { getDataForMonth, getCpmDataForMonth } from "@/lib/data"
+import { getDataForMonth, getCpfDataForMonth } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
 
@@ -24,7 +24,7 @@ const CURRENT_COLOR = "#D93732"
 const PREVIOUS_COLOR = "#660033"
 const ACCENT_COLOR = "#E8853A"
 const AVERAGE_COLOR = "#8A8175"
-const CPM_COLOR = "#2F6F8F"
+const CPF_COLOR = "#2F6F8F"
 
 function StatCard({
   label,
@@ -65,8 +65,8 @@ function PercentBar({ label, pct, max }: { label: string; pct: number; max: numb
 export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
   const { dailyData, previousMonth, priorMonthsDaily, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
-  const { engDailyImpressions, prevEngagementCPM, prevCpmLabel, avgEngagementCPM, avgCpmMonthCount } =
-    getCpmDataForMonth(selectedMonth)
+  const { prevEngagementCPF, prevCpfLabel, avgEngagementCPF, avgCpfMonthCount } =
+    getCpfDataForMonth(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
 
   const prevLabel = previousMonth?.label ?? "last month"
@@ -77,7 +77,6 @@ export function ProgressTab() {
     prevLabel,
     igDailyFollows,
     priorMonthsDaily,
-    engDailyImpressions,
   )
 
   const pace = view === "pace" || view === "avgPace"
@@ -96,8 +95,7 @@ export function ProgressTab() {
     igMtdFollows,
     igDaysElapsed,
     igProjectedFollows,
-    cpmAvailable,
-    mtdEngagementCPM,
+    cpfAvailable,
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
@@ -122,19 +120,20 @@ export function ProgressTab() {
     previous: p.previous,
     average: p.average,
     igTotal: p.igTotal,
-    cpm: p.cpm,
+    cpf: p.cpf,
   }))
 
-  // CPM comparison: current month-to-date engagement CPM vs. August and the prior-months average.
-  // A lower CPM is better (cheaper reach), so a negative delta is favorable.
-  const showCpm = cpmAvailable && !pace
-  const cpmVsPrev =
-    mtdEngagementCPM != null && prevEngagementCPM != null
-      ? ((mtdEngagementCPM - prevEngagementCPM) / prevEngagementCPM) * 100
+  // CPF comparison: current month-to-date engagement CPF vs. August and the prior-months average.
+  // A lower CPF is better (cheaper follows), so a negative delta is favorable.
+  const showCpf = cpfAvailable && !pace
+  const mtdEngagementCPF = engagementCPF
+  const cpfVsPrev =
+    mtdEngagementCPF != null && prevEngagementCPF != null
+      ? ((mtdEngagementCPF - prevEngagementCPF) / prevEngagementCPF) * 100
       : null
-  const cpmVsAvg =
-    mtdEngagementCPM != null && avgEngagementCPM != null
-      ? ((mtdEngagementCPM - avgEngagementCPM) / avgEngagementCPM) * 100
+  const cpfVsAvg =
+    mtdEngagementCPF != null && avgEngagementCPF != null
+      ? ((mtdEngagementCPF - avgEngagementCPF) / avgEngagementCPF) * 100
       : null
 
   // Weekly bar chart data (only weeks with activity)
@@ -309,15 +308,15 @@ export function ProgressTab() {
                 height={48}
               />
               <YAxis yAxisId="follows" tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
-              {showCpm && (
+              {showCpf && (
                 <YAxis
-                  yAxisId="cpm"
+                  yAxisId="cpf"
                   orientation="right"
-                  tick={{ fontSize: 10, fill: CPM_COLOR }}
+                  tick={{ fontSize: 10, fill: CPF_COLOR }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => `$${Number(v).toFixed(0)}`}
-                  width={38}
+                  tickFormatter={(v) => `$${Number(v).toFixed(2)}`}
+                  width={44}
                   domain={["auto", "auto"]}
                 />
               )}
@@ -329,33 +328,33 @@ export function ProgressTab() {
                   fontSize: "12px",
                 }}
                 formatter={(value, name) =>
-                  name === "Engagement CPM" ? [`$${Number(value).toFixed(2)}`, name] : [value, name]
+                  name === "Engagement CPF" ? [`$${Number(value).toFixed(2)}`, name] : [value, name]
                 }
               />
-              {showCpm && prevEngagementCPM != null && (
+              {showCpf && prevEngagementCPF != null && (
                 <ReferenceLine
-                  yAxisId="cpm"
-                  y={prevEngagementCPM}
+                  yAxisId="cpf"
+                  y={prevEngagementCPF}
                   stroke={PREVIOUS_COLOR}
                   strokeDasharray="4 4"
                   strokeWidth={1.5}
                   label={{
-                    value: `${prevCpmLabel} CPM $${prevEngagementCPM.toFixed(2)}`,
+                    value: `${prevCpfLabel} CPF $${prevEngagementCPF.toFixed(2)}`,
                     position: "insideTopRight",
                     fontSize: 9,
                     fill: PREVIOUS_COLOR,
                   }}
                 />
               )}
-              {showCpm && avgEngagementCPM != null && (
+              {showCpf && avgEngagementCPF != null && (
                 <ReferenceLine
-                  yAxisId="cpm"
-                  y={avgEngagementCPM}
+                  yAxisId="cpf"
+                  y={avgEngagementCPF}
                   stroke={AVERAGE_COLOR}
                   strokeDasharray="2 3"
                   strokeWidth={1.5}
                   label={{
-                    value: `${avgCpmMonthCount}-mo avg CPM $${avgEngagementCPM.toFixed(2)}`,
+                    value: `${avgCpfMonthCount}-mo avg CPF $${avgEngagementCPF.toFixed(2)}`,
                     position: "insideBottomRight",
                     fontSize: 9,
                     fill: AVERAGE_COLOR,
@@ -395,13 +394,13 @@ export function ProgressTab() {
                 strokeWidth={2.5}
                 dot={false}
               />
-              {showCpm && (
+              {showCpf && (
                 <Line
-                  yAxisId="cpm"
+                  yAxisId="cpf"
                   type="monotone"
-                  dataKey="cpm"
-                  name="Engagement CPM"
-                  stroke={CPM_COLOR}
+                  dataKey="cpf"
+                  name="Engagement CPF"
+                  stroke={CPF_COLOR}
                   strokeWidth={2}
                   dot={false}
                   connectNulls
@@ -430,33 +429,33 @@ export function ProgressTab() {
               {isAvg ? `${avgMonthCount}-month average` : prevLabel} (same day-of-month)
             </span>
           )}
-          {cpmAvailable && (
+          {showCpf && (
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CPM_COLOR }} />
-              Cumulative CPM (right axis)
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CPF_COLOR }} />
+              Cumulative CPF (right axis)
             </span>
           )}
         </div>
-        {cpmAvailable && mtdEngagementCPM != null && (
+        {showCpf && mtdEngagementCPF != null && (
           <p className="text-xs text-muted-foreground mt-2">
-            Engagement CPM is{" "}
-            <span className="font-medium text-foreground">${mtdEngagementCPM.toFixed(2)}</span> month-to-date
-            {cpmVsPrev != null && prevEngagementCPM != null && (
+            Engagement CPF is{" "}
+            <span className="font-medium text-foreground">${mtdEngagementCPF.toFixed(2)}</span> month-to-date
+            {cpfVsPrev != null && prevEngagementCPF != null && (
               <>
                 {" — "}
-                <span className={cpmVsPrev <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
-                  {cpmVsPrev <= 0 ? "down" : "up"} {Math.abs(cpmVsPrev).toFixed(1)}%
+                <span className={cpfVsPrev <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
+                  {cpfVsPrev <= 0 ? "down" : "up"} {Math.abs(cpfVsPrev).toFixed(1)}%
                 </span>{" "}
-                vs. {prevCpmLabel} (${prevEngagementCPM.toFixed(2)})
+                vs. {prevCpfLabel} (${prevEngagementCPF.toFixed(2)})
               </>
             )}
-            {cpmVsAvg != null && avgEngagementCPM != null && (
+            {cpfVsAvg != null && avgEngagementCPF != null && (
               <>
                 {" and "}
-                <span className={cpmVsAvg <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
-                  {cpmVsAvg <= 0 ? "down" : "up"} {Math.abs(cpmVsAvg).toFixed(1)}%
+                <span className={cpfVsAvg <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
+                  {cpfVsAvg <= 0 ? "down" : "up"} {Math.abs(cpfVsAvg).toFixed(1)}%
                 </span>{" "}
-                vs. the {avgCpmMonthCount}-month average pace (${avgEngagementCPM.toFixed(2)})
+                vs. the {avgCpfMonthCount}-month average pace (${avgEngagementCPF.toFixed(2)})
               </>
             )}
             .
