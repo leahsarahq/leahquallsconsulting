@@ -331,6 +331,8 @@ export function getMonthProgress(
     avgAtSameDayFollows,
     avgFinalFollows,
     avgPaceDeltaPct,
+    cpmAvailable,
+    mtdEngagementCPM,
     weeks,
     series,
   }

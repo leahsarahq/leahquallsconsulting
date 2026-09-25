@@ -39,7 +39,7 @@ import {
   SEPTEMBER_IG_DAILY_FOLLOWS,
   SEPTEMBER_ENGAGEMENT_DAILY_IMPRESSIONS,
 } from "./september-2026"
-import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
+import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext, AdData } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"

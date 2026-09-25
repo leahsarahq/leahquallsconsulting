@@ -430,7 +430,38 @@ export function ProgressTab() {
               {isAvg ? `${avgMonthCount}-month average` : prevLabel} (same day-of-month)
             </span>
           )}
+          {cpmAvailable && (
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CPM_COLOR }} />
+              Cumulative CPM (right axis)
+            </span>
+          )}
         </div>
+        {cpmAvailable && mtdEngagementCPM != null && (
+          <p className="text-xs text-muted-foreground mt-2">
+            Engagement CPM is{" "}
+            <span className="font-medium text-foreground">${mtdEngagementCPM.toFixed(2)}</span> month-to-date
+            {cpmVsPrev != null && prevEngagementCPM != null && (
+              <>
+                {" — "}
+                <span className={cpmVsPrev <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
+                  {cpmVsPrev <= 0 ? "down" : "up"} {Math.abs(cpmVsPrev).toFixed(1)}%
+                </span>{" "}
+                vs. {prevCpmLabel} (${prevEngagementCPM.toFixed(2)})
+              </>
+            )}
+            {cpmVsAvg != null && avgEngagementCPM != null && (
+              <>
+                {" and "}
+                <span className={cpmVsAvg <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}>
+                  {cpmVsAvg <= 0 ? "down" : "up"} {Math.abs(cpmVsAvg).toFixed(1)}%
+                </span>{" "}
+                vs. the {avgCpmMonthCount}-month average pace (${avgEngagementCPM.toFixed(2)})
+              </>
+            )}
+            .
+          </p>
+        )}
       </ChartSection>
 
       {/* Weekly breakdown cards */}
