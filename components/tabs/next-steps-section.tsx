@@ -28,6 +28,7 @@ const THIS_WEEK: ChecklistItem[] = [
   },
   {
     action: "New creative for October.",
+    why: "We'll need one new post every 10 days: the first by Sep 30, then Oct 10 and Oct 20. Bold, witty hooks in the spirit of \u201CFrozen Pasta Can't Be That Good\u201D perform best.",
   },
 ]
 
@@ -40,12 +41,12 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
         why: "This extends the change we made this week to our second audience.",
       },
       {
-        action: "Run our top ad across both audiences.",
-        why: "It shows us which audience grows the account most efficiently, on equal footing.",
+        action: "Start a 10-day creative testing cycle.",
+        why: "Our second audience will test one new ad at a time against a current performer. Every 10 days we keep the winner and bring in something new.",
       },
       {
-        action: "Launch new creative.",
-        why: "We'll introduce new posts one at a time so we can see clearly what's working.",
+        action: "First new ad goes live.",
+        why: "Strong performers move into our main audience to keep results fresh.",
       },
     ],
   },
@@ -59,10 +60,10 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
     ],
   },
   {
-    label: "Oct 8",
+    label: "Oct 11",
     items: [
       {
-        action: "First results readout.",
+        action: "First test results and next new ad.",
       },
     ],
   },
