@@ -20,7 +20,7 @@ const THIS_WEEK: ChecklistItem[] = [
   },
   {
     complete: true,
-    action: "Retiring one underperforming ad.",
+    action: "Retired one underperforming ad.",
     why: "\u201CImagine Hating On Me\u201D has run its course, so its budget moves to stronger ads.",
   },
   {
@@ -46,8 +46,8 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
         why: "Our second audience will test one new ad at a time against a current performer. Every 10 days we keep the winner and bring in something new.",
       },
       {
-        action: "First new ad goes live.",
-        why: "Strong performers move into our main audience to keep results fresh.",
+        action: "Ripi & Dip Ranch goes live.",
+        why: "Ads that beat our current performers will move into our main audience.",
       },
     ],
   },
@@ -55,8 +55,8 @@ const NEXT_WEEK_GROUPS: ChecklistGroup[] = [
     label: "Ongoing",
     items: [
       {
-        action: "Weekly check on every ad.",
-        why: "Any ad that isn't turning visitors into followers gets paused quickly, so budget always goes to what's working.",
+        action: "Ongoing monitoring of every ad.",
+        why: "We watch results daily and make changes at each 10-day checkpoint, so every new ad gets a fair test.",
       },
     ],
   },
@@ -74,7 +74,6 @@ const TARGETS = [
   { label: "Cost per follower", value: "about $2.00", sub: "September to date: $2.45" },
   { label: "Profile visitors who follow", value: "20%+", sub: "September to date: 12.5%" },
   { label: "Follower-growth spend on Instagram", value: "100%", sub: "September to date: about 75%" },
-  { label: "October spend", value: "about $4,200", sub: "Pending approval." },
 ]
 
 function Marker({ complete }: { complete?: boolean }) {
@@ -143,11 +142,11 @@ export function NextStepsSection() {
 
         <div className="flex flex-col rounded-xl border border-border bg-card p-4">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Next week (Oct 1&ndash;7)
+            Next two weeks (Oct 1&ndash;11)
           </p>
           <h4 className="mt-0.5 text-[13px] font-semibold text-foreground">October refresh</h4>
           <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-            All updates go live together Oct 1, then settle for a week.
+            Updates go live Oct 1, then each test runs a full 10 days before we review.
           </p>
           <div className="mt-4 space-y-4">
             {NEXT_WEEK_GROUPS.map((group) => (
@@ -167,7 +166,7 @@ export function NextStepsSection() {
       {/* Target strip */}
       <div className="rounded-xl border border-border bg-card p-4">
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">October goals</p>
-        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TARGETS.map((t) => (
             <div key={t.label} className="rounded-lg border border-border bg-muted/30 p-3">
               <p className="text-[11px] text-muted-foreground">{t.label}</p>
