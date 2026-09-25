@@ -1,4 +1,4 @@
-type ChecklistStatus = "done" | "todo" | "watch"
+type ChecklistStatus = "complete" | "thisWeek" | "oct1" | "yourInput" | "ongoing" | "oct8"
 
 type ChecklistItem = {
   status: ChecklistStatus
@@ -7,86 +7,79 @@ type ChecklistItem = {
 }
 
 const STATUS_STYLES: Record<ChecklistStatus, { label: string; className: string }> = {
-  done: { label: "Done", className: "bg-[#E4EEE4] text-[#3F6F3F]" },
-  todo: { label: "To do", className: "bg-[#FBE6E5] text-[#B02B27]" },
-  watch: { label: "Watch", className: "bg-muted text-muted-foreground" },
+  complete: { label: "Complete", className: "bg-[#E4EEE4] text-[#3F6F3F]" },
+  thisWeek: { label: "This week", className: "bg-[#FBE6E5] text-[#B02B27]" },
+  oct1: { label: "Oct 1", className: "bg-[#FBE6E5] text-[#B02B27]" },
+  yourInput: { label: "Your input", className: "bg-[#FBF0DC] text-[#8A5A00]" },
+  ongoing: { label: "Ongoing", className: "bg-muted text-muted-foreground" },
+  oct8: { label: "Oct 8", className: "bg-muted text-muted-foreground" },
 }
 
 const THIS_WEEK: ChecklistItem[] = [
   {
-    status: "done",
-    action: "Moved the Lookalike ad set to Instagram-only placements (Sep 24).",
-    why: "Facebook placements took 27% of this ad set's spend at $4.07 per follow, against $1.98 on Instagram.",
+    status: "complete",
+    action: "Shifted our lookalike audience to Instagram only.",
+    why: "Instagram has been bringing in followers at about half the cost of Facebook.",
   },
   {
-    status: "todo",
-    action: "Pause \u201CImagine Hating On Me.\u201D",
-    why: "$6.27 per follow over the last 7 days (16 follows on $100 spend).",
+    status: "thisWeek",
+    action: "Retiring one underperforming ad.",
+    why: "\u201CImagine Hating On Me\u201D has run its course, so its budget moves to stronger ads.",
   },
   {
-    status: "watch",
-    action: "Keep the Broad ad set unchanged as the control.",
-    why: "It's running our best ad at about $1.80 CPF. Leaving it alone lets us read the Lookalike placement change cleanly, and it avoids a learning reset before month-end.",
+    status: "thisWeek",
+    action: "Keeping our top ad steady through month-end.",
+    why: "\u201CFrozen Pasta Can't Be That Good\u201D is our most efficient ad, and we'll let it run uninterrupted.",
   },
   {
-    status: "watch",
-    action: "Check Lookalike delivery daily while it re-learns.",
-    why: "If spend stays more than 20% under budget after day 3, the Instagram-only audience may be too narrow.",
+    status: "yourInput",
+    action: "New creative for October.",
+    why: "We're looking for 1\u20132 new posts in the spirit of \u201CFrozen Pasta Can't Be That Good\u201D: a bold, witty hook that makes people want to follow, not just watch.",
   },
   {
-    status: "todo",
-    action: "Pull the placement breakdown by month (Jul / Aug / Sep).",
-    why: "This confirms whether Facebook's share of spend grew in August and helped drive the CPF jump.",
-  },
-  {
-    status: "todo",
-    action: "Brief Kendall on 1\u20132 new creatives to launch Oct 1.",
-    why: "\u201CFrozen Pasta Can't Be That Good\u201D is wearing out (visit-to-follow down from 40% to 22%). We need a successor that's cheap to show (about $15 CPM) and turns 20%+ of profile visitors into followers.",
-  },
-  {
-    status: "todo",
-    action: "Align with Ian on October budget.",
-    why: "The choice is between holding $75/$75 for follower volume and trimming the Lookalike for efficiency.",
+    status: "yourInput",
+    action: "October budget.",
+    why: "We'll bring a recommendation on whether to keep the current level for follower volume or trim slightly for efficiency.",
   },
 ]
 
 const NEXT_WEEK: ChecklistItem[] = [
   {
-    status: "todo",
-    action: "Move the Broad ad set to Instagram-only placements.",
-    why: "Its Facebook placements ran $2.97 per follow, against $1.81 on Instagram.",
+    status: "oct1",
+    action: "Move all follower-growth spend to Instagram.",
+    why: "This extends the change we made this week to our second audience.",
   },
   {
-    status: "todo",
-    action: "Add \u201CFrozen Pasta Can't Be That Good\u201D to the Lookalike ad set.",
-    why: "Broad currently runs only that ad, and Lookalike runs different ads. Putting the same ad in both gives a fair audience test.",
+    status: "oct1",
+    action: "Run our top ad across both audiences.",
+    why: "It shows us which audience grows the account most efficiently, on equal footing.",
   },
   {
-    status: "todo",
-    action: "Launch the new creative in one test slot.",
-    why: "At our budget we test one variable at a time.",
+    status: "oct1",
+    action: "Launch new creative.",
+    why: "We'll introduce new posts one at a time so we can see clearly what's working.",
   },
   {
-    status: "todo",
-    action: "Apply the October budget decision.",
-    why: "Whatever Ian and the team land on for the $75/$75 hold vs. an efficiency trim.",
+    status: "oct1",
+    action: "Apply the October budget.",
+    why: "",
   },
   {
-    status: "todo",
-    action: "Turn on the kill rule.",
-    why: "After about $40 spend, pause any ad with a visit-to-follow rate under 10% or a CPF more than 2x target. CTR and profile visits have been misleading \u2014 \u201CWhat Did I Just Witness\u201D had a 16% CTR and got 7 follows on $467.",
+    status: "ongoing",
+    action: "Weekly check on every ad.",
+    why: "Any ad that isn't turning visitors into followers gets paused quickly, so budget always goes to what's working.",
   },
   {
-    status: "watch",
-    action: "No edits Oct 2\u20137 while Meta re-learns; read the results Oct 8.",
-    why: "One clean learning window gives a readable result.",
+    status: "oct8",
+    action: "First results readout.",
+    why: "",
   },
 ]
 
 const TARGETS = [
-  { label: "Engagement CPF", value: "$2.00\u20132.10", sub: "Sept MTD: $2.45" },
-  { label: "Visit \u2192 follow rate", value: "20%+", sub: "Sept MTD: 12.5%" },
-  { label: "Share of spend on Facebook", value: "0%", sub: "Jul\u2013Sep: 25%" },
+  { label: "Cost per follower", value: "about $2.00", sub: "September to date: $2.45" },
+  { label: "Profile visitors who follow", value: "20%+", sub: "September to date: 12.5%" },
+  { label: "Follower-growth spend on Instagram", value: "100%", sub: "" },
 ]
 
 function StatusChip({ status }: { status: ChecklistStatus }) {
@@ -108,7 +101,9 @@ function Checklist({ items }: { items: ChecklistItem[] }) {
           <StatusChip status={item.status} />
           <div className="min-w-0">
             <p className="text-[13px] font-semibold leading-snug text-foreground">{item.action}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{item.why}</p>
+            {item.why ? (
+              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{item.why}</p>
+            ) : null}
           </div>
         </li>
       ))}
@@ -120,20 +115,21 @@ export function NextStepsSection() {
   return (
     <section className="space-y-3">
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Next Steps</h3>
-        <p className="text-[11px] text-muted-foreground">What&apos;s changing over the next two weeks and why.</p>
+        <h3 className="text-sm font-semibold text-foreground">What&apos;s Next</h3>
+        <p className="text-[11px] text-muted-foreground">
+          Our plan for the next two weeks to bring cost per follower down.
+        </p>
       </div>
 
       {/* Context card */}
       <div className="rounded-xl border border-border bg-muted/40 p-4">
-        <p className="text-xs font-semibold text-foreground">Why we&apos;re making changes</p>
+        <p className="text-xs font-semibold text-foreground">Where we are</p>
         <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
-          Engagement CPF rose from $1.34 in July to $2.96 in August on our main ad set. The rise came from which ads
-          were running, not from the audience. Our best ad, &ldquo;Frozen Pasta Can&apos;t Be That Good,&rdquo; was out
-          of rotation for most of August. Spend went to ads that were expensive to show or that drove profile visits
-          without follows. A placement breakdown also showed Facebook placements taking 25% of spend at $3.85 per
-          follow, against $1.94 on Instagram. Both ad sets optimize for profile visits across Instagram and Facebook,
-          not for follows, so Meta was buying cheap visits that didn&apos;t convert.
+          Cost per follower rose in August and has been coming back down through September. It&apos;s $2.45
+          month-to-date, down from $2.96 in August. Our review found two clear opportunities. First, our strongest ad,
+          &ldquo;Frozen Pasta Can&apos;t Be That Good,&rdquo; drives follows more efficiently than anything else
+          we&apos;re running, so we&apos;re putting more behind it and developing its successor. Second, Instagram is
+          converting at roughly half the cost of Facebook for follower growth, so we&apos;re focusing spend there.
         </p>
       </div>
 
@@ -141,7 +137,7 @@ export function NextStepsSection() {
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">This week (Sep 24&ndash;30)</p>
-          <h4 className="mt-0.5 text-[13px] font-semibold text-foreground">Clean up, don&apos;t restructure</h4>
+          <h4 className="mt-0.5 text-[13px] font-semibold text-foreground">Focusing spend</h4>
           <div className="mt-3">
             <Checklist items={THIS_WEEK} />
           </div>
@@ -149,9 +145,9 @@ export function NextStepsSection() {
 
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Next week (Oct 1&ndash;7)</p>
-          <h4 className="mt-0.5 text-[13px] font-semibold text-foreground">One coordinated reset, then hands off</h4>
+          <h4 className="mt-0.5 text-[13px] font-semibold text-foreground">October refresh</h4>
           <p className="mt-2 rounded-lg bg-muted/50 px-2.5 py-1.5 text-[11px] leading-snug text-muted-foreground">
-            All changes go live Oct 1 together, so there&apos;s only one learning reset.
+            All updates go live together on Oct 1, then we let them settle for a week before reading results.
           </p>
           <div className="mt-3">
             <Checklist items={NEXT_WEEK} />
@@ -161,21 +157,18 @@ export function NextStepsSection() {
 
       {/* Target strip */}
       <div className="rounded-xl border border-border bg-card p-4">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          What we&apos;re aiming for in October
-        </p>
+        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">October goals</p>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TARGETS.map((t) => (
             <div key={t.label} className="rounded-lg border border-border bg-muted/30 p-3">
               <p className="text-[11px] text-muted-foreground">{t.label}</p>
               <p className="mt-1 text-lg font-semibold tabular-nums text-foreground">{t.value}</p>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">{t.sub}</p>
+              {t.sub ? <p className="mt-0.5 text-[10px] text-muted-foreground">{t.sub}</p> : null}
             </div>
           ))}
         </div>
         <p className="mt-3 text-[11px] leading-snug text-muted-foreground">
-          Getting below $2.00 depends on a new top-performing ad. Placement and ad cleanup alone should get us to about
-          $2.00&ndash;2.10.
+          New creative is the biggest lever for getting below $2.00.
         </p>
       </div>
     </section>
