@@ -34,6 +34,8 @@ export interface PacePoint {
   previousSpend: number | null
   /** Cumulative total follower growth (IG Insights) at this day, if available. */
   igTotal: number | null
+  /** Running cumulative engagement CPF (cumulative spend ÷ cumulative follows), if available. */
+  cpf: number | null
 }
 
 export interface MonthProgress {
@@ -53,6 +55,8 @@ export interface MonthProgress {
   igMtdFollows: number | null
   igDaysElapsed: number
   igProjectedFollows: number | null
+  // Running engagement CPF (cost per follow) line availability. The MTD value is `engagementCPF`.
+  cpfAvailable: boolean
   // Pace vs previous month
   prevLabel: string
   prevAtSameDayFollows: number | null
@@ -178,6 +182,33 @@ export function getMonthProgress(
     return val
   }
 
+  // Running cumulative engagement CPF (cost per follow). Uses the engagement
+  // daily spend and follows from `daily`, keyed by day. Tracked as a running
+  // cumulative so the line reflects the month-to-date CPF as it evolves rather
+  // than noisy single-day spikes.
+  const cpfAvailable = mtdEngagementFollows > 0
+  const cpfCumByDay = new Map<number, number>()
+  if (cpfAvailable) {
+    let cs = 0
+    let cf = 0
+    for (const date of dates) {
+      const eng = daily[date][ENGAGEMENT]
+      if (eng) {
+        cs += eng.spend
+        cf += eng.follows
+      }
+      cpfCumByDay.set(dayOfMonth(date), cf > 0 ? cs / cf : 0)
+    }
+  }
+  const cpfAtDay = (day: number): number | null => {
+    if (!cpfAvailable) return null
+    let val: number | null = null
+    for (let d = 1; d <= day; d++) {
+      if (cpfCumByDay.has(d)) val = cpfCumByDay.get(d)!
+    }
+    return val
+  }
+
   // Weekly buckets: 1–7, 8–14, 15–21, 22–end
   const weekDefs: [number, number][] = [
     [1, 7],
@@ -250,6 +281,7 @@ export function getMonthProgress(
       currentSpend: cur ? Math.round(cur.spend) : null,
       previousSpend: prev ? Math.round(prev.spend) : null,
       igTotal: day <= igDaysElapsed ? igAtDay(day) : null,
+      cpf: cpfAtDay(day),
     })
   }
 
@@ -296,6 +328,7 @@ export function getMonthProgress(
     avgAtSameDayFollows,
     avgFinalFollows,
     avgPaceDeltaPct,
+    cpfAvailable,
     weeks,
     series,
   }

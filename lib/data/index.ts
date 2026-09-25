@@ -38,7 +38,7 @@ import {
   SEPTEMBER_OVERVIEW_ANALYSIS,
   SEPTEMBER_IG_DAILY_FOLLOWS,
 } from "./september-2026"
-import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
+import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext, AdData } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
@@ -171,4 +171,42 @@ export function getDataForMonth(month: MonthKey) {
         overviewAnalysis: null as OverviewAnalysis | null,
       }
   }
+}
+
+// Engagement CPF (cost per follow) for a month, from its ad-level aggregate.
+function engagementCPF(ads: AdData[]): number | null {
+  let spend = 0
+  let follows = 0
+  for (const ad of ads) {
+    if (ad.campaign === "Engagement") {
+      spend += ad.spend
+      follows += ad.follows
+    }
+  }
+  return follows > 0 ? spend / follows : null
+}
+
+// Engagement CPF by month since the campaign launched in April, up to and including
+// the selected month. Each earlier month is its final CPF; the latest (in-progress)
+// month is month-to-date. Powers the Progress tab's "CPF since launch" trend chart.
+const CPF_HISTORY_MONTHS: { key: MonthKey; label: string; ads: AdData[] }[] = [
+  { key: "apr-2026", label: "Apr", ads: APRIL_ADS_DATA },
+  { key: "may-2026", label: "May", ads: MAY_ADS_DATA },
+  { key: "jun-2026", label: "Jun", ads: JUNE_ADS_DATA },
+  { key: "jul-2026", label: "Jul", ads: JULY_ADS_DATA },
+  { key: "aug-2026", label: "Aug", ads: AUGUST_ADS_DATA },
+  { key: "sep-2026", label: "Sep", ads: SEPTEMBER_ADS_DATA },
+]
+
+// September is the only in-progress month right now, so its CPF is month-to-date.
+const IN_PROGRESS_MONTH: MonthKey = "sep-2026"
+
+export function getCpfHistory(month: MonthKey): { label: string; cpf: number | null; mtd: boolean }[] {
+  const idx = CPF_HISTORY_MONTHS.findIndex((m) => m.key === month)
+  if (idx < 0) return []
+  return CPF_HISTORY_MONTHS.slice(0, idx + 1).map((m) => ({
+    label: m.label,
+    cpf: engagementCPF(m.ads),
+    mtd: m.key === IN_PROGRESS_MONTH && m.key === month,
+  }))
 }

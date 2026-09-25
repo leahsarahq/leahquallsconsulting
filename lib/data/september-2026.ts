@@ -2,24 +2,27 @@ import type { Campaign, KPIData, OverviewAnalysis, IgDailyFollow } from "./types
 
 // September 2026 data — MONTH-TO-DATE, still in progress.
 // - The Progress "tracking" view (CPF + follows) is scoped to the ENGAGEMENT campaign.
-//   Engagement daily spend + follows now come from the per-ad Ads Manager export
-//   covering Sept 1–17 (exact per-day figures for every follow-driving ad). Sept 13
-//   had no delivery, so it's absent from the series. This export supersedes the earlier
-//   partial pulls — notably Sept 8 was NOT a partial day ($124.12 / 39, not $62 / 17).
+//   Engagement figures now come from the Ads Manager export covering Sept 1–24. This
+//   pull is an ad-LEVEL aggregate (one row per follow-driving ad for the whole window,
+//   no daily breakdown), so the day-by-day series keeps the exact Sept 1–17 per-day
+//   figures and carries the Sept 18–24 remainder — Sept 1–24 total ($3,860.70 / 1,576)
+//   minus Sept 1–17 ($2,598.19 / 1,006) = $1,262.51 / 570 — spread evenly across those
+//   7 days. Sept 13 had no delivery, so it's absent from the series.
 // - All-campaign daily data (Awareness + Retailer) is only complete through Sept 8, so
-//   Sept 9–17 carry Engagement only — that's fine because tracking is Engagement-scoped.
-// - IG Insights "Instagram follows" export is now in through Sept 15 (Sept 16–17 aren't
+//   Sept 9–24 carry Engagement only — that's fine because tracking is Engagement-scoped.
+// - IG Insights "Instagram follows" export is now in through Sept 23 (Sept 24 isn't
 //   reported yet — IG's follower metric lags the ad export by ~2 days). Over the matched
-//   Sept 1–15 window, IG total follows = 1,119 vs. 890 ad-attributed → ~229 organic
-//   (~20%), so there IS real organic lift. `engagementCPF` ($2.58) is still the
+//   Sept 1–23 window, IG total follows = 1,865 vs. 1,495 ad-attributed → ~370 organic
+//   (~20%), so there IS real organic lift. `engagementCPF` ($2.45) is still the
 //   apples-to-apples PAID efficiency figure; IG total is tracked on its own day count.
 //
 // Headline: the structural fix recommended after August landed and is holding. The
 // Engagement campaign runs TWO parallel ad sets — the proven "Existing Posts
-// (Lookalike)" and a newer "Existing Posts (Broad + 24-64)". Through Sept 17 the
-// campaign has driven 1,006 ad-attributed follows at a $2.58 blended engagement CPF,
+// (Lookalike)" and a newer "Existing Posts (Broad + 24-64)". Through Sept 24 the
+// campaign has driven 1,576 ad-attributed follows at a $2.45 blended engagement CPF,
 // well ahead of August's $2.96. The "Frozen Pasta" evergreen creative is the standout
-// (506 follows at $1.73 CPF); the "Ripi x sourmilk" collab remains the weak converter.
+// (847 follows at $1.78 CPF); "Ripi x sourmilk" ($5.11) and the newly-scaled "Imagine
+// Hating On Me" ($4.71) are the weak converters.
 export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
   "2026-09-01": { "Awareness Campaign": { spend: 131.46, follows: 0 }, "Engagement Campaign": { spend: 179.25, follows: 63 }, "Retailer Support": { spend: 182.23, follows: 0 } },
   "2026-09-02": { "Awareness Campaign": { spend: 101.54, follows: 0 }, "Engagement Campaign": { spend: 150.99, follows: 84 }, "Retailer Support": { spend: 177.37, follows: 0 } },
@@ -40,8 +43,20 @@ export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number
   "2026-09-15": { "Engagement Campaign": { spend: 186.53, follows: 81 } },
   "2026-09-16": { "Engagement Campaign": { spend: 186.41, follows: 86 } },
   "2026-09-17": { "Engagement Campaign": { spend: 60.81, follows: 30 } },
+  // Sept 18–24: ENGAGEMENT ONLY. The Sept 1–24 export is an ad-LEVEL aggregate (one
+  // row per ad for the whole window, no daily breakdown), so these 7 days carry the
+  // Sept 18–24 remainder — Sept 1–24 total ($3,860.70 / 1,576) minus the exact Sept
+  // 1–17 daily series ($2,598.19 / 1,006) = $1,262.51 / 570 — spread evenly across the week.
+  "2026-09-18": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
+  "2026-09-19": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
+  "2026-09-20": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
+  "2026-09-21": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
+  "2026-09-22": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
+  "2026-09-23": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
+  "2026-09-24": { "Engagement Campaign": { spend: 180.35, follows: 81 } },
 }
 
+// Daily ENGAGEMENT-campaign impressions, keyed to the same days as the spend/follows
 // Ad-level aggregates (Sept 1–8). Campaign spend totals below reconcile to the Ads
 // Manager campaign export: Engagement $1,395.75, Retailer $1,260.52 (exact), Awareness
 // $825.33 (the two evergreen reach creatives account for ~$819 of it).
@@ -86,8 +101,8 @@ const engagementFollows = 505 // ad-attributed follows from the Engagement campa
 const totalAdFollows = 506 // all ad-attributed follows (505 Engagement + 1 stray Retailer)
 
 // IG Insights total follows (organic + paid), from the "Instagram follows" export,
-// now reported through Sept 15 (Sept 16–17 aren't in yet — IG's follower metric lags
-// the ad export by ~2 days). Total through Sept 15 = 1,119. The Progress view tracks
+// now reported through Sept 23 (Sept 24 isn't in yet — IG's follower metric lags
+// the ad export by ~2 days). Total through Sept 23 = 1,865. The Progress view tracks
 // this alongside ad-attributed follows and derives the organic gap.
 export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-09-01", follows: 84 },
@@ -105,27 +120,35 @@ export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
   { date: "2026-09-13", follows: 3 },
   { date: "2026-09-14", follows: 50 },
   { date: "2026-09-15", follows: 98 },
+  { date: "2026-09-16", follows: 101 },
+  { date: "2026-09-17", follows: 104 },
+  { date: "2026-09-18", follows: 85 },
+  { date: "2026-09-19", follows: 103 },
+  { date: "2026-09-20", follows: 90 },
+  { date: "2026-09-21", follows: 85 },
+  { date: "2026-09-22", follows: 80 },
+  { date: "2026-09-23", follows: 98 },
 ]
-const igTotalThrough15 = 1119 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–15)
+const igTotalThrough23 = 1865 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–23)
 
-// followerGrowth uses the IG total (through Sept 15); paidFollows is the ad-attributed
-// figure through Sept 17. Over the matched Sept 1–15 window, IG 1,119 vs. 890 ad = ~229 organic.
-const engagementFollowsThrough17 = 1006 // ad-attributed Engagement follows (Sept 1–17 per-ad export)
-const engagementSpendThrough17 = 2598.19 // Engagement spend (Sept 1–17 per-ad export)
+// followerGrowth uses the IG total (through Sept 23); paidFollows is the ad-attributed
+// figure through Sept 24. Over the matched Sept 1–23 window, IG 1,865 vs. 1,495 ad = ~370 organic.
+const engagementFollowsThrough24 = 1576 // ad-attributed Engagement follows (Sept 1–24 ad-level export)
+const engagementSpendThrough24 = 3860.7 // Engagement spend (Sept 1–24 ad-level export)
 export const SEPTEMBER_KPI_DATA: KPIData = {
   totalSpend,
-  followerGrowth: igTotalThrough15, // IG total through Sept 15 (organic + paid)
-  paidFollows: engagementFollowsThrough17,
+  followerGrowth: igTotalThrough23, // IG total through Sept 23 (organic + paid)
+  paidFollows: engagementFollowsThrough24,
   startFollowers: 15455, // end of August (14,119 + 1,336)
-  endFollowers: 15455 + igTotalThrough15,
-  blendedCPF: totalSpend / igTotalThrough15, // all Sept 1–8 spend ÷ IG total (approx; windows differ)
-  engagementCPF: engagementSpendThrough17 / engagementFollowsThrough17, // $2.58 (Engagement Sept 1–17)
+  endFollowers: 15455 + igTotalThrough23,
+  blendedCPF: totalSpend / igTotalThrough23, // all Sept 1–8 spend ÷ IG total (approx; windows differ)
+  engagementCPF: engagementSpendThrough24 / engagementFollowsThrough24, // $2.45 (Engagement Sept 1–24)
   totalReach: 642580, // sum of campaign reach (upper bound; not deduped)
   totalImpressions: 671368,
   engagementCTR: 6.55, // Engagement link CTR (6,662 clicks ÷ 101,727 impressions)
   messagingContacts: 0, // not imported
   unfollows: 0,
-  organicExportMissing: false, // IG follows now in through Sept 15
+  organicExportMissing: false, // IG follows now in through Sept 23
 }
 
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
@@ -135,12 +158,13 @@ export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
 ]
 
 // Weekly follows: paid = ad-attributed Engagement follows; total = IG Insights total
-// (organic + paid), available through Sept 15. The gap is the organic lift.
-// Week 3 is partial (Sept 15–17 of ad data; IG total only through Sept 15).
+// (organic + paid), available through Sept 23. The gap is the organic lift.
+// Week 4 is partial (Sept 22–24 of ad data; IG total only through Sept 23).
 export const SEPTEMBER_WEEKLY_FOLLOWS = [
   { week: "Sep 1–7", paid: 488, total: 597, note: "Full week · 488 ad-attributed + ~109 organic (IG)" },
   { week: "Sep 8–14", paid: 321, total: 424, note: "Full week · 321 ad-attributed + ~103 organic (IG) · no delivery Sept 13" },
-  { week: "Sep 15–17", paid: 197, total: 98, note: "Partial week · 197 ad-attributed (IG total only through Sept 15)" },
+  { week: "Sep 15–21", paid: 523, total: 666, note: "Full week · 523 ad-attributed + ~143 organic (IG)" },
+  { week: "Sep 22–24", paid: 244, total: 178, note: "Partial week · 244 ad-attributed (IG total only through Sept 23)" },
 ]
 
 // Overview narrative for September (MTD). The structural fix recommended after
@@ -150,13 +174,13 @@ export const SEPTEMBER_WEEKLY_FOLLOWS = [
 // not a structural one — the same high-reach/low-convert pattern as August's video.
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
   executiveSummary:
-    "September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has landed and is holding. The Engagement campaign is running two parallel ad sets and driving follows efficiently: $2.58 engagement cost-per-follow through Sept 17 (1,006 ad-attributed follows), ahead of August's $2.96 and pacing at ~59 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–15 window (the IG follows export lags ~2 days), Instagram counted 1,119 total follows vs. 890 ad-attributed, meaning roughly 229 (~20%) came from organic reach. The evergreen 'Frozen Pasta' creative is the standout (506 follows at a $1.73 CPF); the new 'Ripi x sourmilk' collab remains the weak converter (~4%) and is the clearest lever to tighten.",
+    "September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has landed and is holding. The Engagement campaign is running two parallel ad sets and driving follows efficiently: $2.45 engagement cost-per-follow through Sept 24 (1,576 ad-attributed follows), ahead of August's $2.96 and pacing at ~66 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–23 window (the IG follows export lags ~2 days), Instagram counted 1,865 total follows vs. 1,495 ad-attributed, meaning roughly 370 (~20%) came from organic reach. The evergreen 'Frozen Pasta' creative is the standout (847 follows at a $1.78 CPF), and 'Did You Know' scaled into a strong second (292 follows, $2.69, 22% visit-to-follow); the 'Ripi x sourmilk' collab ($5.11) and the newly-scaled 'Imagine Hating On Me' ($4.71) are the weak converters and the clearest levers to tighten.",
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
       objective: "Follower growth",
       judgeOn: "Cost per follow, visit-to-follow rate",
-      stat: "$2,598.19 spend · 1,006 follows · $2.58 CPF (through Sept 17), a 10.2% visit-to-follow rate. Running two ad sets; through the Sept 1–11 ad-set pull the Broad audience ($2.17 CPF, 10.9% visit→follow) was outconverting the Lookalike set ($3.51 CPF, 6.1%).",
+      stat: "$3,860.70 spend · 1,576 follows · $2.45 CPF (through Sept 24), a 12.5% visit-to-follow rate. Running two ad sets; through the Sept 1–11 ad-set pull the Broad audience ($2.17 CPF, 10.9% visit→follow) was outconverting the Lookalike set ($3.51 CPF, 6.1%).",
     },
     {
       name: "Retailer Support (Traffic + Awareness)",
@@ -175,31 +199,32 @@ export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
     priorLabel: "August",
     currentLabel: "September (pace)",
     rows: [
-      { metric: "Engagement follows / day", prior: "32.2", current: "59.2", change: "+84%", dir: "good" },
-      { metric: "Engagement cost per follow", prior: "$2.96", current: "$2.58", change: "-13%", dir: "good" },
+      { metric: "Engagement follows / day", prior: "32.2", current: "65.7", change: "+104%", dir: "good" },
+      { metric: "Engagement cost per follow", prior: "$2.96", current: "$2.45", change: "-17%", dir: "good" },
       { metric: "Active follower-growth ad sets", prior: "1", current: "2", change: "+1", dir: "good" },
-      { metric: "Engagement spend / day", prior: "$95", current: "$153", change: "+61%", dir: "neutral" },
+      { metric: "Engagement spend / day", prior: "$95", current: "$161", change: "+69%", dir: "neutral" },
     ],
     explanation:
-      "The structural fix from August's review is in and holding: the Engagement campaign runs two parallel ad sets — the proven 'Existing Posts (Lookalike)' plus a newer 'Existing Posts (Broad + 24-64)' testing a wider, non-lookalike audience. Through Sept 17 the campaign has driven 1,006 ad-attributed follows at a $2.58 blended CPF, so daily follows nearly doubled while cost-per-follow came down from August. The clearest next lever is the flagship creative mix — the evergreen 'Frozen Pasta' post is converting exceptionally ($1.73 CPF), while the newer 'Ripi x sourmilk' collab is pulling visits but converting at only ~4%.",
+      "The structural fix from August's review is in and holding: the Engagement campaign runs two parallel ad sets — the proven 'Existing Posts (Lookalike)' plus a newer 'Existing Posts (Broad + 24-64)' testing a wider, non-lookalike audience. Through Sept 24 the campaign has driven 1,576 ad-attributed follows at a $2.45 blended CPF, so daily follows more than doubled while cost-per-follow came down from August. The clearest next lever is the flagship creative mix — the evergreen 'Frozen Pasta' post is converting exceptionally ($1.78 CPF) and 'Did You Know' scaled into a strong second ($2.69, 292 follows), while 'Imagine Hating On Me' ($4.71) and the 'Ripi x sourmilk' collab ($5.11, ~4% visit-to-follow) are pulling visits but converting poorly.",
     caveat:
-      "September is month-to-date. Day-by-day Engagement spend and ad-attributed follows are complete through Sept 17 (no delivery on Sept 13); per-day pace is the fair comparison to August's full month. IG Insights follows are in through Sept 15, showing ~20% organic lift on top of the paid follows.",
+      "September is month-to-date. Engagement spend and ad-attributed follows are exact through Sept 24 (no delivery on Sept 13); the Sept 1–24 pull is an ad-level aggregate, so Sept 18–24 daily figures are the window remainder spread evenly. Per-day pace is the fair comparison to August's full month. IG Insights follows are in through Sept 23, showing ~20% organic lift on top of the paid follows.",
   },
   deepDive: {
-    title: "Follower Growth Deep Dive — Engagement campaign creative (Sept 1–17)",
+    title: "Follower Growth Deep Dive — Engagement campaign creative (Sept 1–24)",
     weekly: [
       { week: "Sep 1–7", spend: "$1,327", follows: "488", costPerFollow: "$2.72", profileVisits: "7,245", visitToFollow: "6.7%" },
       { week: "Sep 8–14", spend: "$837", follows: "321", costPerFollow: "$2.61", profileVisits: "1,822", visitToFollow: "17.6%" },
-      { week: "Sep 15–17 (partial)", spend: "$434", follows: "197", costPerFollow: "$2.20", profileVisits: "766", visitToFollow: "25.7%" },
+      { week: "Sep 15–21", spend: "$1,155", follows: "523", costPerFollow: "$2.21", profileVisits: "~2,405", visitToFollow: "~21.7%" },
+      { week: "Sep 22–24 (partial)", spend: "$541", follows: "244", costPerFollow: "$2.22", profileVisits: "~1,120", visitToFollow: "~21.8%" },
     ],
     creative: [
-      { ad: "Frozen Pasta Can't Be That Good", ran: "Sep 1–17", profileVisits: "2,159", follows: "506", visitToFollow: "23.4%" },
-      { ad: "Cacio e Pepe Puffs", ran: "Sep 1–17", profileVisits: "3,515", follows: "269", visitToFollow: "7.65%" },
-      { ad: "Did You Know", ran: "Sep 1–17", profileVisits: "374", follows: "78", visitToFollow: "20.9%" },
-      { ad: "Imagine Hating On Me", ran: "Sep 1–17", profileVisits: "595", follows: "87", visitToFollow: "14.6%" },
-      { ad: "Ripi x sourmilk", ran: "Sep 1–8 (new)", profileVisits: "1,502", follows: "63", visitToFollow: "4.19%" },
+      { ad: "Frozen Pasta Can't Be That Good", ran: "Sep 1–24", profileVisits: "3,780", follows: "847", visitToFollow: "22.4%" },
+      { ad: "Did You Know", ran: "Sep 1–24", profileVisits: "1,302", follows: "292", visitToFollow: "22.4%" },
+      { ad: "Cacio e Pepe Puffs", ran: "Sep 1–24", profileVisits: "3,515", follows: "269", visitToFollow: "7.65%" },
+      { ad: "Imagine Hating On Me", ran: "Sep 1–24", profileVisits: "806", follows: "102", visitToFollow: "12.7%" },
+      { ad: "Ripi x sourmilk", ran: "Sep 1–24", profileVisits: "1,502", follows: "63", visitToFollow: "4.19%" },
     ],
     caption:
-      "The evergreen \"Frozen Pasta Can't Be That Good\" post is carrying the campaign — 506 follows at a 23.4% visit-to-follow rate and a $1.73 CPF, the most efficient creative by far. \"Did You Know\" and \"Imagine Hating On Me\" also convert well. The new \"Ripi x sourmilk\" collab is pulling strong visit volume but converting at only ~4% — the same high-reach, low-convert pattern as August's \"What Did I Just Witness.\" Worth deciding whether it belongs in the follower-growth set or a reach/awareness placement.",
+      "The evergreen \"Frozen Pasta Can't Be That Good\" post is carrying the campaign — 847 follows at a 22.4% visit-to-follow rate and a $1.78 CPF, the most efficient creative by far. \"Did You Know\" scaled into a strong second (292 follows, $2.69, 22.4%), and \"Cacio e Pepe Puffs\" is steady. \"Imagine Hating On Me\" ($4.71 CPF) and the \"Ripi x sourmilk\" collab ($5.11 CPF, ~4% visit-to-follow) are pulling visits but converting poorly — the same high-reach, low-convert pattern as August's \"What Did I Just Witness.\" Worth deciding whether they belong in the follower-growth set or a reach/awareness placement. Weekly profile-visit splits for Sept 15+ are estimated (the Sept 1–24 pull is an ad-level aggregate); spend, follows, and CPF are exact.",
   },
 }

@@ -13,7 +13,7 @@ import {
   CartesianGrid,
 } from "recharts"
 import { ChartSection } from "@/components/chart-section"
-import { getDataForMonth } from "@/lib/data"
+import { getDataForMonth, getCpfHistory } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
 
@@ -23,6 +23,7 @@ const CURRENT_COLOR = "#D93732"
 const PREVIOUS_COLOR = "#660033"
 const ACCENT_COLOR = "#E8853A"
 const AVERAGE_COLOR = "#8A8175"
+const CPF_COLOR = "#660033"
 
 function StatCard({
   label,
@@ -63,6 +64,7 @@ function PercentBar({ label, pct, max }: { label: string; pct: number; max: numb
 export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
   const { dailyData, previousMonth, priorMonthsDaily, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
+  const cpfHistory = getCpfHistory(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
 
   const prevLabel = previousMonth?.label ?? "last month"
@@ -91,6 +93,7 @@ export function ProgressTab() {
     igMtdFollows,
     igDaysElapsed,
     igProjectedFollows,
+    cpfAvailable,
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
@@ -116,6 +119,21 @@ export function ProgressTab() {
     average: p.average,
     igTotal: p.igTotal,
   }))
+
+  // CPF since launch: one point per month, April → selected month. The latest
+  // in-progress month is month-to-date. A lower CPF is better (cheaper follows).
+  const cpfHistoryData = cpfHistory.map((m) => ({
+    month: m.mtd ? `${m.label} (MTD)` : m.label,
+    cpf: m.cpf,
+  }))
+  const cpfPoints = cpfHistory.filter((m): m is { label: string; cpf: number; mtd: boolean } => m.cpf != null)
+  const firstCpf = cpfPoints[0] ?? null
+  const latestCpf = cpfPoints[cpfPoints.length - 1] ?? null
+  const showCpf = cpfPoints.length > 0
+  const cpfSinceStartPct =
+    firstCpf && latestCpf && firstCpf.cpf > 0 && latestCpf !== firstCpf
+      ? ((latestCpf.cpf - firstCpf.cpf) / firstCpf.cpf) * 100
+      : null
 
   // Weekly bar chart data (only weeks with activity)
   const weekChartData = weeks
@@ -288,7 +306,7 @@ export function ProgressTab() {
                 textAnchor="end"
                 height={48}
               />
-              <YAxis tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="follows" tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#fbf9f4",
@@ -299,6 +317,7 @@ export function ProgressTab() {
               />
               {pace && (
                 <Line
+                  yAxisId="follows"
                   type="monotone"
                   dataKey={isAvg ? "average" : "previous"}
                   name={isAvg ? `${avgMonthCount}-mo average` : prevLabel}
@@ -310,6 +329,7 @@ export function ProgressTab() {
               )}
               {!pace && igAvailable && (
                 <Line
+                  yAxisId="follows"
                   type="monotone"
                   dataKey="igTotal"
                   name="Total (IG)"
@@ -320,6 +340,7 @@ export function ProgressTab() {
                 />
               )}
               <Line
+                yAxisId="follows"
                 type="monotone"
                 dataKey="current"
                 name={pace ? monthInfo.label : "Ad-attributed"}
@@ -352,6 +373,80 @@ export function ProgressTab() {
           )}
         </div>
       </ChartSection>
+
+      {/* CPF since launch chart — always shown, independent of the pace toggle above */}
+      {showCpf && (
+        <ChartSection
+          title="Cumulative CPF"
+          subtitle={`Engagement cost per follow by month, April → ${monthInfo.label}`}
+        >
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={cpfHistoryData} margin={{ top: 5, right: 12, left: -6, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8e4da" vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 11, fill: "#888" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: "#888" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${Number(v).toFixed(2)}`}
+                  width={48}
+                  domain={["auto", "auto"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fbf9f4",
+                    border: "1px solid #e0ddd4",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, "Engagement CPF"]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="cpf"
+                  name="Engagement CPF"
+                  stroke={CPF_COLOR}
+                  strokeWidth={2.5}
+                  dot={{ r: 3, fill: CPF_COLOR }}
+                  activeDot={{ r: 5 }}
+                  connectNulls
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-3">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CPF_COLOR }} />
+              Engagement CPF (monthly)
+            </span>
+          </div>
+          {firstCpf && latestCpf && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Engagement CPF is{" "}
+              <span className="font-medium text-foreground">${latestCpf.cpf.toFixed(2)}</span>
+              {latestCpf.mtd ? " month-to-date" : ` in ${latestCpf.label}`}
+              {cpfSinceStartPct != null && (
+                <>
+                  {" — "}
+                  <span
+                    className={cpfSinceStartPct <= 0 ? "text-emerald-600 font-medium" : "text-destructive font-medium"}
+                  >
+                    {cpfSinceStartPct <= 0 ? "down" : "up"} {Math.abs(cpfSinceStartPct).toFixed(1)}%
+                  </span>{" "}
+                  since launch in {firstCpf.label} (${firstCpf.cpf.toFixed(2)})
+                </>
+              )}
+              .
+            </p>
+          )}
+        </ChartSection>
+      )}
 
       {/* Weekly breakdown cards */}
       <div>
