@@ -37,6 +37,7 @@ import {
   SEPTEMBER_WEEKLY_FOLLOWS,
   SEPTEMBER_OVERVIEW_ANALYSIS,
   SEPTEMBER_IG_DAILY_FOLLOWS,
+  SEPTEMBER_ENGAGEMENT_DAILY_IMPRESSIONS,
 } from "./september-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 import type { DailyData } from "./progress"
@@ -169,6 +170,52 @@ export function getDataForMonth(month: MonthKey) {
         igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: null as OverviewAnalysis | null,
+      }
+  }
+}
+
+// Engagement CPM (cost per 1,000 impressions) for a month, from its ad-level aggregate.
+function engagementCPM(ads: AdData[]): number | null {
+  let spend = 0
+  let impressions = 0
+  for (const ad of ads) {
+    if (ad.campaign === "Engagement") {
+      spend += ad.spend
+      impressions += ad.impressions
+    }
+  }
+  return impressions > 0 ? (spend / impressions) * 1000 : null
+}
+
+// CPM inputs for the Progress tab's cumulative-CPM line. Only months that ship a daily
+// engagement-impressions series get a running line; the prior-month and prior-months
+// average CPM are computed from each month's ad-level aggregate for the comparisons.
+export function getCpmDataForMonth(month: MonthKey): {
+  engDailyImpressions: Record<string, number> | null
+  prevEngagementCPM: number | null
+  prevCpmLabel: string | null
+  avgEngagementCPM: number | null
+  avgCpmMonthCount: number
+} {
+  switch (month) {
+    case "sep-2026": {
+      const priorAds = [APRIL_ADS_DATA, MAY_ADS_DATA, JUNE_ADS_DATA, JULY_ADS_DATA, AUGUST_ADS_DATA]
+      const priorCpms = priorAds.map(engagementCPM).filter((v): v is number => v != null)
+      return {
+        engDailyImpressions: SEPTEMBER_ENGAGEMENT_DAILY_IMPRESSIONS,
+        prevEngagementCPM: engagementCPM(AUGUST_ADS_DATA),
+        prevCpmLabel: "August",
+        avgEngagementCPM: priorCpms.length ? priorCpms.reduce((a, b) => a + b, 0) / priorCpms.length : null,
+        avgCpmMonthCount: priorCpms.length,
+      }
+    }
+    default:
+      return {
+        engDailyImpressions: null,
+        prevEngagementCPM: null,
+        prevCpmLabel: null,
+        avgEngagementCPM: null,
+        avgCpmMonthCount: 0,
       }
   }
 }

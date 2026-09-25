@@ -11,9 +11,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts"
 import { ChartSection } from "@/components/chart-section"
-import { getDataForMonth } from "@/lib/data"
+import { getDataForMonth, getCpmDataForMonth } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
 
@@ -23,6 +24,7 @@ const CURRENT_COLOR = "#D93732"
 const PREVIOUS_COLOR = "#660033"
 const ACCENT_COLOR = "#E8853A"
 const AVERAGE_COLOR = "#8A8175"
+const CPM_COLOR = "#2F6F8F"
 
 function StatCard({
   label,
@@ -63,6 +65,8 @@ function PercentBar({ label, pct, max }: { label: string; pct: number; max: numb
 export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
   const { dailyData, previousMonth, priorMonthsDaily, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
+  const { engDailyImpressions, prevEngagementCPM, prevCpmLabel, avgEngagementCPM, avgCpmMonthCount } =
+    getCpmDataForMonth(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
 
   const prevLabel = previousMonth?.label ?? "last month"
@@ -73,6 +77,7 @@ export function ProgressTab() {
     prevLabel,
     igDailyFollows,
     priorMonthsDaily,
+    engDailyImpressions,
   )
 
   const pace = view === "pace" || view === "avgPace"
@@ -91,6 +96,8 @@ export function ProgressTab() {
     igMtdFollows,
     igDaysElapsed,
     igProjectedFollows,
+    cpmAvailable,
+    mtdEngagementCPM,
     prevAtSameDayFollows,
     prevFinalFollows,
     paceDeltaPct,
@@ -115,7 +122,20 @@ export function ProgressTab() {
     previous: p.previous,
     average: p.average,
     igTotal: p.igTotal,
+    cpm: p.cpm,
   }))
+
+  // CPM comparison: current month-to-date engagement CPM vs. August and the prior-months average.
+  // A lower CPM is better (cheaper reach), so a negative delta is favorable.
+  const showCpm = cpmAvailable && !pace
+  const cpmVsPrev =
+    mtdEngagementCPM != null && prevEngagementCPM != null
+      ? ((mtdEngagementCPM - prevEngagementCPM) / prevEngagementCPM) * 100
+      : null
+  const cpmVsAvg =
+    mtdEngagementCPM != null && avgEngagementCPM != null
+      ? ((mtdEngagementCPM - avgEngagementCPM) / avgEngagementCPM) * 100
+      : null
 
   // Weekly bar chart data (only weeks with activity)
   const weekChartData = weeks
@@ -288,7 +308,19 @@ export function ProgressTab() {
                 textAnchor="end"
                 height={48}
               />
-              <YAxis tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="follows" tick={{ fontSize: 10, fill: "#888" }} axisLine={false} tickLine={false} />
+              {showCpm && (
+                <YAxis
+                  yAxisId="cpm"
+                  orientation="right"
+                  tick={{ fontSize: 10, fill: CPM_COLOR }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `$${Number(v).toFixed(0)}`}
+                  width={38}
+                  domain={["auto", "auto"]}
+                />
+              )}
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#fbf9f4",
@@ -296,9 +328,43 @@ export function ProgressTab() {
                   borderRadius: "8px",
                   fontSize: "12px",
                 }}
+                formatter={(value, name) =>
+                  name === "Engagement CPM" ? [`$${Number(value).toFixed(2)}`, name] : [value, name]
+                }
               />
+              {showCpm && prevEngagementCPM != null && (
+                <ReferenceLine
+                  yAxisId="cpm"
+                  y={prevEngagementCPM}
+                  stroke={PREVIOUS_COLOR}
+                  strokeDasharray="4 4"
+                  strokeWidth={1.5}
+                  label={{
+                    value: `${prevCpmLabel} CPM $${prevEngagementCPM.toFixed(2)}`,
+                    position: "insideTopRight",
+                    fontSize: 9,
+                    fill: PREVIOUS_COLOR,
+                  }}
+                />
+              )}
+              {showCpm && avgEngagementCPM != null && (
+                <ReferenceLine
+                  yAxisId="cpm"
+                  y={avgEngagementCPM}
+                  stroke={AVERAGE_COLOR}
+                  strokeDasharray="2 3"
+                  strokeWidth={1.5}
+                  label={{
+                    value: `${avgCpmMonthCount}-mo avg CPM $${avgEngagementCPM.toFixed(2)}`,
+                    position: "insideBottomRight",
+                    fontSize: 9,
+                    fill: AVERAGE_COLOR,
+                  }}
+                />
+              )}
               {pace && (
                 <Line
+                  yAxisId="follows"
                   type="monotone"
                   dataKey={isAvg ? "average" : "previous"}
                   name={isAvg ? `${avgMonthCount}-mo average` : prevLabel}
@@ -310,6 +376,7 @@ export function ProgressTab() {
               )}
               {!pace && igAvailable && (
                 <Line
+                  yAxisId="follows"
                   type="monotone"
                   dataKey="igTotal"
                   name="Total (IG)"
@@ -320,6 +387,7 @@ export function ProgressTab() {
                 />
               )}
               <Line
+                yAxisId="follows"
                 type="monotone"
                 dataKey="current"
                 name={pace ? monthInfo.label : "Ad-attributed"}
@@ -327,6 +395,18 @@ export function ProgressTab() {
                 strokeWidth={2.5}
                 dot={false}
               />
+              {showCpm && (
+                <Line
+                  yAxisId="cpm"
+                  type="monotone"
+                  dataKey="cpm"
+                  name="Engagement CPM"
+                  stroke={CPM_COLOR}
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>
