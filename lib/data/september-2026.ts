@@ -418,10 +418,6 @@ export const SEPTEMBER_QA = [
     a: "Somewhat. The share of new followers aged 18–34 has held steady at about 21%. The shift is among older groups: followers 45 and older went from roughly 49% in April–June to roughly 55% in July–September, while 35–44 fell from about 30% to 23%.",
   },
   {
-    q: "Will engagement fall behind follower growth?",
-    a: "It is a fair risk. Starting in October we are tracking how followers engage alongside follower growth each month. If engagement slips while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.",
-  },
-  {
     q: "What does it cost to reach younger people instead?",
     a: `Not much more for 25–34. Since April they have cost about $1.82 per follower, slightly above the $1.56–$1.67 we pay for ages 35–64. Ages 18–24 cost about $2.52. Costs have been higher in recent months for every age group, and the gap between ages has stayed similar. Over the last 90 days our best ad for younger followers was "Frozen Pasta Can't Be That Good" (24% of its followers are 18–34), while "Did You Know" skewed oldest (73% are 45+). In October one audience is capped at 18–34 so that budget can only go to younger people.`,
   },
