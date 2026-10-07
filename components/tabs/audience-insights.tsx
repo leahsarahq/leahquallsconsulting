@@ -142,6 +142,7 @@ function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQua
   const rows = inputs.map((m) => ({
     month: m.month,
     followers: m.followers,
+    interactions: m.interactions,
     engagementRate:
       m.followers && m.interactions != null ? Math.round((m.interactions / m.followers) * 1000) / 10 : null,
   }))
@@ -175,8 +176,11 @@ function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQua
             <p className="mt-0.5 text-sm font-semibold text-foreground tabular-nums">
               {r.engagementRate != null ? `${r.engagementRate}%` : "—"}
             </p>
+            {r.interactions != null && (
+              <p className="text-[10px] text-muted-foreground tabular-nums">{int(r.interactions)} interactions</p>
+            )}
             <p className="text-[10px] text-muted-foreground">
-              {r.followers != null ? `${int(r.followers)} followers` : "not imported this month"}
+              {r.followers != null ? `${int(r.followers)} followers` : "follower count not imported"}
             </p>
           </div>
         ))}

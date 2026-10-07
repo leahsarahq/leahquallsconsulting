@@ -364,12 +364,12 @@ export const SEPTEMBER_AGE_TREND = (() => {
 // followers = month-end follower count; interactions = total post interactions
 // for the month. Leave null when not imported; the card shows "—".
 export const FOLLOWER_QUALITY_INPUTS: { month: string; followers: number | null; interactions: number | null }[] = [
-  { month: "Apr", followers: null, interactions: null },
-  { month: "May", followers: null, interactions: null },
-  { month: "Jun", followers: null, interactions: null },
-  { month: "Jul", followers: null, interactions: null },
-  { month: "Aug", followers: null, interactions: null },
-  { month: "Sep", followers: null, interactions: null },
+  { month: "Apr", followers: null, interactions: 15775 },
+  { month: "May", followers: null, interactions: 20336 },
+  { month: "Jun", followers: null, interactions: 6652 },
+  { month: "Jul", followers: null, interactions: 25685 },
+  { month: "Aug", followers: null, interactions: 6131 },
+  { month: "Sep", followers: null, interactions: 8618 },
 ]
 
 const pct0 = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v * 100)}%`)
