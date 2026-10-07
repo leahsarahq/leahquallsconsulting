@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from "react"
-import { SEPTEMBER_CLOSEOUT } from "@/lib/data/meta/analytics"
 
 export type MonthKey = "apr-2026" | "may-2026" | "jun-2026" | "jul-2026" | "aug-2026" | "sep-2026"
 
@@ -15,8 +14,6 @@ export interface MonthInfo {
   daysInMonth: number
   /** True when the month is still in progress (partial data). */
   inProgress?: boolean
-  /** Replaces the generic "In progress" label, e.g. when only the final day is pending. */
-  statusLabel?: string
   /** Previous month key, used for pace comparisons. */
   prevMonthKey?: MonthKey
 }
@@ -27,15 +24,7 @@ export const MONTHS: MonthInfo[] = [
   { key: "jun-2026", label: "June 2026", dateRange: "Jun 1–30, 2026", daysInMonth: 30, prevMonthKey: "may-2026" },
   { key: "jul-2026", label: "July 2026", dateRange: "Jul 1–31, 2026", daysInMonth: 31, prevMonthKey: "jun-2026" },
   { key: "aug-2026", label: "August 2026", dateRange: "Aug 1–31, 2026", daysInMonth: 31, prevMonthKey: "jul-2026" },
-  {
-    key: "sep-2026",
-    label: "September 2026",
-    dateRange: `Sep 1–${SEPTEMBER_CLOSEOUT.lastDay}, 2026`,
-    daysInMonth: 30,
-    inProgress: true,
-    statusLabel: `Sep 1–${SEPTEMBER_CLOSEOUT.lastDay} (final day pending)`,
-    prevMonthKey: "aug-2026",
-  },
+  { key: "sep-2026", label: "September 2026", dateRange: "Sep 1–29, 2026", daysInMonth: 30, inProgress: true, prevMonthKey: "aug-2026" },
 ]
 
 interface MonthContextType {

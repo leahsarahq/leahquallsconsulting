@@ -152,7 +152,7 @@ export function getDataForMonth(month: MonthKey) {
         priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
-        igDailyFollows: null as IgDailyFollow[] | null,
+        igDailyFollows: SEPTEMBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }

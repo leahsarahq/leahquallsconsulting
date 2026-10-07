@@ -59,7 +59,7 @@ function DashboardContent() {
               </h1>
               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 {monthInfo.dateRange}
-                {monthInfo.inProgress && !monthInfo.statusLabel && (
+                {monthInfo.inProgress && (
                   <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                     In progress

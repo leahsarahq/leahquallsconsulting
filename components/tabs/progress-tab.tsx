@@ -17,11 +17,6 @@ import { NextStepsSection } from "@/components/tabs/next-steps-section"
 import { getDataForMonth } from "@/lib/data"
 import { getMonthProgress } from "@/lib/data/progress"
 import { useMonth } from "@/lib/month-context"
-import { SEPTEMBER_CLOSEOUT, cpf, followRate, formatDate } from "@/lib/data/meta/analytics"
-import { money, pct } from "@/lib/data/meta/format"
-import { SeptemberTables } from "@/components/tabs/september-tables"
-import { AudienceReachSection } from "@/components/tabs/audience-reach-section"
-import { FollowerQualityPanel } from "@/components/tabs/follower-quality-panel"
 
 type ViewMode = "trend" | "pace" | "avgPace"
 
@@ -70,7 +65,6 @@ export function ProgressTab() {
   const { selectedMonth, monthInfo } = useMonth()
   const { dailyData, previousMonth, priorMonthsDaily, igDailyFollows, demographics } = getDataForMonth(selectedMonth)
   const [view, setView] = useState<ViewMode>("trend")
-  const closeout = selectedMonth === "sep-2026" ? SEPTEMBER_CLOSEOUT : null
 
   const prevLabel = previousMonth?.label ?? "last month"
   const progress = getMonthProgress(
@@ -141,15 +135,11 @@ export function ProgressTab() {
       <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
-            {!monthInfo.statusLabel && (
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-            )}
-            <h3 className="text-sm font-semibold text-foreground">
-              {monthInfo.label} — {monthInfo.statusLabel ?? "in progress"}
-            </h3>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
+            <h3 className="text-sm font-semibold text-foreground">{monthInfo.label} — in progress</h3>
           </div>
           <span className="text-[11px] text-muted-foreground">
             Day {daysElapsed} of {daysInMonth} · {pctElapsed}% elapsed
@@ -163,39 +153,13 @@ export function ProgressTab() {
           />
         </div>
         <p className="text-[11px] text-muted-foreground mt-2 italic">
-          {closeout
-            ? `From the Meta Ads Manager exports, ${formatDate(closeout.firstDate)}–${formatDate(closeout.lastDate)}. Follower numbers count only the follower-growth campaign.${
-                closeout.missingDates.length
-                  ? ` No rows were exported for ${closeout.missingDates.map(formatDate).join(", ")}.`
-                  : ""
-              }`
-            : igAvailable
+          {igAvailable
             ? `Follower growth from IG Insights (organic + paid) through day ${igDaysElapsed}; ad spend & ad-attributed follows through day ${daysElapsed}.`
             : `Month-to-date, ad-attributed follows only — organic / IG Insights follows for ${monthInfo.label} not yet imported.`}
         </p>
       </div>
 
-      {closeout ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard
-            label="Follows"
-            value={`+${closeout.followerGrowth.follows.toLocaleString()}`}
-            sub="ad-attributed · follower growth"
-          />
-          <StatCard label="Follower-growth spend" value={money(closeout.followerGrowth.spend)} sub="both ad sets" />
-          <StatCard label="Cost per follow" value={money(cpf(closeout.followerGrowth))} sub="spend ÷ follows" />
-          <StatCard
-            label="Follow rate"
-            value={pct(followRate(closeout.followerGrowth), 1)}
-            sub="profile visitors who follow"
-          />
-          <StatCard
-            label="Retail & awareness spend"
-            value={money(closeout.retail.spend)}
-            sub="not counted in follower numbers"
-          />
-        </div>
-      ) : (
+      {/* MTD stat row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <StatCard
           label="Follower growth"
@@ -223,7 +187,6 @@ export function ProgressTab() {
           sub={`follows · ~$${projectedSpend.toLocaleString()} spend (run-rate)`}
         />
       </div>
-      )}
 
       {/* View toggle */}
       <div className="flex items-center gap-1.5">
@@ -411,7 +374,7 @@ export function ProgressTab() {
                   <p className="text-sm font-medium text-foreground">{w.label}</p>
                   {w.partial && reached && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                      {monthInfo.statusLabel ? "Final day pending" : "In progress"}
+                      In progress
                     </span>
                   )}
                 </div>
@@ -472,14 +435,6 @@ export function ProgressTab() {
           ))}
         </p>
       </ChartSection>
-
-      {closeout && (
-        <>
-          <SeptemberTables />
-          <AudienceReachSection />
-          <FollowerQualityPanel />
-        </>
-      )}
 
       {/* Next Steps */}
       <NextStepsSection />
