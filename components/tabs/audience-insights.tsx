@@ -5,8 +5,6 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -138,76 +136,12 @@ function AgeTrendCard({ trend }: { trend: AudienceInsights["ageTrend"] }) {
   )
 }
 
-function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQuality"] }) {
-  const rows = inputs.map((m) => {
-    const organicInteractions =
-      m.interactions != null && m.igViews && m.organicViews != null
-        ? Math.round(m.interactions * (m.organicViews / m.igViews))
-        : null
-    return {
-      month: m.month,
-      followers: m.followers,
-      organicInteractions,
-      engagementRate:
-        m.followers && organicInteractions != null
-          ? Math.round((organicInteractions / m.followers) * 1000) / 10
-          : null,
-    }
-  })
-  const hasAny = rows.some((r) => r.followers != null || r.engagementRate != null)
-
-  return (
-    <ChartSection
-      title="Follower quality"
-      subtitle="Organic engagement rate (est. organic interactions ÷ followers) next to follower count · Apr–Sep. Organic interactions are estimated from each month's organic share of views."
-    >
-      {hasAny && (
-        <div className="h-56 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rows} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="rate" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
-              <YAxis yAxisId="followers" orientation="right" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="rate" dataKey="engagementRate" name="Organic engagement rate" stroke="#D93732" strokeWidth={2} />
-              <Line yAxisId="followers" dataKey="followers" name="Followers" stroke="#660033" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-      <div className={`grid grid-cols-3 gap-2 sm:grid-cols-6 ${hasAny ? "mt-3" : ""}`}>
-        {rows.map((r) => (
-          <div key={r.month} className="rounded-lg bg-secondary/50 p-2.5">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">{r.month}</p>
-            <p className="mt-0.5 text-sm font-semibold text-foreground tabular-nums">
-              {r.engagementRate != null ? `${r.engagementRate}%` : "—"}
-            </p>
-            {r.organicInteractions != null && (
-              <p className="text-[10px] text-muted-foreground tabular-nums">
-                ~{int(r.organicInteractions)} organic interactions
-              </p>
-            )}
-            <p className="text-[10px] text-muted-foreground">
-              {r.followers != null ? `${int(r.followers)} followers` : "follower count not imported"}
-            </p>
-          </div>
-        ))}
-      </div>
-    </ChartSection>
-  )
-}
-
 export function AudienceInsights({ insights }: { insights: AudienceInsights }) {
   return (
     <>
       <QACard qa={insights.qa} />
       <AudienceAgeCard age={insights.age} />
       {insights.ageTrend && <AgeTrendCard trend={insights.ageTrend} />}
-      {insights.followerQuality.some((m) => m.followers != null || m.interactions != null) && (
-        <FollowerQualityCard inputs={insights.followerQuality} />
-      )}
     </>
   )
 }
