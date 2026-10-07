@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { OverviewTab } from "@/components/tabs/overview-tab"
-import { ProgressTab } from "@/components/tabs/progress-tab"
 import { DailyTab } from "@/components/tabs/daily-tab"
 import { AdsTab } from "@/components/tabs/ads-tab"
 import { InsightsTab } from "@/components/tabs/insights-tab"
@@ -21,26 +20,19 @@ const baseTabs = [
 
 const audienceTestTab = { id: "audience-test", label: "Audience Testing" } as const
 const testingTab = { id: "testing", label: "Testing" } as const
-const progressTab = { id: "progress", label: "Progress" } as const
 
-type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "testing" | "progress"
+type TabId = (typeof baseTabs)[number]["id"] | "audience-test" | "testing"
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const { selectedMonth, setSelectedMonth, monthInfo, comparisonMode, setComparisonMode } = useMonth()
-  const { audienceTest, testing } = getDataForMonth(selectedMonth)
+  const { audienceTest, testing, octoberPlan, dataFootnote } = getDataForMonth(selectedMonth)
 
-  // While a month is in progress, the dashboard is scoped to weekly pace tracking —
-  // only the Progress tab is shown. Completed months show the full section set.
-  const [overview, ...restBase] = baseTabs
-  const tabs = monthInfo.inProgress
-    ? [progressTab]
-    : [
-        overview,
-        ...restBase,
-        ...(audienceTest ? [audienceTestTab] : []),
-        ...(testing ? [testingTab] : []),
-      ]
+  const tabs = [
+    ...baseTabs,
+    ...(audienceTest ? [audienceTestTab] : []),
+    ...(testing || octoberPlan ? [testingTab] : []),
+  ]
 
   // If the active tab isn't available for the selected month, fall back to the first tab.
   const activeTabExists = tabs.some((t) => t.id === activeTab)
@@ -57,15 +49,8 @@ function DashboardContent() {
               <h1 className="text-sm font-semibold text-foreground">
                 Meta Ads Dashboard
               </h1>
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                {monthInfo.dateRange}
-                {monthInfo.inProgress && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    In progress
-                  </span>
-                )}
-              </p>
+              <p className="text-xs text-muted-foreground">{monthInfo.dateRange}</p>
+              {dataFootnote && <p className="text-[10px] text-muted-foreground mt-0.5">{dataFootnote}</p>}
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -115,7 +100,6 @@ function DashboardContent() {
         {/* Tab Content */}
         <main>
           {resolvedTab === "overview" && <OverviewTab />}
-          {resolvedTab === "progress" && <ProgressTab />}
           {resolvedTab === "daily" && <DailyTab />}
           {resolvedTab === "ads" && <AdsTab />}
           {resolvedTab === "audience-test" && <AudienceTestTab />}

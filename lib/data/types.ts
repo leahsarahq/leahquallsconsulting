@@ -23,6 +23,9 @@ export interface KPIData {
   // `blendedCPF` is therefore inflated. Overview demotes blended CPF and hides
   // the unattributed "Awareness lift" figure when this is set.
   organicExportMissing?: boolean
+  // True when the IG Insights "Instagram follows" export hasn't been imported for
+  // the month at all. Total follows, Awareness lift and Blended CPF render as "—".
+  igInsightsMissing?: boolean
 }
 
 export interface AdData {
@@ -34,6 +37,10 @@ export interface AdData {
   cpf: number | null
   ctr: number
   campaign: Campaign
+  // Share of the ad's follows by age (Jul–Sep ads-by-Age export). Only set for
+  // months with an age export; null when the ad has no follows in that export.
+  pct18to34?: number | null
+  pct45plus?: number | null
 }
 
 export interface SpendByCampaign {
@@ -45,7 +52,7 @@ export interface SpendByCampaign {
 export interface WeeklyFollows {
   week: string
   paid: number
-  total: number
+  total: number | null
   note?: string
 }
 

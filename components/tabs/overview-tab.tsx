@@ -63,6 +63,8 @@ export function OverviewTab() {
   // spend ÷ its follows), lower is better.
   const engagementCpfImprovement = pctImprovement(kpiData.engagementCPF, baseline.engagementCPF)
 
+  const igMissing = !!kpiData.igInsightsMissing
+
   const followsMultiple =
     baseline.followerGrowth && baseline.followerGrowth > 0
       ? kpiData.followerGrowth / baseline.followerGrowth
@@ -168,11 +170,13 @@ export function OverviewTab() {
         <div className="bg-card border border-border rounded-xl p-3">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Total follows</p>
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-xl font-semibold">{kpiData.followerGrowth.toLocaleString()}</span>
-            {hasComparison && <DeltaBadge value={followsDelta} />}
+            <span className="text-xl font-semibold">{igMissing ? "—" : kpiData.followerGrowth.toLocaleString()}</span>
+            {hasComparison && !igMissing && <DeltaBadge value={followsDelta} />}
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5">
-            {hasComparison && baseline.followerGrowth != null
+            {igMissing
+              ? "IG Insights export not imported"
+              : hasComparison && baseline.followerGrowth != null
               ? `vs. ${comparison.shortLabel} (${Math.round(baseline.followerGrowth).toLocaleString()})`
               : "this month"}
             {kpiData.giveawayFollows && <span className="italic"> · incl. {kpiData.giveawayFollows} giveaway</span>}
@@ -196,12 +200,14 @@ export function OverviewTab() {
         </div>
         <div className="bg-card border border-border rounded-xl p-3">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Awareness lift</p>
-          {kpiData.organicExportMissing ? (
+          {kpiData.organicExportMissing || igMissing ? (
             <>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-xl font-semibold">n/a</span>
+                <span className="text-xl font-semibold">{igMissing ? "—" : "n/a"}</span>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5">no IG Insights export this month</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {igMissing ? "IG Insights export not imported" : "no IG Insights export this month"}
+              </p>
             </>
           ) : (
             <>
@@ -288,13 +294,19 @@ export function OverviewTab() {
         />
         <KPICard
           label={kpiData.organicExportMissing ? "Blended CPF (inflated)" : "Blended CPF"}
-          value={`$${kpiData.blendedCPF.toFixed(2)}`}
-          subtext={kpiData.organicExportMissing ? "all spend ÷ paid follows · see Engagement CPF" : "cost per follower"}
+          value={igMissing ? "—" : `$${kpiData.blendedCPF.toFixed(2)}`}
+          subtext={
+            igMissing
+              ? "needs IG Insights total follows"
+              : kpiData.organicExportMissing
+                ? "all spend ÷ paid follows · see Engagement CPF"
+                : "cost per follower"
+          }
         />
         <KPICard
           label="Total reach"
           value={`${(kpiData.totalReach / 1000).toFixed(0)}K`}
-          subtext="3 campaigns"
+          subtext={igMissing ? "sum of daily reach · not deduplicated" : "3 campaigns"}
         />
         <KPICard
           label="Messaging contacts"
@@ -348,7 +360,13 @@ export function OverviewTab() {
           />
         </ChartSection>
 
-        <ChartSection title="Follower growth by week" subtitle={kpiData.organicExportMissing ? "Ad-attributed follows only — no IG Insights export this month" : "Total follows from Instagram Insights"}>
+        <ChartSection title="Follower growth by week" subtitle={
+            igMissing
+              ? "Engagement campaign follows — total follows pending IG Insights export"
+              : kpiData.organicExportMissing
+                ? "Ad-attributed follows only — no IG Insights export this month"
+                : "Total follows from Instagram Insights"
+          }>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyFollows}>

@@ -1,230 +1,418 @@
-import type { Campaign, KPIData, OverviewAnalysis, IgDailyFollow } from "./types"
+import raw from "./meta/exports.generated.json"
+import type { AdData, Campaign, KPIData, OverviewAnalysis, WeeklyFollows } from "./types"
 
-// September 2026 data — MONTH-TO-DATE, still in progress.
-// - The Progress "tracking" view (CPF + follows) is scoped to the ENGAGEMENT campaign.
-//   Engagement figures now come from the Ads Manager export covering Sept 1–24. This
-//   pull is an ad-LEVEL aggregate (one row per follow-driving ad for the whole window,
-//   no daily breakdown), so the day-by-day series keeps the exact Sept 1–17 per-day
-//   figures and carries the Sept 18–24 remainder — Sept 1–24 total ($3,860.70 / 1,576)
-//   minus Sept 1–17 ($2,598.19 / 1,006) = $1,262.51 / 570 — spread evenly across those
-//   7 days. Sept 13 had no delivery, so it's absent from the series.
-// - All-campaign daily data (Awareness + Retailer) is only complete through Sept 8, so
-//   Sept 9–24 carry Engagement only — that's fine because tracking is Engagement-scoped.
-// - IG Insights "Instagram follows" export is now in through Sept 23 (Sept 24 isn't
-//   reported yet — IG's follower metric lags the ad export by ~2 days). Over the matched
-//   Sept 1–23 window, IG total follows = 1,865 vs. 1,495 ad-attributed → ~370 organic
-//   (~20%), so there IS real organic lift. `engagementCPF` ($2.45) is still the
-//   apples-to-apples PAID efficiency figure; IG total is tracked on its own day count.
-//
-// Headline: the structural fix recommended after August landed and is holding. The
-// Engagement campaign runs TWO parallel ad sets — the proven "Existing Posts
-// (Lookalike)" and a newer "Existing Posts (Broad + 24-64)". Through Sept 24 the
-// campaign has driven 1,576 ad-attributed follows at a $2.45 blended engagement CPF,
-// well ahead of August's $2.96. The "Frozen Pasta" evergreen creative is the standout
-// (847 follows at $1.78 CPF); "Ripi x sourmilk" ($5.11) and the newly-scaled "Imagine
-// Hating On Me" ($4.71) are the weak converters.
-export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {
-  "2026-09-01": { "Awareness Campaign": { spend: 131.46, follows: 0 }, "Engagement Campaign": { spend: 179.25, follows: 63 }, "Retailer Support": { spend: 182.23, follows: 0 } },
-  "2026-09-02": { "Awareness Campaign": { spend: 101.54, follows: 0 }, "Engagement Campaign": { spend: 150.99, follows: 84 }, "Retailer Support": { spend: 177.37, follows: 0 } },
-  "2026-09-03": { "Awareness Campaign": { spend: 119.51, follows: 0 }, "Engagement Campaign": { spend: 219.82, follows: 92 }, "Retailer Support": { spend: 152.74, follows: 0 } },
-  "2026-09-04": { "Awareness Campaign": { spend: 116.58, follows: 0 }, "Engagement Campaign": { spend: 204.13, follows: 59 }, "Retailer Support": { spend: 152.57, follows: 0 } },
-  "2026-09-05": { "Awareness Campaign": { spend: 119.08, follows: 0 }, "Engagement Campaign": { spend: 183.24, follows: 54 }, "Retailer Support": { spend: 121.77, follows: 0 } },
-  "2026-09-06": { "Awareness Campaign": { spend: 111.36, follows: 0 }, "Engagement Campaign": { spend: 229.85, follows: 75 }, "Retailer Support": { spend: 168.59, follows: 0 } },
-  "2026-09-07": { "Awareness Campaign": { spend: 102.63, follows: 0 }, "Engagement Campaign": { spend: 159.93, follows: 61 }, "Retailer Support": { spend: 202.04, follows: 1 } },
-  "2026-09-08": { "Awareness Campaign": { spend: 23.17, follows: 0 }, "Engagement Campaign": { spend: 124.12, follows: 39 }, "Retailer Support": { spend: 103.21, follows: 0 } },
-  // Sept 9–17: ENGAGEMENT ONLY (exact per-day figures from the Sept 1–17 per-ad export).
-  // Awareness/Retailer daily data isn't in past Sept 8, but the tracking view is
-  // Engagement-scoped so the series advances on Engagement alone. Sept 13 had no delivery.
-  "2026-09-09": { "Engagement Campaign": { spend: 174.24, follows: 72 } },
-  "2026-09-10": { "Engagement Campaign": { spend: 176.79, follows: 65 } },
-  "2026-09-11": { "Engagement Campaign": { spend: 204.21, follows: 70 } },
-  "2026-09-12": { "Engagement Campaign": { spend: 77.64, follows: 38 } },
-  "2026-09-14": { "Engagement Campaign": { spend: 80.23, follows: 37 } },
-  "2026-09-15": { "Engagement Campaign": { spend: 186.53, follows: 81 } },
-  "2026-09-16": { "Engagement Campaign": { spend: 186.41, follows: 86 } },
-  "2026-09-17": { "Engagement Campaign": { spend: 60.81, follows: 30 } },
-  // Sept 18–24: ENGAGEMENT ONLY. The Sept 1–24 export is an ad-LEVEL aggregate (one
-  // row per ad for the whole window, no daily breakdown), so these 7 days carry the
-  // Sept 18–24 remainder — Sept 1–24 total ($3,860.70 / 1,576) minus the exact Sept
-  // 1–17 daily series ($2,598.19 / 1,006) = $1,262.51 / 570 — spread evenly across the week.
-  "2026-09-18": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
-  "2026-09-19": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
-  "2026-09-20": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
-  "2026-09-21": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
-  "2026-09-22": { "Engagement Campaign": { spend: 180.36, follows: 81 } },
-  "2026-09-23": { "Engagement Campaign": { spend: 180.36, follows: 82 } },
-  "2026-09-24": { "Engagement Campaign": { spend: 180.35, follows: 81 } },
-}
+// September 2026 — FULL MONTH. Every number here is computed from the Meta Ads
+// Manager exports in data/meta/ (parsed by scripts/build-meta-data.mjs), using the
+// same metric definitions as August:
+//   Engagement CPF = Engagement spend ÷ Engagement Instagram follows
+//   Blended CPF    = total spend ÷ total follows (Instagram Insights)
+//   Follow rate    = Instagram follows ÷ Instagram profile visits
+// The Instagram Insights "Instagram follows" export for the full month has not been
+// imported, so Total follows, Awareness lift and Blended CPF render as "—".
 
-// Daily ENGAGEMENT-campaign impressions, keyed to the same days as the spend/follows
-// Ad-level aggregates (Sept 1–8). Campaign spend totals below reconcile to the Ads
-// Manager campaign export: Engagement $1,395.75, Retailer $1,260.52 (exact), Awareness
-// $825.33 (the two evergreen reach creatives account for ~$819 of it).
-export const SEPTEMBER_ADS_DATA: {
+interface Row {
+  start: string
   name: string
+  dim: string | null
+  budget: number
   spend: number
   impressions: number
   clicks: number
+  reach: number
+  visits: number
   follows: number
-  cpf: number | null
-  ctr: number
+}
+const EXPORTS = raw as unknown as Record<
+  "adsetDaily" | "adDaily" | "adsetByAge" | "adByAge" | "adsetByPlatform" | "adByPlatform",
+  Row[]
+>
+
+interface Totals {
+  spend: number
+  impressions: number
+  clicks: number
+  reach: number
+  visits: number
+  follows: number
+}
+const sum = (rows: Row[]): Totals =>
+  rows.reduce(
+    (t, r) => ({
+      spend: t.spend + r.spend,
+      impressions: t.impressions + r.impressions,
+      clicks: t.clicks + r.clicks,
+      reach: t.reach + r.reach,
+      visits: t.visits + r.visits,
+      follows: t.follows + r.follows,
+    }),
+    { spend: 0, impressions: 0, clicks: 0, reach: 0, visits: 0, follows: 0 },
+  )
+const round2 = (v: number) => Math.round(v * 100) / 100
+const money = (v: number) => `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const money0 = (v: number) => `$${Math.round(v).toLocaleString("en-US")}`
+const int = (v: number) => Math.round(v).toLocaleString("en-US")
+const pct1 = (v: number) => `${(v * 100).toFixed(1)}%`
+
+// ── Campaign mapping (ad set level) ──────────────────────────────────────────
+const AWARENESS_AD_SETS = ["Audience Test (Parents + Cooking)", "Audience Test (Young Millennials)"]
+export function campaignForAdSet(name: string): Campaign {
+  if (name.startsWith("Existing Posts")) return "Engagement"
+  if (AWARENESS_AD_SETS.includes(name)) return "Awareness"
+  return "Retailer Support"
+}
+
+// Ad exports have no ad set column. Engagement ad sets are the only ones on a $75
+// budget; on the $50 budget, these creatives belong to the two Awareness ad sets.
+const ENGAGEMENT_BUDGET = 75
+const AWARENESS_AD_NAMES = ["Us v. Them", "Cacio e Pepe Hero Image", "Frozen Pasta Can't Be That Good"]
+function campaignForAd(r: Row): Campaign {
+  if (r.budget === ENGAGEMENT_BUDGET) return "Engagement"
+  if (AWARENESS_AD_NAMES.includes(r.name)) return "Awareness"
+  return "Retailer Support"
+}
+
+const byCampaign = (c: Campaign) => sum(EXPORTS.adsetDaily.filter((r) => campaignForAdSet(r.name) === c))
+const engagement = byCampaign("Engagement")
+const awareness = byCampaign("Awareness")
+const retailer = byCampaign("Retailer Support")
+const all = sum(EXPORTS.adsetDaily)
+
+// ── Daily data ───────────────────────────────────────────────────────────────
+const CAMPAIGN_KEY: Record<Campaign, string> = {
+  Engagement: "Engagement Campaign",
+  Awareness: "Awareness Campaign",
+  "Retailer Support": "Retailer Support",
+}
+export const SEPTEMBER_DAILY_DATA: Record<string, Record<string, { spend: number; follows: number }>> = {}
+for (const r of EXPORTS.adsetDaily) {
+  const day = (SEPTEMBER_DAILY_DATA[r.start] ??= {})
+  const key = CAMPAIGN_KEY[campaignForAdSet(r.name)]
+  const cell = (day[key] ??= { spend: 0, follows: 0 })
+  cell.spend = round2(cell.spend + r.spend)
+  cell.follows += r.follows
+}
+
+// Dates in Sep 1–30 with no rows in either daily export (shown as a header footnote).
+const daysWithRows = new Set([...EXPORTS.adsetDaily, ...EXPORTS.adDaily].map((r) => r.start))
+export const SEPTEMBER_MISSING_DATES = Array.from({ length: 30 }, (_, i) => `2026-09-${String(i + 1).padStart(2, "0")}`).filter(
+  (d) => !daysWithRows.has(d),
+)
+
+// ── Ad-level data ────────────────────────────────────────────────────────────
+// Ages 18–34 / 45+ share of follows per ad, from the Jul–Sep ads-by-Age export
+// (Engagement rows only).
+const YOUNG = ["18-24", "25-34"]
+const OLDER = ["45-54", "55-64", "65+"]
+const adAgeMix = new Map<string, { pct18to34: number | null; pct45plus: number | null }>()
+{
+  const groups = new Map<string, Row[]>()
+  EXPORTS.adByAge.filter((r) => r.budget === ENGAGEMENT_BUDGET).forEach((r) => groups.set(r.name, [...(groups.get(r.name) ?? []), r]))
+  groups.forEach((rows, name) => {
+    const total = sum(rows).follows
+    adAgeMix.set(name, {
+      pct18to34: total > 0 ? sum(rows.filter((r) => YOUNG.includes(r.dim ?? ""))).follows / total : null,
+      pct45plus: total > 0 ? sum(rows.filter((r) => OLDER.includes(r.dim ?? ""))).follows / total : null,
+    })
+  })
+}
+
+interface AdAgg extends Totals {
+  name: string
   campaign: Campaign
-}[] = [
-  // Engagement Campaign — follow-driving creative (across Lookalike + Broad ad sets)
-  { name: "Cacio e Pepe Puffs", spend: 652.81, impressions: 45869, clicks: 3610, follows: 269, cpf: 2.43, ctr: 7.87, campaign: "Engagement" },
-  { name: "Frozen Pasta Can't Be That Good", spend: 312.59, impressions: 21604, clicks: 819, follows: 168, cpf: 1.86, ctr: 3.79, campaign: "Engagement" },
-  // New creator collab — strong reach, weak conversion (~4%). The month's watch item.
-  { name: "Ripi x sourmilk", spend: 310.59, impressions: 22899, clicks: 1530, follows: 63, cpf: 4.93, ctr: 6.68, campaign: "Engagement" },
-  { name: "Sauce Before Pasta", spend: 109.15, impressions: 13050, clicks: 667, follows: 3, cpf: 36.38, ctr: 5.11, campaign: "Engagement" },
-  { name: "Imagine Hating On Me", spend: 4.16, impressions: 173, clicks: 10, follows: 2, cpf: 2.08, ctr: 5.78, campaign: "Engagement" },
-  { name: "Did You Know", spend: 3.86, impressions: 236, clicks: 5, follows: 0, cpf: null, ctr: 2.12, campaign: "Engagement" },
-  { name: "4 Easy Pasta Dinners", spend: 2.53, impressions: 110, clicks: 9, follows: 0, cpf: null, ctr: 8.18, campaign: "Engagement" },
-  // Awareness Campaign — evergreen broad reach (Audience Test ad sets)
-  { name: "Us v. Them", spend: 585.2, impressions: 277800, clicks: 346, follows: 0, cpf: null, ctr: 0.12, campaign: "Awareness" },
-  { name: "Cacio e Pepe Hero Image", spend: 233.77, impressions: 109069, clicks: 172, follows: 0, cpf: null, ctr: 0.16, campaign: "Awareness" },
-  // Retailer Support — TRAFFIC phase (judged on CTR / CPC / link clicks)
-  { name: "Basil Pesto Exclusive (Target) [Traffic]", spend: 417.11, impressions: 38393, clicks: 1655, follows: 0, cpf: null, ctr: 4.31, campaign: "Retailer Support" },
-  { name: "Trio Logo (WFM Zipcodes) [Traffic]", spend: 402.98, impressions: 58924, clicks: 1525, follows: 0, cpf: null, ctr: 2.59, campaign: "Retailer Support" },
-  { name: "Trio Logo (Whole Foods) [Traffic]", spend: 363.42, impressions: 37099, clicks: 1321, follows: 1, cpf: 363.42, ctr: 3.56, campaign: "Retailer Support" },
-  // Retailer Support — AWARENESS phase (promo reach; includes new Meijer retailer)
-  { name: "Trio Promo + Logo (Find in Store) [Meijer]", spend: 36.49, impressions: 19194, clicks: 10, follows: 0, cpf: null, ctr: 0.05, campaign: "Retailer Support" },
-  { name: "Trio Promo + Logo (Ecom Listing)", spend: 27.65, impressions: 16486, clicks: 12, follows: 0, cpf: null, ctr: 0.07, campaign: "Retailer Support" },
-  { name: "Trio Promo + Logo (Find in Store)", spend: 12.87, impressions: 10306, clicks: 15, follows: 0, cpf: null, ctr: 0.15, campaign: "Retailer Support" },
-]
+  first: string
+  last: string
+}
+const adAggs: AdAgg[] = (() => {
+  const map = new Map<string, AdAgg>()
+  for (const r of EXPORTS.adDaily) {
+    const campaign = campaignForAd(r)
+    const name = campaign === "Awareness" && r.name === "Frozen Pasta Can't Be That Good" ? `${r.name} (Awareness)` : r.name
+    const key = `${campaign}|${name}`
+    const a = map.get(key) ?? { name, campaign, first: "", last: "", ...sum([]) }
+    const s = sum([a as unknown as Row, r])
+    Object.assign(a, s)
+    if (r.spend > 0 || r.impressions > 0) {
+      if (!a.first || r.start < a.first) a.first = r.start
+      if (!a.last || r.start > a.last) a.last = r.start
+    }
+    map.set(key, a)
+  }
+  return [...map.values()].filter((a) => a.spend > 0 || a.impressions > 0)
+})()
 
-// Campaign spend totals (Sept 1–8, from Ads Manager).
-const engagementSpend = 1396 // $1,395.75
-const awarenessSpend = 825 // $825.33
-const retailerSpend = 1261 // $1,260.52
-const totalSpend = engagementSpend + awarenessSpend + retailerSpend // 3482 (exact $3,481.60)
-const engagementFollows = 505 // ad-attributed follows from the Engagement campaign
-const totalAdFollows = 506 // all ad-attributed follows (505 Engagement + 1 stray Retailer)
+export const SEPTEMBER_ADS_DATA: AdData[] = adAggs
+  .map((a) => {
+    const mix = a.campaign === "Engagement" ? adAgeMix.get(a.name) : undefined
+    return {
+      name: a.name,
+      spend: round2(a.spend),
+      impressions: a.impressions,
+      clicks: a.clicks,
+      follows: a.follows,
+      cpf: a.follows > 0 ? round2(a.spend / a.follows) : null,
+      ctr: a.impressions > 0 ? round2((a.clicks / a.impressions) * 100) : 0,
+      campaign: a.campaign,
+      pct18to34: mix?.pct18to34 ?? null,
+      pct45plus: mix?.pct45plus ?? null,
+    }
+  })
+  .sort((a, b) => b.follows - a.follows || b.spend - a.spend)
 
-// IG Insights total follows (organic + paid), from the "Instagram follows" export,
-// now reported through Sept 23 (Sept 24 isn't in yet — IG's follower metric lags
-// the ad export by ~2 days). Total through Sept 23 = 1,865. The Progress view tracks
-// this alongside ad-attributed follows and derives the organic gap.
-export const SEPTEMBER_IG_DAILY_FOLLOWS: IgDailyFollow[] = [
-  { date: "2026-09-01", follows: 84 },
-  { date: "2026-09-02", follows: 98 },
-  { date: "2026-09-03", follows: 107 },
-  { date: "2026-09-04", follows: 65 },
-  { date: "2026-09-05", follows: 69 },
-  { date: "2026-09-06", follows: 100 },
-  { date: "2026-09-07", follows: 74 },
-  { date: "2026-09-08", follows: 55 },
-  { date: "2026-09-09", follows: 84 },
-  { date: "2026-09-10", follows: 81 },
-  { date: "2026-09-11", follows: 109 },
-  { date: "2026-09-12", follows: 42 },
-  { date: "2026-09-13", follows: 3 },
-  { date: "2026-09-14", follows: 50 },
-  { date: "2026-09-15", follows: 98 },
-  { date: "2026-09-16", follows: 101 },
-  { date: "2026-09-17", follows: 104 },
-  { date: "2026-09-18", follows: 85 },
-  { date: "2026-09-19", follows: 103 },
-  { date: "2026-09-20", follows: 90 },
-  { date: "2026-09-21", follows: 85 },
-  { date: "2026-09-22", follows: 80 },
-  { date: "2026-09-23", follows: 98 },
-]
-const igTotalThrough23 = 1865 // sum of SEPTEMBER_IG_DAILY_FOLLOWS (Sept 1–23)
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+const paidFollows = all.follows
+const engagementCPF = engagement.spend / engagement.follows
 
-// followerGrowth uses the IG total (through Sept 23); paidFollows is the ad-attributed
-// figure through Sept 24. Over the matched Sept 1–23 window, IG 1,865 vs. 1,495 ad = ~370 organic.
-const engagementFollowsThrough24 = 1576 // ad-attributed Engagement follows (Sept 1–24 ad-level export)
-const engagementSpendThrough24 = 3860.7 // Engagement spend (Sept 1–24 ad-level export)
 export const SEPTEMBER_KPI_DATA: KPIData = {
-  totalSpend,
-  followerGrowth: igTotalThrough23, // IG total through Sept 23 (organic + paid)
-  paidFollows: engagementFollowsThrough24,
+  totalSpend: Math.round(all.spend),
+  followerGrowth: paidFollows, // placeholder — hidden while igInsightsMissing is set
+  paidFollows,
   startFollowers: 15455, // end of August (14,119 + 1,336)
-  endFollowers: 15455 + igTotalThrough23,
-  blendedCPF: totalSpend / igTotalThrough23, // all Sept 1–8 spend ÷ IG total (approx; windows differ)
-  engagementCPF: engagementSpendThrough24 / engagementFollowsThrough24, // $2.45 (Engagement Sept 1–24)
-  totalReach: 642580, // sum of campaign reach (upper bound; not deduped)
-  totalImpressions: 671368,
-  engagementCTR: 6.55, // Engagement link CTR (6,662 clicks ÷ 101,727 impressions)
+  endFollowers: 15455 + paidFollows,
+  blendedCPF: 0, // needs the IG Insights total; hidden while igInsightsMissing is set
+  engagementCPF,
+  totalReach: all.reach, // sum of daily ad set reach (upper bound; not deduped)
+  totalImpressions: all.impressions,
+  engagementCTR: round2((engagement.clicks / engagement.impressions) * 100),
   messagingContacts: 0, // not imported
   unfollows: 0,
-  organicExportMissing: false, // IG follows now in through Sept 23
+  organicExportMissing: false,
+  igInsightsMissing: true,
 }
 
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
-  { name: "Engagement", value: engagementSpend, color: "#D93732" },
-  { name: "Awareness", value: awarenessSpend, color: "#660033" },
-  { name: "Retailer Support", value: retailerSpend, color: "#E8853A" },
+  { name: "Engagement", value: Math.round(engagement.spend), color: "#D93732" },
+  { name: "Awareness", value: Math.round(awareness.spend), color: "#660033" },
+  { name: "Retailer Support", value: Math.round(retailer.spend), color: "#E8853A" },
 ]
 
-// Weekly follows: paid = ad-attributed Engagement follows; total = IG Insights total
-// (organic + paid), available through Sept 23. The gap is the organic lift.
-// Week 4 is partial (Sept 22–24 of ad data; IG total only through Sept 23).
-export const SEPTEMBER_WEEKLY_FOLLOWS = [
-  { week: "Sep 1–7", paid: 488, total: 597, note: "Full week · 488 ad-attributed + ~109 organic (IG)" },
-  { week: "Sep 8–14", paid: 321, total: 424, note: "Full week · 321 ad-attributed + ~103 organic (IG) · no delivery Sept 13" },
-  { week: "Sep 15–21", paid: 523, total: 666, note: "Full week · 523 ad-attributed + ~143 organic (IG)" },
-  { week: "Sep 22–24", paid: 244, total: 178, note: "Partial week · 244 ad-attributed (IG total only through Sept 23)" },
+// ── Weekly ───────────────────────────────────────────────────────────────────
+const WEEKS = [
+  { label: "Sep 1–7", from: 1, to: 7 },
+  { label: "Sep 8–14", from: 8, to: 14 },
+  { label: "Sep 15–21", from: 15, to: 21 },
+  { label: "Sep 22–28", from: 22, to: 28 },
+  { label: "Sep 29–30", from: 29, to: 30 },
 ]
+const day = (iso: string) => Number(iso.slice(8, 10))
+const engagementWeeks = WEEKS.map((w) => ({
+  ...w,
+  t: sum(
+    EXPORTS.adsetDaily.filter((r) => campaignForAdSet(r.name) === "Engagement" && day(r.start) >= w.from && day(r.start) <= w.to),
+  ),
+}))
 
-// Overview narrative for September (MTD). The structural fix recommended after
-// August has landed: Engagement is back to two parallel ad sets, and the new Broad
-// audience is outconverting the original Lookalike. What's keeping blended CPF up
-// is a creative issue in the Lookalike set (new low-converting "Ripi x sourmilk"),
-// not a structural one — the same high-reach/low-convert pattern as August's video.
+export const SEPTEMBER_WEEKLY_FOLLOWS: WeeklyFollows[] = engagementWeeks.map((w) => ({
+  week: w.label,
+  paid: w.t.follows,
+  total: null,
+}))
+
+// ── Overview narrative ───────────────────────────────────────────────────────
+const AUGUST = { engagementSpend: 2947.72, engagementFollows: 997, cpf: 2.96, impressions: 1848317, ctr: 8.74 }
+const change = (cur: number, prior: number) => {
+  const v = ((cur - prior) / prior) * 100
+  return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`
+}
+const fmtDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+const ran = (a: AdAgg) => (a.first === a.last ? fmtDate(a.first) : `${fmtDate(a.first)}–${day(a.last)}`)
+
+const engagementAds = adAggs.filter((a) => a.campaign === "Engagement").sort((a, b) => b.follows - a.follows)
+const topAd = engagementAds[0]
+const engagementAdSets = new Set(EXPORTS.adsetDaily.filter((r) => campaignForAdSet(r.name) === "Engagement").map((r) => r.name)).size
+
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary:
-    "September's numbers could read as 'more spend buying more follows' — but the structural fix recommended after August's review has landed and is holding. The Engagement campaign is running two parallel ad sets and driving follows efficiently: $2.45 engagement cost-per-follow through Sept 24 (1,576 ad-attributed follows), ahead of August's $2.96 and pacing at ~66 follows/day vs. August's ~32. There's also real organic lift underneath the paid engine — over the matched Sept 1–23 window (the IG follows export lags ~2 days), Instagram counted 1,865 total follows vs. 1,495 ad-attributed, meaning roughly 370 (~20%) came from organic reach. The evergreen 'Frozen Pasta' creative is the standout (847 follows at a $1.78 CPF), and 'Did You Know' scaled into a strong second (292 follows, $2.69, 22% visit-to-follow); the 'Ripi x sourmilk' collab ($5.11) and the newly-scaled 'Imagine Hating On Me' ($4.71) are the weak converters and the clearest levers to tighten.",
+  executiveSummary: `Ads brought in ${int(paidFollows)} followers in September, up from 997 in August. Total follows and the organic share will fill in once the full-month Instagram Insights export is imported. The Instagram Engagement Campaign's cost per follow fell from $2.96 to ${money(engagementCPF)}, the result of running ${engagementAdSets} follower-growth ad sets again instead of one. "${topAd.name}" was the top ad by a wide margin, with ${int(topAd.follows)} follows at ${money(topAd.spend / topAd.follows)} each. One audience finding shapes October: over the last 90 days about 21% of ad-attributed followers were 18–34 and about 55% were 45 or older, so October adds a goal to grow the younger share.`,
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
       objective: "Follower growth",
       judgeOn: "Cost per follow, visit-to-follow rate",
-      stat: "$3,860.70 spend · 1,576 follows · $2.45 CPF (through Sept 24), a 12.5% visit-to-follow rate. Running two ad sets; through the Sept 1–11 ad-set pull the Broad audience ($2.17 CPF, 10.9% visit→follow) was outconverting the Lookalike set ($3.51 CPF, 6.1%).",
+      stat: `${money(engagement.spend)} spend · ${int(engagement.follows)} follows · ${money(engagementCPF)} CPF · ${pct1(engagement.follows / engagement.visits)} visit-to-follow across ${engagementAdSets} ad sets.`,
     },
     {
       name: "Retailer Support (Traffic + Awareness)",
-      objective: "Whole Foods & Target retail support",
+      objective: "Whole Foods, Target & Meijer retail support",
       judgeOn: "CTR/CPC (traffic phase), CPM/reach (awareness phase)",
-      stat: "$1,260.52 spend · 4,538 clicks · traffic CTR 2.6–4.3%, in line with August. A new 'September Meijer Promo' retailer joined the awareness layer alongside Whole Foods.",
+      stat: `${money(retailer.spend)} spend · ${int(retailer.clicks)} link clicks · ${money(retailer.spend / retailer.clicks)} CPC. September promos for Whole Foods and Meijer ran alongside the evergreen builds.`,
     },
     {
       name: "Instagram Awareness Campaign",
       objective: "Evergreen broad-reach brand awareness — not follows or clicks",
       judgeOn: "CPM and frequency",
-      stat: "$825.33 spend · two parallel audience tests (Young Millennials, Parents + Cooking) · frequency 1.01–1.04 (no fatigue) · 0 follows, as expected for an awareness objective.",
+      stat: `${money(awareness.spend)} spend · ${int(awareness.impressions)} impressions · ${money((awareness.spend / awareness.impressions) * 1000)} CPM across two audience tests (Young Millennials, Parents + Cooking).`,
     },
   ],
   monthChange: {
     priorLabel: "August",
-    currentLabel: "September (pace)",
+    currentLabel: "September",
     rows: [
-      { metric: "Engagement follows / day", prior: "32.2", current: "65.7", change: "+104%", dir: "good" },
-      { metric: "Engagement cost per follow", prior: "$2.96", current: "$2.45", change: "-17%", dir: "good" },
-      { metric: "Active follower-growth ad sets", prior: "1", current: "2", change: "+1", dir: "good" },
-      { metric: "Engagement spend / day", prior: "$95", current: "$161", change: "+69%", dir: "neutral" },
+      { metric: "Engagement campaign spend", prior: money(AUGUST.engagementSpend), current: money(engagement.spend), change: change(engagement.spend, AUGUST.engagementSpend), dir: "neutral" },
+      { metric: "Engagement campaign follows", prior: int(AUGUST.engagementFollows), current: int(engagement.follows), change: change(engagement.follows, AUGUST.engagementFollows), dir: "good" },
+      { metric: "Cost per follow", prior: money(AUGUST.cpf), current: money(engagementCPF), change: change(engagementCPF, AUGUST.cpf), dir: "good" },
+      { metric: "Active follower-growth ad sets", prior: "1", current: String(engagementAdSets), change: `+${engagementAdSets - 1}`, dir: "good" },
     ],
-    explanation:
-      "The structural fix from August's review is in and holding: the Engagement campaign runs two parallel ad sets — the proven 'Existing Posts (Lookalike)' plus a newer 'Existing Posts (Broad + 24-64)' testing a wider, non-lookalike audience. Through Sept 24 the campaign has driven 1,576 ad-attributed follows at a $2.45 blended CPF, so daily follows more than doubled while cost-per-follow came down from August. The clearest next lever is the flagship creative mix — the evergreen 'Frozen Pasta' post is converting exceptionally ($1.78 CPF) and 'Did You Know' scaled into a strong second ($2.69, 292 follows), while 'Imagine Hating On Me' ($4.71) and the 'Ripi x sourmilk' collab ($5.11, ~4% visit-to-follow) are pulling visits but converting poorly.",
+    explanation: `August's review found that consolidating follower growth into one ad set bought profile traffic rather than follows. September went back to ${engagementAdSets} parallel ad sets, and the Engagement campaign added ${int(engagement.follows - AUGUST.engagementFollows)} more follows than August while cost per follow came down to ${money(engagementCPF)}. Visit-to-follow held at ${pct1(engagement.follows / engagement.visits)} for the month. The weaker converters ("Ripi x sourmilk", "Sauce Before Pasta", "Cacio e Pepe Puffs") were retired in the first week, and spend shifted to "${topAd.name}" and "Did You Know".`,
     caveat:
-      "September is month-to-date. Engagement spend and ad-attributed follows are exact through Sept 24 (no delivery on Sept 13); the Sept 1–24 pull is an ad-level aggregate, so Sept 18–24 daily figures are the window remainder spread evenly. Per-day pace is the fair comparison to August's full month. IG Insights follows are in through Sept 23, showing ~20% organic lift on top of the paid follows.",
+      SEPTEMBER_MISSING_DATES.length > 0
+        ? `The daily Meta exports have no rows for ${SEPTEMBER_MISSING_DATES.map(fmtDate).join(", ")}, so September totals run through Sep ${day(SEPTEMBER_MISSING_DATES[0]) - 1}.`
+        : undefined,
   },
   deepDive: {
-    title: "Follower Growth Deep Dive — Engagement campaign creative (Sept 1–24)",
-    weekly: [
-      { week: "Sep 1–7", spend: "$1,327", follows: "488", costPerFollow: "$2.72", profileVisits: "7,245", visitToFollow: "6.7%" },
-      { week: "Sep 8–14", spend: "$837", follows: "321", costPerFollow: "$2.61", profileVisits: "1,822", visitToFollow: "17.6%" },
-      { week: "Sep 15–21", spend: "$1,155", follows: "523", costPerFollow: "$2.21", profileVisits: "~2,405", visitToFollow: "~21.7%" },
-      { week: "Sep 22–24 (partial)", spend: "$541", follows: "244", costPerFollow: "$2.22", profileVisits: "~1,120", visitToFollow: "~21.8%" },
-    ],
-    creative: [
-      { ad: "Frozen Pasta Can't Be That Good", ran: "Sep 1–24", profileVisits: "3,780", follows: "847", visitToFollow: "22.4%" },
-      { ad: "Did You Know", ran: "Sep 1–24", profileVisits: "1,302", follows: "292", visitToFollow: "22.4%" },
-      { ad: "Cacio e Pepe Puffs", ran: "Sep 1–24", profileVisits: "3,515", follows: "269", visitToFollow: "7.65%" },
-      { ad: "Imagine Hating On Me", ran: "Sep 1–24", profileVisits: "806", follows: "102", visitToFollow: "12.7%" },
-      { ad: "Ripi x sourmilk", ran: "Sep 1–24", profileVisits: "1,502", follows: "63", visitToFollow: "4.19%" },
-    ],
-    caption:
-      "The evergreen \"Frozen Pasta Can't Be That Good\" post is carrying the campaign — 847 follows at a 22.4% visit-to-follow rate and a $1.78 CPF, the most efficient creative by far. \"Did You Know\" scaled into a strong second (292 follows, $2.69, 22.4%), and \"Cacio e Pepe Puffs\" is steady. \"Imagine Hating On Me\" ($4.71 CPF) and the \"Ripi x sourmilk\" collab ($5.11 CPF, ~4% visit-to-follow) are pulling visits but converting poorly — the same high-reach, low-convert pattern as August's \"What Did I Just Witness.\" Worth deciding whether they belong in the follower-growth set or a reach/awareness placement. Weekly profile-visit splits for Sept 15+ are estimated (the Sept 1–24 pull is an ad-level aggregate); spend, follows, and CPF are exact.",
+    title: "Follower Growth Deep Dive — Engagement campaign",
+    weekly: engagementWeeks.map((w) => ({
+      week: w.label,
+      spend: money0(w.t.spend),
+      follows: int(w.t.follows),
+      costPerFollow: w.t.follows > 0 ? money(w.t.spend / w.t.follows) : "—",
+      profileVisits: int(w.t.visits),
+      visitToFollow: w.t.visits > 0 ? pct1(w.t.follows / w.t.visits) : "—",
+    })),
+    creative: engagementAds
+      .filter((a) => a.follows > 0)
+      .slice(0, 6)
+      .map((a) => ({
+        ad: a.name,
+        ran: ran(a),
+        profileVisits: int(a.visits),
+        follows: int(a.follows),
+        visitToFollow: a.visits > 0 ? pct1(a.follows / a.visits) : "—",
+      })),
+    caption: `"${topAd.name}" carried the month with ${int(topAd.follows)} follows at a ${pct1(topAd.follows / topAd.visits)} visit-to-follow rate. "Sauce Before Pasta" shows the opposite pattern: it pulled profile visits but converted almost none of them before it was retired.`,
   },
+}
+
+// ── Budget efficiency: Instagram vs Facebook (Jul–Sep, Engagement ad sets) ───
+const fgPlatform = EXPORTS.adsetByPlatform.filter((r) => campaignForAdSet(r.name) === "Engagement")
+export interface PlatformSplitRow {
+  adSet: string
+  platform: "Instagram" | "Facebook"
+  spend: number
+  follows: number
+  cpf: number | null
+}
+const platformRow = (adSet: string, platform: "Instagram" | "Facebook", rows: Row[]): PlatformSplitRow => {
+  const t = sum(rows.filter((r) => r.dim === platform))
+  return { adSet, platform, spend: t.spend, follows: t.follows, cpf: t.follows > 0 ? t.spend / t.follows : null }
+}
+export const SEPTEMBER_PLATFORM_SPLIT = {
+  label: "Jul–Sep 2026",
+  rows: [...new Set(fgPlatform.map((r) => r.name))].flatMap((adSet) =>
+    (["Instagram", "Facebook"] as const).map((p) => platformRow(adSet, p, fgPlatform.filter((r) => r.name === adSet))),
+  ),
+  totals: (["Instagram", "Facebook"] as const).map((p) => platformRow("Both ad sets", p, fgPlatform)),
+}
+
+// ── Insights: audience age (Jul–Sep, Engagement ad sets) ─────────────────────
+export const AGE_BUCKETS = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] as const
+const fgAge = EXPORTS.adsetByAge.filter((r) => campaignForAdSet(r.name) === "Engagement")
+const knownAgeFollows = sum(fgAge.filter((r) => (AGE_BUCKETS as readonly string[]).includes(r.dim ?? ""))).follows
+export const SEPTEMBER_AUDIENCE_AGE = AGE_BUCKETS.map((age) => {
+  const t = sum(fgAge.filter((r) => r.dim === age))
+  return {
+    age: age.replace("-", "–"),
+    spend: t.spend,
+    follows: t.follows,
+    share: knownAgeFollows > 0 ? t.follows / knownAgeFollows : 0,
+    cpf: t.follows > 0 ? t.spend / t.follows : null,
+    followRate: t.visits > 0 ? t.follows / t.visits : null,
+  }
+})
+const shareOf = (ages: string[]) =>
+  SEPTEMBER_AUDIENCE_AGE.filter((r) => ages.includes(r.age.replace("–", "-"))).reduce((s, r) => s + r.share, 0)
+const ageRow = (age: string) => SEPTEMBER_AUDIENCE_AGE.find((r) => r.age === age)!
+
+// Monthly "Ad sets by Age" exports for the age trend card. Add parsed rows here
+// (same shape as adsetByAge) when the monthly exports are available.
+export const MONTHLY_AGE_EXPORTS: Record<"Jul" | "Aug" | "Sep", Row[] | null> = { Jul: null, Aug: null, Sep: null }
+export const SEPTEMBER_AGE_TREND = (() => {
+  const months = Object.entries(MONTHLY_AGE_EXPORTS).filter((e): e is [string, Row[]] => !!e[1]?.length)
+  if (months.length === 0) return null
+  return months.map(([month, rows]) => {
+    const fg = rows.filter((r) => campaignForAdSet(r.name) === "Engagement")
+    const total = sum(fg.filter((r) => (AGE_BUCKETS as readonly string[]).includes(r.dim ?? ""))).follows
+    const share = (age: string) => (total > 0 ? sum(fg.filter((r) => r.dim === age)).follows / total : 0)
+    const row: Record<string, number | string> = { month }
+    AGE_BUCKETS.forEach((a) => (row[a] = share(a)))
+    row.young = share("18-24") + share("25-34")
+    row.older = share("45-54") + share("55-64") + share("65+")
+    return row
+  })
+})()
+
+// Follower quality inputs — fill in from Instagram Insights at each month end.
+// followers = month-end follower count; interactions = total post interactions
+// for the month. Leave null when not imported; the card shows "—".
+export const FOLLOWER_QUALITY_INPUTS: { month: string; followers: number | null; interactions: number | null }[] = [
+  { month: "Apr", followers: null, interactions: null },
+  { month: "May", followers: null, interactions: null },
+  { month: "Jun", followers: null, interactions: null },
+  { month: "Jul", followers: null, interactions: null },
+  { month: "Aug", followers: null, interactions: null },
+  { month: "Sep", followers: null, interactions: null },
+]
+
+const pct0 = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v * 100)}%`)
+const youngShare = shareOf(["18-24", "25-34"])
+const olderShare = shareOf(["45-54", "55-64", "65+"])
+const midShare = shareOf(["35-44"])
+const frozenMix = adAgeMix.get("Frozen Pasta Can't Be That Good")
+const didYouKnowMix = adAgeMix.get("Did You Know")
+const cpfRange = (ages: string[]) => {
+  const v = ages.map((a) => ageRow(a).cpf ?? 0)
+  return `${money(Math.min(...v))}–${money(Math.max(...v))}`
+}
+const rateRange = (ages: string[]) => {
+  const v = ages.map((a) => Math.round((ageRow(a).followRate ?? 0) * 100))
+  return `${Math.min(...v)}–${Math.max(...v)}%`
+}
+const olderRate = Math.round(((ageRow("45–54").followRate ?? 0) + (ageRow("55–64").followRate ?? 0)) * 50)
+
+export const SEPTEMBER_QA = [
+  {
+    q: "Is our audience getting older?",
+    a: `It does skew older. Over the last 90 days, about ${pct0(youngShare)} of followers gained from ads were 18–34, ${pct0(midShare)} were 35–44, and ${pct0(olderShare)} were 45 or older. This happens because the ads are set to find people most likely to follow, and older viewers who visit the profile follow at roughly twice the rate of younger ones (about ${olderRate}% vs ${rateRange(["18–24", "25–34"])}).`,
+  },
+  {
+    q: "Has it been increasing over the last 60–90 days?",
+    a: "We can confirm the skew today but not the direction yet. Our current data is a single 90-day total. The month-by-month view is being added below and will show whether the older share is growing.",
+  },
+  {
+    q: "Will engagement fall behind follower growth?",
+    a: 'It is a fair risk, so we are now tracking engagement rate next to follower count each month (see "Follower quality" below). If engagement rate drops while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.',
+  },
+  {
+    q: "What does it cost to reach younger people instead?",
+    a: `Less than expected for 25–34: about ${money(ageRow("25–34").cpf ?? 0)} per follower, close to the ${cpfRange(["35–44", "45–54", "55–64"])} we pay for ages 35–64. Ages 18–24 cost about ${money(ageRow("18–24").cpf ?? 0)}. Our best ad for younger followers is "Frozen Pasta Can't Be That Good" (${pct0(frozenMix?.pct18to34)} of its followers are 18–34). "Did You Know" skews oldest (${pct0(didYouKnowMix?.pct45plus)} are 45+). In October one audience is capped at 18–34 so that budget can only go to younger people.`,
+  },
+]
+
+// ── Testing: October plan ────────────────────────────────────────────────────
+export const OCTOBER_PLAN = {
+  goals: [
+    { label: "Cost per follower", target: "about $2.00", baseline: `September: about ${money(engagementCPF)}` },
+    { label: "Profile visitors who follow", target: "20%+", baseline: `September: ${pct1(engagement.follows / engagement.visits)}` },
+    { label: "Follower-growth spend on Instagram", target: "100%", baseline: "Jul–Sep: about 75%" },
+  ],
+  youngShareBaseline: youngShare,
+  plannedChange: {
+    title: "One audience capped at ages 18–34",
+    detail:
+      "One follower-growth audience will only show ads to people aged 18–34. It is reported separately from the broad audience so we can see what younger followers cost and how they engage.",
+  },
+  tracker: [
+    { ad: "Ripi & Dip Ranch", launch: "Oct 1" },
+    { ad: "Tomato Martini", launch: "Oct 11" },
+    { ad: "TBD", launch: "Oct 21" },
+  ],
+  q4Note:
+    "Budgets stay flat through the holidays. Ad costs typically rise from late October through December as bigger advertisers compete, so we judge each ad on cost per follower relative to that week's costs rather than against September. New creative, not more spend, is the main lever.",
+  flags: [
+    "Comments or DMs that suggest the wrong people are finding us, or confusion about the product.",
+    "Any shift you notice in who is following, liking, or commenting.",
+    "Organic posts that do unusually well, since they are candidates to run as ads.",
+    "A drop in likes or comments on regular posts.",
+    "Upcoming retailer promos, launches, or messaging changes, ideally two weeks ahead.",
+    "Any post you would not want promoted.",
+  ],
 }

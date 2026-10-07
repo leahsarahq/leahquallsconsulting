@@ -78,6 +78,8 @@ for (const file of files) {
     budget: num(r[col("Ad set budget")]),
     spend: num(r[col("Amount spent (USD)")]),
     impressions: num(r[col("Impressions")]),
+    clicks: num(r[col("Link clicks")]),
+    reach: num(r[col("Reach")]),
     visits: num(r[col("Instagram profile visits")]),
     follows: num(r[col("Instagram follows")]),
   }))

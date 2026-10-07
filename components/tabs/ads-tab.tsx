@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { ChartSection } from "@/components/chart-section"
-import { getDataForMonth, CAMPAIGNS, type Campaign } from "@/lib/data"
+import { getDataForMonth, CAMPAIGNS, type Campaign, type AdData } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 
 type SortKey = "follows" | "cpf" | "spend" | "ctr" | "impressions"
@@ -37,8 +37,10 @@ function CampaignBadge({ campaign }: { campaign: Campaign }) {
 
 export function AdsTab() {
   const { selectedMonth } = useMonth()
-  const { adsData } = getDataForMonth(selectedMonth)
-  
+  const adsData: AdData[] = getDataForMonth(selectedMonth).adsData
+  const hasAgeMix = adsData.some((ad) => ad.pct18to34 != null || ad.pct45plus != null)
+  const fmtShare = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v * 100)}%`)
+
   const [sortBy, setSortBy] = useState<SortKey>("follows")
   const [filter, setFilter] = useState<FilterKey>("all")
   const [campaignFilter, setCampaignFilter] = useState<CampaignFilter>("all")
@@ -212,6 +214,18 @@ export function AdsTab() {
                 <th className="text-left text-[11px] text-muted-foreground font-medium uppercase tracking-wide py-2 px-2">
                   CPC
                 </th>
+                {hasAgeMix && (
+                  <>
+                    <th className="text-left text-[11px] text-muted-foreground font-medium uppercase tracking-wide py-2 px-2">
+                      % of follows 18–34
+                      <span className="block normal-case tracking-normal font-normal">Jul–Sep</span>
+                    </th>
+                    <th className="text-left text-[11px] text-muted-foreground font-medium uppercase tracking-wide py-2 px-2">
+                      % of follows 45+
+                      <span className="block normal-case tracking-normal font-normal">Jul–Sep</span>
+                    </th>
+                  </>
+                )}
                 <th className="text-left text-[11px] text-muted-foreground font-medium uppercase tracking-wide py-2 px-2">
                   Tag
                 </th>
@@ -245,6 +259,12 @@ export function AdsTab() {
                     <td className="py-2.5 px-2">
                       {ad.clicks > 0 ? `$${(ad.spend / ad.clicks).toFixed(2)}` : "—"}
                     </td>
+                    {hasAgeMix && (
+                      <>
+                        <td className="py-2.5 px-2">{fmtShare(ad.pct18to34)}</td>
+                        <td className="py-2.5 px-2">{fmtShare(ad.pct45plus)}</td>
+                      </>
+                    )}
                     <td className="py-2.5 px-2">{tag && <Badge type={tag.type}>{tag.label}</Badge>}</td>
                   </tr>
                 )

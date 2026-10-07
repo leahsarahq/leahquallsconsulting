@@ -3,6 +3,7 @@
 import { ChartSection } from "@/components/chart-section"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
+import { AudienceInsights } from "@/components/tabs/audience-insights"
 
 function BenchmarkCard({
   metric,
@@ -55,7 +56,7 @@ function BenchmarkCard({
 
 export function InsightsTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { kpiData, adsData } = getDataForMonth(selectedMonth)
+  const { kpiData, adsData, audienceInsights } = getDataForMonth(selectedMonth)
   
   const totalCreatives = adsData.length
   const engagementCreatives = adsData.filter((ad) => ad.campaign === "Engagement").length
@@ -69,6 +70,8 @@ export function InsightsTab() {
   const topDriverShare = totalPaidFollows
     ? Math.round((topDrivers.reduce((s, ad) => s + ad.follows, 0) / totalPaidFollows) * 100)
     : 0
+  const topDriverMaxCpf = Math.max(0, ...topDrivers.map((ad) => ad.cpf ?? 0))
+  const hasCreatorAds = adsData.some((ad) => /joe/i.test(ad.name))
   const cpmReach = (kpiData.totalSpend / kpiData.totalReach) * 1000
 
   return (
@@ -116,16 +119,18 @@ export function InsightsTab() {
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">A couple of videos do the heavy lifting.</span>{" "}
-                {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")} — casual, native-feeling videos — drove {topDriverShare}% of paid follows at under $1.30 each.
+                {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")} — casual, native-feeling videos — drove {topDriverShare}% of paid follows at ${topDriverMaxCpf.toFixed(2)} or less each.
               </span>
             </li>
-            <li className="flex gap-2">
-              <span className="text-green-600 font-bold">+</span>
-              <span>
-                <span className="font-medium text-foreground">Creator ads grab attention.</span>{" "}
-                The Joe creator ads earned the highest click rates (up to ~10%) — but fewer of those clicks became follows, so we&apos;re iterating the follow ask (see Testing).
-              </span>
-            </li>
+            {hasCreatorAds && (
+              <li className="flex gap-2">
+                <span className="text-green-600 font-bold">+</span>
+                <span>
+                  <span className="font-medium text-foreground">Creator ads grab attention.</span>{" "}
+                  The Joe creator ads earned the highest click rates (up to ~10%) — but fewer of those clicks became follows, so we&apos;re iterating the follow ask (see Testing).
+                </span>
+              </li>
+            )}
             <li className="flex gap-2">
               <span className="text-muted-foreground font-bold">–</span>
               <span>
@@ -210,7 +215,7 @@ export function InsightsTab() {
         </div>
       </ChartSection>
 
-
+      {audienceInsights && <AudienceInsights insights={audienceInsights} />}
     </div>
   )
 }
