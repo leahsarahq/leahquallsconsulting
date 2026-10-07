@@ -183,8 +183,8 @@ export function AdsTab() {
       </div>
 
       <ChartSection title="Ad creative performance">
-        <div className="overflow-x-auto -mx-4 px-4">
-          <table className="w-full text-[13px]">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-max text-[13px]">
             <thead>
               <tr className="border-b border-border/60">
                 <th className="text-left text-[11px] text-muted-foreground font-medium uppercase tracking-wide py-2 px-2">

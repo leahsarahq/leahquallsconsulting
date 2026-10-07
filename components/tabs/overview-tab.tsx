@@ -304,9 +304,9 @@ export function OverviewTab() {
           }
         />
         <KPICard
-          label="Total reach"
+          label={kpiData.reachNotDeduplicated ? "Total impressions (sum of daily reach)" : "Total reach"}
           value={`${(kpiData.totalReach / 1000).toFixed(0)}K`}
-          subtext={kpiData.reachNotDeduplicated ? "sum of daily reach · not deduplicated" : "3 campaigns"}
+          subtext={kpiData.reachNotDeduplicated ? "not deduplicated" : "3 campaigns"}
         />
       </div>
 
@@ -355,7 +355,7 @@ export function OverviewTab() {
               : weeklyFollows.every((w) => w.total == null)
                 ? "Engagement campaign follows — weekly totals not in the IG Insights export"
               : kpiData.weeklyTotalsApproximate
-                ? `Total follows ${kpiData.followerGrowth.toLocaleString()} (IG Insights) · weekly totals approximate, read from the daily chart`
+                ? `Total follows ${kpiData.followerGrowth.toLocaleString()} (IG Insights)`
               : kpiData.organicExportMissing
                 ? "Ad-attributed follows only — no IG Insights export this month"
                 : "Total follows from Instagram Insights"

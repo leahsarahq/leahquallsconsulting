@@ -5,8 +5,6 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -50,8 +48,8 @@ function AudienceAgeCard({ age }: { age: AudienceInsights["age"] }) {
   const chartData = age.map((r) => ({ age: r.age, share: Math.round(r.share * 1000) / 10 }))
   return (
     <ChartSection
-      title="Audience age (Jul–Sep 2026)"
-      subtitle="Follower-growth ad sets · 90-day total, not a monthly view"
+      title="Audience age (Apr–Sep 2026)"
+      subtitle="Instagram Engagement Campaign · Apr 1 – Sep 30 total, not a monthly view"
     >
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -59,8 +57,8 @@ function AudienceAgeCard({ age }: { age: AudienceInsights["age"] }) {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="age" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
-            <Tooltip formatter={(v: number) => [`${v}%`, "Share of follows"]} cursor={{ fill: "hsl(var(--muted))" }} />
-            <Bar dataKey="share" fill="#D93732" radius={[4, 4, 0, 0]} />
+            <Tooltip formatter={(v: number) => [`${v}%`, "Share of follows"]} cursor={false} />
+            <Bar dataKey="share" fill="#D93732" radius={[4, 4, 0, 0]} activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -138,60 +136,12 @@ function AgeTrendCard({ trend }: { trend: AudienceInsights["ageTrend"] }) {
   )
 }
 
-function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQuality"] }) {
-  const rows = inputs.map((m) => ({
-    month: m.month,
-    followers: m.followers,
-    engagementRate:
-      m.followers && m.interactions != null ? Math.round((m.interactions / m.followers) * 1000) / 10 : null,
-  }))
-  const hasAny = rows.some((r) => r.followers != null || r.engagementRate != null)
-
-  return (
-    <ChartSection
-      title="Follower quality"
-      subtitle="Engagement rate (post interactions ÷ followers) next to follower count · Apr–Sep"
-    >
-      {hasAny && (
-        <div className="h-56 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rows} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="rate" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
-              <YAxis yAxisId="followers" orientation="right" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="rate" dataKey="engagementRate" name="Engagement rate" stroke="#D93732" strokeWidth={2} />
-              <Line yAxisId="followers" dataKey="followers" name="Followers" stroke="#660033" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-      <div className={`grid grid-cols-3 gap-2 sm:grid-cols-6 ${hasAny ? "mt-3" : ""}`}>
-        {rows.map((r) => (
-          <div key={r.month} className="rounded-lg bg-secondary/50 p-2.5">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">{r.month}</p>
-            <p className="mt-0.5 text-sm font-semibold text-foreground tabular-nums">
-              {r.engagementRate != null ? `${r.engagementRate}%` : "—"}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              {r.followers != null ? `${int(r.followers)} followers` : "not imported this month"}
-            </p>
-          </div>
-        ))}
-      </div>
-    </ChartSection>
-  )
-}
-
 export function AudienceInsights({ insights }: { insights: AudienceInsights }) {
   return (
     <>
       <QACard qa={insights.qa} />
       <AudienceAgeCard age={insights.age} />
-      <AgeTrendCard trend={insights.ageTrend} />
-      <FollowerQualityCard inputs={insights.followerQuality} />
+      {insights.ageTrend && <AgeTrendCard trend={insights.ageTrend} />}
     </>
   )
 }
