@@ -4,6 +4,7 @@ import { ChartSection } from "@/components/chart-section"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { TestArm } from "@/lib/data/types"
+import { OctoberPlan } from "@/components/tabs/october-plan"
 
 // Accent colors assigned to each arm, in order.
 const ARM_ACCENTS = ["#D93732", "#660033", "#E8853A"]
@@ -74,7 +75,9 @@ function ArmHeader({ arm, accent }: { arm: TestArm; accent: string }) {
 
 export function TestingTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { testing } = getDataForMonth(selectedMonth)
+  const { testing, octoberPlan } = getDataForMonth(selectedMonth)
+
+  if (octoberPlan) return <OctoberPlan plan={octoberPlan} />
 
   if (!testing) {
     return (

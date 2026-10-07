@@ -1,0 +1,51 @@
+"Reporting starts","Reporting ends","Ad set name",Platform,"Ad set delivery","Ad set budget","Ad set budget type","Amount spent (USD)",Reach,Impressions,Frequency,"Link clicks","CTR (link click-through rate)","CPC (cost per link click) (USD)","CPM (cost per 1,000 impressions) (USD)","Instagram profile visits","Instagram follows","IG Follow Rate","Cost Per Follow (CPF)"
+2026-07-01,2026-09-30,"Target Evergreen Campaign","Audience Network",active,50,Daily,0,1,1,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Zip Codes Test","Audience Network",inactive,50,Daily,0.01,1,1,1,,,,10.000182,0,0,0,0
+2026-07-01,2026-09-30,"Existing Posts (Lookalike 1%+Retailers+Cooking)",Facebook,active,75,Daily,1798.638167,39853,77415,1.942514,3377,4.362204,0.532614,23.233717,736,443,0.60190217,4.0601313
+2026-07-01,2026-09-30,"Audience Test (Parents + Cooking)",Facebook,inactive,50,Daily,1457.768734,653783,776588,1.187838,975,0.125549,1.495147,1.877146,82,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Facebook,inactive,50,Daily,2161.668619,854347,1104986,1.293369,1147,0.103802,1.884628,1.956286,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Facebook,inactive,50,Daily,2439.909094,1029543,1273330,1.236791,1476,0.115917,1.653055,1.916164,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Young Millennials)",Facebook,inactive,50,Daily,556.11564,443115,446312,1.007215,940,0.210615,0.591612,1.246024,24,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Facebook,inactive,50,Daily,1345.507203,100550,146005,1.452064,5673,3.885483,0.237177,9.215487,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Facebook,active,50,Daily,1845.580642,121876,161923,1.328588,8572,5.293874,0.215303,11.397891,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Zip Codes Test",Facebook,inactive,50,Daily,462.19841,62107,69858,1.124801,1769,2.53228,0.261277,6.616256,7,0,0,0
+2026-07-01,2026-09-30,"Existing Posts (Broad + 24-64)",Facebook,active,75,Daily,488.267777,20947,28709,1.370554,1135,3.953464,0.430192,17.007481,507,168,0.33136095,2.90635581
+2026-07-01,2026-09-30,"September Whole Foods Promo",Facebook,inactive,50,Daily,685.50937,304878,350022,1.148072,521,0.148848,1.315757,1.958475,1,0,0,0
+2026-07-01,2026-09-30,"September Meijer Promo",Facebook,inactive,50,Daily,195.820073,70450,83942,1.191512,44,0.052417,4.450456,2.332802,0,0,0,0
+2026-07-01,2026-09-30,"Existing Posts (Lookalike 1%+Retailers+Cooking)",Instagram,active,75,Daily,5212.301833,202147,302705,1.49745,21209,7.006491,0.245759,17.219081,22749,2560,0.11253242,2.0360554
+2026-07-01,2026-09-30,"Audience Test (Parents + Cooking)",Instagram,inactive,50,Daily,5.80095,2185,2688,1.230206,2,0.074405,2.900475,2.158092,3,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Instagram,inactive,50,Daily,59.511338,24098,24683,1.024276,48,0.194466,1.23982,2.411025,11,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Instagram,inactive,50,Daily,26.23085,10364,10754,1.03763,13,0.120885,2.017758,2.439172,2,0,0,0
+2026-07-01,2026-09-30,"Joe Audience Test",Instagram,inactive,50,Daily,707.13,41122,55749,1.355698,3824,6.859316,0.184919,12.684174,3755,302,0.0804261,2.34149007
+2026-07-01,2026-09-30,"OnKatiesPlate Creative Test",Instagram,inactive,50,Daily,689.51,38113,56491,1.482198,2848,5.041511,0.242103,12.205661,2852,152,0.05329593,4.53625
+2026-07-01,2026-09-30,"Audience Test (Young Millennials)",Instagram,inactive,50,Daily,1993.66437,367481,731214,1.989801,96,0.013129,20.767337,2.726513,177,1,0.00564972,1993.66436973
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Instagram,inactive,50,Daily,218.342792,16664,21629,1.297948,1013,4.683527,0.215541,10.094909,179,4,0.02234637,54.58569792
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Instagram,active,50,Daily,395.979372,38781,53389,1.376679,1437,2.691566,0.27556,7.416872,291,1,0.00343643,395.97937224
+2026-07-01,2026-09-30,"Whole Foods Zip Codes Test",Instagram,inactive,50,Daily,87.081585,8446,9539,1.12941,303,3.176434,0.287398,9.129006,61,0,0,0
+2026-07-01,2026-09-30,"Existing Posts (Broad + 24-64)",Instagram,active,75,Daily,1708.852223,100391,118504,1.180425,6292,5.309525,0.271591,14.420207,6318,937,0.14830643,1.82374837
+2026-07-01,2026-09-30,"September Whole Foods Promo",Instagram,inactive,50,Daily,2.030413,794,846,1.065491,,,,2.400015,0,0,0,0
+2026-07-01,2026-09-30,"September Meijer Promo",Instagram,inactive,50,Daily,0.609938,230,238,1.034783,1,0.420168,0.609938,2.562764,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Parents + Cooking)",Threads,inactive,50,Daily,1.750287,947,947,1,,,,1.848244,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Threads,inactive,50,Daily,1.300029,681,697,1.023495,1,0.143472,1.300029,1.865178,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Threads,inactive,50,Daily,0.530017,339,339,1,,,,1.563473,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Young Millennials)",Threads,inactive,50,Daily,1.119991,747,767,1.026774,,,,1.460223,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Threads,inactive,50,Daily,0,1,1,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Threads,active,50,Daily,0,3,3,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"September Whole Foods Promo",Threads,inactive,50,Daily,0.080016,41,41,1,,,,1.951616,0,0,0,0
+2026-07-01,2026-09-30,"September Meijer Promo",Threads,inactive,50,Daily,0,3,3,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Parents + Cooking)",Uncategorized,inactive,50,Daily,0.170028,85,91,1.070588,,,,1.868438,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Uncategorized,inactive,50,Daily,0.610014,244,258,1.057377,,,,2.364394,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Uncategorized,inactive,50,Daily,1.180038,616,684,1.11039,1,0.146199,1.180038,1.725202,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Young Millennials)",Uncategorized,inactive,50,Daily,0.089999,61,62,1.016393,,,,1.451602,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",Uncategorized,inactive,50,Daily,0.400005,53,60,1.132075,3,5,0.133335,6.666752,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",Uncategorized,active,50,Daily,0.079992,12,14,1.166667,,,,5.713699,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Zip Codes Test",Uncategorized,inactive,50,Daily,0.270005,27,34,1.259259,4,11.764706,0.067501,7.941321,0,0,0,0
+2026-07-01,2026-09-30,"September Whole Foods Promo",Uncategorized,inactive,50,Daily,0.170035,101,104,1.029703,,,,1.634948,0,0,0,0
+2026-07-01,2026-09-30,"September Meijer Promo",Uncategorized,inactive,50,Daily,0.089991,35,35,1,,,,2.571167,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Parents + Cooking)",WhatsApp,inactive,50,Daily,0.010002,6,6,1,,,,1.66694,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",WhatsApp,inactive,50,Daily,0,3,3,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"Audience Test (Young Millennials)",WhatsApp,inactive,50,Daily,0.04,18,18,1,,,,2.222205,0,0,0,0
+2026-07-01,2026-09-30,"Whole Foods Evergreen Campaign",WhatsApp,inactive,50,Daily,0,4,4,1,,,,0,0,0,0,0
+2026-07-01,2026-09-30,"Target Evergreen Campaign",WhatsApp,active,50,Daily,0.059994,28,28,1,,,,2.142637,0,0,0,0
+2026-07-01,2026-09-30,"September Whole Foods Promo",WhatsApp,inactive,50,Daily,0.820167,510,510,1,3,0.588235,0.273389,1.60817,0,0,0,0
+2026-07-01,2026-09-30,"September Meijer Promo",WhatsApp,inactive,50,Daily,0.019998,10,10,1,,,,1.999797,0,0,0,0

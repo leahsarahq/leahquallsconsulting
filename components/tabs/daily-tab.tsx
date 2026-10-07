@@ -4,6 +4,7 @@ import { ChartSection } from "@/components/chart-section"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { Campaign } from "@/lib/data"
+import { int, money } from "@/lib/data/meta/format"
 
 const CAMPAIGN_STYLE: Record<Campaign, { color: string; label: string; job: string }> = {
   Engagement: { color: "#D93732", label: "Engagement", job: "Grow the following" },
@@ -30,7 +31,9 @@ function BoughtStat({ value, label, sublabel }: { value: string; label: string; 
 
 export function DailyTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { adsData } = getDataForMonth(selectedMonth)
+  const { adsData, platformSplit } = getDataForMonth(selectedMonth)
+  const igTotal = platformSplit?.totals.find((t) => t.platform === "Instagram")
+  const fbTotal = platformSplit?.totals.find((t) => t.platform === "Facebook")
 
   // Aggregate spend / follows / impressions / clicks per campaign.
   const empty = () => ({ Engagement: 0, Awareness: 0, "Retailer Support": 0 }) as Record<Campaign, number>
@@ -143,6 +146,50 @@ export function DailyTab() {
           )
         })}
       </div>
+
+      {platformSplit && (
+        <ChartSection
+          title="Instagram vs. Facebook"
+          subtitle={`Follower-growth ad sets · ${platformSplit.label}`}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] text-muted-foreground uppercase tracking-wide border-b border-border">
+                  <th className="font-medium py-2 pr-3">Ad set</th>
+                  <th className="font-medium py-2 px-3">Platform</th>
+                  <th className="font-medium py-2 px-3 text-right">Spend</th>
+                  <th className="font-medium py-2 px-3 text-right">Follows</th>
+                  <th className="font-medium py-2 pl-3 text-right">Cost/Follow</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...platformSplit.rows, ...platformSplit.totals].map((r) => {
+                  const isTotal = r.adSet === "Both ad sets"
+                  return (
+                    <tr
+                      key={`${r.adSet}-${r.platform}`}
+                      className={`border-b border-border/60 last:border-0 ${isTotal ? "bg-muted/40 font-medium" : ""}`}
+                    >
+                      <td className="py-2 pr-3 text-foreground text-pretty">{r.adSet}</td>
+                      <td className="py-2 px-3 text-muted-foreground">{r.platform}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-muted-foreground">{money(r.spend)}</td>
+                      <td className="py-2 px-3 text-right tabular-nums text-foreground">{int(r.follows)}</td>
+                      <td className="py-2 pl-3 text-right tabular-nums text-foreground font-medium">{money(r.cpf)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
+            Instagram brings in followers for{" "}
+            <span className="font-medium text-foreground">{money(igTotal?.cpf)}</span> each vs.{" "}
+            <span className="font-medium text-foreground">{money(fbTotal?.cpf)}</span> on Facebook, so October moves all
+            follower-growth spend to Instagram.
+          </p>
+        </ChartSection>
+      )}
     </div>
   )
 }

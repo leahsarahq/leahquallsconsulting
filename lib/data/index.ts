@@ -36,14 +36,59 @@ import {
   SEPTEMBER_SPEND_BY_CAMPAIGN,
   SEPTEMBER_WEEKLY_FOLLOWS,
   SEPTEMBER_OVERVIEW_ANALYSIS,
-  SEPTEMBER_IG_DAILY_FOLLOWS,
+  SEPTEMBER_MISSING_DATES,
+  SEPTEMBER_PLATFORM_SPLIT,
+  SEPTEMBER_AUDIENCE_AGE,
+  SEPTEMBER_AGE_TREND,
+  SEPTEMBER_QA,
+  FOLLOWER_QUALITY_INPUTS,
+  OCTOBER_PLAN,
 } from "./september-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext, AdData } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
 export type { Campaign, KPIData, AdData, SpendByCampaign, WeeklyFollows, IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext } from "./types"
 
+const fmtShortDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+
+// September-only sections (platform split, age/quality insights, October plan).
+// Other months get nulls so the shared tabs render exactly as before.
+function getMonthExtras(month: MonthKey) {
+  if (month === "sep-2026") {
+    return {
+      dataFootnote:
+        SEPTEMBER_MISSING_DATES.length > 0
+          ? `No rows for ${SEPTEMBER_MISSING_DATES.map(fmtShortDate).join(", ")} in the daily Meta exports.`
+          : null,
+      platformSplit: SEPTEMBER_PLATFORM_SPLIT as typeof SEPTEMBER_PLATFORM_SPLIT | null,
+      audienceInsights: {
+        age: SEPTEMBER_AUDIENCE_AGE,
+        ageTrend: SEPTEMBER_AGE_TREND,
+        qa: SEPTEMBER_QA,
+        followerQuality: FOLLOWER_QUALITY_INPUTS,
+      } as {
+        age: typeof SEPTEMBER_AUDIENCE_AGE
+        ageTrend: typeof SEPTEMBER_AGE_TREND
+        qa: typeof SEPTEMBER_QA
+        followerQuality: typeof FOLLOWER_QUALITY_INPUTS
+      } | null,
+      octoberPlan: OCTOBER_PLAN as typeof OCTOBER_PLAN | null,
+    }
+  }
+  return {
+    dataFootnote: null as string | null,
+    platformSplit: null as typeof SEPTEMBER_PLATFORM_SPLIT | null,
+    audienceInsights: null,
+    octoberPlan: null as typeof OCTOBER_PLAN | null,
+  }
+}
+
 export function getDataForMonth(month: MonthKey) {
+  return { ...getBaseData(month), ...getMonthExtras(month) }
+}
+
+function getBaseData(month: MonthKey) {
   switch (month) {
     case "apr-2026":
       return {
@@ -138,7 +183,7 @@ export function getDataForMonth(month: MonthKey) {
       }
     case "sep-2026":
       return {
-        dailyData: SEPTEMBER_DAILY_DATA,
+        dailyData: SEPTEMBER_DAILY_DATA as DailyData,
         adsData: SEPTEMBER_ADS_DATA,
         kpiData: SEPTEMBER_KPI_DATA,
         spendByCampaign: SEPTEMBER_SPEND_BY_CAMPAIGN,
@@ -151,7 +196,7 @@ export function getDataForMonth(month: MonthKey) {
         priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
-        igDailyFollows: SEPTEMBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
+        igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }
