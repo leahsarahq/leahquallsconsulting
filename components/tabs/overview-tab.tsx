@@ -306,7 +306,7 @@ export function OverviewTab() {
         <KPICard
           label="Total reach"
           value={`${(kpiData.totalReach / 1000).toFixed(0)}K`}
-          subtext={igMissing ? "sum of daily reach · not deduplicated" : "3 campaigns"}
+          subtext={kpiData.reachNotDeduplicated ? "sum of daily reach · not deduplicated" : "3 campaigns"}
         />
         <KPICard
           label="Messaging contacts"
@@ -363,6 +363,8 @@ export function OverviewTab() {
         <ChartSection title="Follower growth by week" subtitle={
             igMissing
               ? "Engagement campaign follows — total follows pending IG Insights export"
+              : weeklyFollows.every((w) => w.total == null)
+                ? "Engagement campaign follows — weekly totals not in the IG Insights export"
               : kpiData.organicExportMissing
                 ? "Ad-attributed follows only — no IG Insights export this month"
                 : "Total follows from Instagram Insights"

@@ -26,6 +26,8 @@ export interface KPIData {
   // True when the IG Insights "Instagram follows" export hasn't been imported for
   // the month at all. Total follows, Awareness lift and Blended CPF render as "—".
   igInsightsMissing?: boolean
+  // True when totalReach is a sum of daily ad set reach rather than a deduplicated figure.
+  reachNotDeduplicated?: boolean
 }
 
 export interface AdData {

@@ -161,14 +161,17 @@ export const SEPTEMBER_ADS_DATA: AdData[] = adAggs
 // ── KPIs ─────────────────────────────────────────────────────────────────────
 const paidFollows = all.follows
 const engagementCPF = engagement.spend / engagement.follows
+// Instagram Insights "Follows" card, Sep 1–30: 2.2K (Meta rounds to one decimal).
+const IG_INSIGHTS_TOTAL_FOLLOWS = 2200
+const organicFollows = IG_INSIGHTS_TOTAL_FOLLOWS - paidFollows
 
 export const SEPTEMBER_KPI_DATA: KPIData = {
   totalSpend: Math.round(all.spend),
-  followerGrowth: paidFollows, // placeholder — hidden while igInsightsMissing is set
+  followerGrowth: IG_INSIGHTS_TOTAL_FOLLOWS,
   paidFollows,
   startFollowers: 15455, // end of August (14,119 + 1,336)
-  endFollowers: 15455 + paidFollows,
-  blendedCPF: 0, // needs the IG Insights total; hidden while igInsightsMissing is set
+  endFollowers: 15455 + IG_INSIGHTS_TOTAL_FOLLOWS,
+  blendedCPF: all.spend / IG_INSIGHTS_TOTAL_FOLLOWS,
   engagementCPF,
   totalReach: all.reach, // sum of daily ad set reach (upper bound; not deduped)
   totalImpressions: all.impressions,
@@ -176,7 +179,8 @@ export const SEPTEMBER_KPI_DATA: KPIData = {
   messagingContacts: 0, // not imported
   unfollows: 0,
   organicExportMissing: false,
-  igInsightsMissing: true,
+  igInsightsMissing: false,
+  reachNotDeduplicated: true,
 }
 
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
@@ -222,7 +226,7 @@ const topAd = engagementAds[0]
 const engagementAdSets = new Set(EXPORTS.adsetDaily.filter((r) => campaignForAdSet(r.name) === "Engagement").map((r) => r.name)).size
 
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary: `Ads brought in ${int(paidFollows)} followers in September, up from 997 in August. Total follows and the organic share will fill in once the full-month Instagram Insights export is imported. The Instagram Engagement Campaign's cost per follow fell from $2.96 to ${money(engagementCPF)}, the result of running ${engagementAdSets} follower-growth ad sets again instead of one. "${topAd.name}" was the top ad by a wide margin, with ${int(topAd.follows)} follows at ${money(topAd.spend / topAd.follows)} each. One audience finding shapes October: over the last 90 days about 21% of ad-attributed followers were 18–34 and about 55% were 45 or older, so October adds a goal to grow the younger share.`,
+  executiveSummary: `Ads brought in ${int(paidFollows)} followers in September, up from 997 in August. Instagram Insights counts about ${int(IG_INSIGHTS_TOTAL_FOLLOWS)} total follows for the month (up 72.3%), so roughly ${int(organicFollows)} came without a direct ad click. The Instagram Engagement Campaign's cost per follow fell from $2.96 to ${money(engagementCPF)}, the result of running ${engagementAdSets} follower-growth ad sets again instead of one. "${topAd.name}" was the top ad by a wide margin, with ${int(topAd.follows)} follows at ${money(topAd.spend / topAd.follows)} each. One audience finding shapes October: over the last 90 days about 21% of ad-attributed followers were 18–34 and about 55% were 45 or older, so October adds a goal to grow the younger share.`,
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
