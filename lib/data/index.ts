@@ -1,4 +1,5 @@
 import type { MonthKey } from "../month-context"
+import { SEPTEMBER_CLOSEOUT } from "./meta/analytics"
 import { APRIL_DAILY_DATA, APRIL_ADS_DATA, APRIL_KPI_DATA, APRIL_SPEND_BY_CAMPAIGN, APRIL_WEEKLY_FOLLOWS } from "./april-2026"
 import { MAY_DAILY_DATA, MAY_ADS_DATA, MAY_KPI_DATA, MAY_SPEND_BY_CAMPAIGN, MAY_WEEKLY_FOLLOWS, MAY_AUDIENCE_TEST } from "./may-2026"
 import {
@@ -138,7 +139,7 @@ export function getDataForMonth(month: MonthKey) {
       }
     case "sep-2026":
       return {
-        dailyData: SEPTEMBER_DAILY_DATA,
+        dailyData: SEPTEMBER_CLOSEOUT.progressDaily as DailyData,
         adsData: SEPTEMBER_ADS_DATA,
         kpiData: SEPTEMBER_KPI_DATA,
         spendByCampaign: SEPTEMBER_SPEND_BY_CAMPAIGN,
@@ -151,7 +152,7 @@ export function getDataForMonth(month: MonthKey) {
         priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA] as DailyData[],
         audienceTest: null,
         testing: null as TestingContext | null,
-        igDailyFollows: SEPTEMBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
+        igDailyFollows: null as IgDailyFollow[] | null,
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }
