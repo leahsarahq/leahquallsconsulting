@@ -48,8 +48,8 @@ function AudienceAgeCard({ age }: { age: AudienceInsights["age"] }) {
   const chartData = age.map((r) => ({ age: r.age, share: Math.round(r.share * 1000) / 10 }))
   return (
     <ChartSection
-      title="Audience age (Jul–Sep 2026)"
-      subtitle="Follower-growth ad sets · 90-day total, not a monthly view"
+      title="Audience age (Apr–Sep 2026)"
+      subtitle="Instagram Engagement Campaign · Apr 1 – Sep 30 total, not a monthly view"
     >
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -57,8 +57,8 @@ function AudienceAgeCard({ age }: { age: AudienceInsights["age"] }) {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
             <XAxis dataKey="age" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
-            <Tooltip formatter={(v: number) => [`${v}%`, "Share of follows"]} cursor={{ fill: "hsl(var(--muted))" }} />
-            <Bar dataKey="share" fill="#D93732" radius={[4, 4, 0, 0]} />
+            <Tooltip formatter={(v: number) => [`${v}%`, "Share of follows"]} cursor={false} />
+            <Bar dataKey="share" fill="#D93732" radius={[4, 4, 0, 0]} activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

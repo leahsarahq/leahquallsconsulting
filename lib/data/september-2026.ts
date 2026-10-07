@@ -323,12 +323,20 @@ export const SEPTEMBER_PLATFORM_SPLIT = {
   totals: (["Instagram", "Facebook"] as const).map((p) => platformRow("Both ad sets", p, fgPlatform)),
 }
 
-// ── Insights: audience age (Jul–Sep, Engagement ad sets) ──────��──────────────
+// ── Insights: audience age (Apr 1 – Sep 30, Instagram Engagement Campaign) ───
+// From the "Campaigns by Age, Apr 1 – Sep 30 2026" export (Engagement Campaign rows).
 export const AGE_BUCKETS = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] as const
-const fgAge = EXPORTS.adsetByAge.filter((r) => campaignForAdSet(r.name) === "Engagement")
-const knownAgeFollows = sum(fgAge.filter((r) => (AGE_BUCKETS as readonly string[]).includes(r.dim ?? ""))).follows
+const ENGAGEMENT_AGE_APR_SEP: Record<(typeof AGE_BUCKETS)[number], { spend: number; follows: number; visits: number }> = {
+  "18-24": { spend: 776.39, follows: 308, visits: 4991 },
+  "25-34": { spend: 2954.44, follows: 1622, visits: 14385 },
+  "35-44": { spend: 3843.48, follows: 2456, visits: 14344 },
+  "45-54": { spend: 3150.61, follows: 1983, visits: 8593 },
+  "55-64": { spend: 2973.73, follows: 1778, visits: 7797 },
+  "65+": { spend: 2081.08, follows: 957, visits: 6806 },
+}
+const knownAgeFollows = Object.values(ENGAGEMENT_AGE_APR_SEP).reduce((s, r) => s + r.follows, 0)
 export const SEPTEMBER_AUDIENCE_AGE = AGE_BUCKETS.map((age) => {
-  const t = sum(fgAge.filter((r) => r.dim === age))
+  const t = ENGAGEMENT_AGE_APR_SEP[age]
   return {
     age: age.replace("-", "–"),
     spend: t.spend,
@@ -403,7 +411,7 @@ const olderRate = Math.round(((ageRow("45–54").followRate ?? 0) + (ageRow("55�
 export const SEPTEMBER_QA = [
   {
     q: "Is our audience getting older?",
-    a: `It does skew older. Over the last 90 days, about ${pct0(youngShare)} of followers gained from ads were 18–34, ${pct0(midShare)} were 35–44, and ${pct0(olderShare)} were 45 or older. This happens because the ads are set to find people most likely to follow, and older viewers who visit the profile follow at roughly twice the rate of younger ones (about ${olderRate}% vs ${rateRange(["18–24", "25–34"])}).`,
+    a: `It does skew older. Since April, about ${pct0(youngShare)} of followers gained from ads were 18–34, ${pct0(midShare)} were 35–44, and ${pct0(olderShare)} were 45 or older. This happens because the ads are set to find people most likely to follow, and older viewers who visit the profile follow at roughly twice the rate of younger ones (about ${olderRate}% vs ${rateRange(["18–24", "25–34"])}).`,
   },
   {
     q: "Has it been increasing over the last 60–90 days?",
