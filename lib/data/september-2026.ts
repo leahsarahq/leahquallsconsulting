@@ -366,13 +366,22 @@ export const SEPTEMBER_AGE_TREND = (() => {
 // Month-end followers are derived from the 5,136 count on Apr 9 plus daily new
 // follows in the IG Follows export. That export has no unfollows, so these run
 // slightly high (and the rate slightly low).
-export const FOLLOWER_QUALITY_INPUTS: { month: string; followers: number | null; interactions: number | null }[] = [
-  { month: "Apr", followers: 7228, interactions: 15775 },
-  { month: "May", followers: 9829, interactions: 20336 },
-  { month: "Jun", followers: 11729, interactions: 6652 },
-  { month: "Jul", followers: 14350, interactions: 25685 },
-  { month: "Aug", followers: 15686, interactions: 6131 },
-  { month: "Sep", followers: 17896, interactions: 8618 },
+// IG only splits views (not interactions) into organic vs ads, so organic
+// interactions are estimated as interactions × (organicViews ÷ igViews), using the
+// Content overview "Views breakdown" for each month.
+export const FOLLOWER_QUALITY_INPUTS: {
+  month: string
+  followers: number | null
+  interactions: number | null
+  igViews: number | null
+  organicViews: number | null
+}[] = [
+  { month: "Apr", followers: 7228, interactions: 15775, igViews: 251429, organicViews: 129277 },
+  { month: "May", followers: 9829, interactions: 20336, igViews: 359834, organicViews: 214915 },
+  { month: "Jun", followers: 11729, interactions: 6652, igViews: 272078, organicViews: 131102 },
+  { month: "Jul", followers: 14350, interactions: 25685, igViews: 328595, organicViews: 114280 },
+  { month: "Aug", followers: 15686, interactions: 6131, igViews: 445070, organicViews: 113145 },
+  { month: "Sep", followers: 17896, interactions: 8618, igViews: 404612, organicViews: 110778 },
 ]
 
 const pct0 = (v: number | null | undefined) => (v == null ? "—" : `${Math.round(v * 100)}%`)

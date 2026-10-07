@@ -139,19 +139,27 @@ function AgeTrendCard({ trend }: { trend: AudienceInsights["ageTrend"] }) {
 }
 
 function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQuality"] }) {
-  const rows = inputs.map((m) => ({
-    month: m.month,
-    followers: m.followers,
-    interactions: m.interactions,
-    engagementRate:
-      m.followers && m.interactions != null ? Math.round((m.interactions / m.followers) * 1000) / 10 : null,
-  }))
+  const rows = inputs.map((m) => {
+    const organicInteractions =
+      m.interactions != null && m.igViews && m.organicViews != null
+        ? Math.round(m.interactions * (m.organicViews / m.igViews))
+        : null
+    return {
+      month: m.month,
+      followers: m.followers,
+      organicInteractions,
+      engagementRate:
+        m.followers && organicInteractions != null
+          ? Math.round((organicInteractions / m.followers) * 1000) / 10
+          : null,
+    }
+  })
   const hasAny = rows.some((r) => r.followers != null || r.engagementRate != null)
 
   return (
     <ChartSection
       title="Follower quality"
-      subtitle="Engagement rate (post interactions ÷ followers) next to follower count · Apr–Sep"
+      subtitle="Organic engagement rate (est. organic interactions ÷ followers) next to follower count · Apr–Sep. Organic interactions are estimated from each month's organic share of views."
     >
       {hasAny && (
         <div className="h-56 w-full">
@@ -163,7 +171,7 @@ function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQua
               <YAxis yAxisId="followers" orientation="right" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
               <Tooltip />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="rate" dataKey="engagementRate" name="Engagement rate" stroke="#D93732" strokeWidth={2} />
+              <Line yAxisId="rate" dataKey="engagementRate" name="Organic engagement rate" stroke="#D93732" strokeWidth={2} />
               <Line yAxisId="followers" dataKey="followers" name="Followers" stroke="#660033" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
@@ -176,8 +184,10 @@ function FollowerQualityCard({ inputs }: { inputs: AudienceInsights["followerQua
             <p className="mt-0.5 text-sm font-semibold text-foreground tabular-nums">
               {r.engagementRate != null ? `${r.engagementRate}%` : "—"}
             </p>
-            {r.interactions != null && (
-              <p className="text-[10px] text-muted-foreground tabular-nums">{int(r.interactions)} interactions</p>
+            {r.organicInteractions != null && (
+              <p className="text-[10px] text-muted-foreground tabular-nums">
+                ~{int(r.organicInteractions)} organic interactions
+              </p>
             )}
             <p className="text-[10px] text-muted-foreground">
               {r.followers != null ? `${int(r.followers)} followers` : "follower count not imported"}
