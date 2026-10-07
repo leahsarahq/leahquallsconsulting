@@ -190,8 +190,10 @@ export function AudienceInsights({ insights }: { insights: AudienceInsights }) {
     <>
       <QACard qa={insights.qa} />
       <AudienceAgeCard age={insights.age} />
-      <AgeTrendCard trend={insights.ageTrend} />
-      <FollowerQualityCard inputs={insights.followerQuality} />
+      {insights.ageTrend && <AgeTrendCard trend={insights.ageTrend} />}
+      {insights.followerQuality.some((m) => m.followers != null || m.interactions != null) && (
+        <FollowerQualityCard inputs={insights.followerQuality} />
+      )}
     </>
   )
 }

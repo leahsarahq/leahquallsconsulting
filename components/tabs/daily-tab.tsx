@@ -31,7 +31,10 @@ function BoughtStat({ value, label, sublabel }: { value: string; label: string; 
 
 export function DailyTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { adsData, platformSplit } = getDataForMonth(selectedMonth)
+  const { adsData, platformSplit, campaignTotals } = getDataForMonth(selectedMonth)
+  const usesAdSetTotals = campaignTotals != null
+  const volumeLabel = usesAdSetTotals ? "Impressions" : "People reached"
+  const per1kLabel = usesAdSetTotals ? "per 1K impressions" : "per 1K reached"
   const igTotal = platformSplit?.totals.find((t) => t.platform === "Instagram")
   const fbTotal = platformSplit?.totals.find((t) => t.platform === "Facebook")
 
@@ -47,6 +50,12 @@ export function DailyTab() {
     follows[ad.campaign] += ad.follows
     impressions[ad.campaign] += ad.impressions
     clicks[ad.campaign] += ad.clicks
+  }
+  if (campaignTotals) {
+    for (const c of CAMPAIGN_ORDER) {
+      spend[c] = campaignTotals[c].spend
+      impressions[c] = campaignTotals[c].impressions
+    }
   }
 
   const totalSpend = CAMPAIGN_ORDER.reduce((s, c) => s + spend[c], 0)
@@ -65,8 +74,8 @@ export function DailyTab() {
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <BoughtStat
             value={`${(totalImpressions / 1000000).toFixed(1)}M`}
-            label="People reached"
-            sublabel={`~$${((totalSpend / totalImpressions) * 1000).toFixed(2)} per 1K reached`}
+            label={volumeLabel}
+            sublabel={`~$${((totalSpend / totalImpressions) * 1000).toFixed(2)} ${per1kLabel}`}
           />
           <BoughtStat
             value={totalFollows.toLocaleString()}
@@ -76,7 +85,7 @@ export function DailyTab() {
           <BoughtStat
             value={retailerClicks.toLocaleString()}
             label="Clicks to retailers"
-            sublabel="Target & Whole Foods"
+            sublabel={usesAdSetTotals ? "Target, Whole Foods & Meijer" : "Target & Whole Foods"}
           />
         </div>
       </ChartSection>
@@ -120,13 +129,13 @@ export function DailyTab() {
                 ) : (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">People reached</span>
+                      <span className="text-muted-foreground">{volumeLabel}</span>
                       <span className="font-medium text-foreground tabular-nums">
                         {(impressions[c] / 1000000).toFixed(1)}M
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Cost per 1K reached</span>
+                      <span className="text-muted-foreground">Cost {per1kLabel}</span>
                       <span className="font-medium text-foreground tabular-nums">
                         {costPerKReach != null ? `$${costPerKReach.toFixed(2)}` : "—"}
                       </span>

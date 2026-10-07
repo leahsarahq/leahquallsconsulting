@@ -107,8 +107,14 @@ const adAgeMix = new Map<string, { pct18to34: number | null; pct45plus: number |
 {
   const groups = new Map<string, Row[]>()
   EXPORTS.adByAge.filter((r) => r.budget === ENGAGEMENT_BUDGET).forEach((r) => groups.set(r.name, [...(groups.get(r.name) ?? []), r]))
+  // Below 30 follows the age split is too noisy to show.
+  const MIN_FOLLOWS_FOR_AGE_MIX = 30
   groups.forEach((rows, name) => {
     const total = sum(rows).follows
+    if (total < MIN_FOLLOWS_FOR_AGE_MIX) {
+      adAgeMix.set(name, { pct18to34: null, pct45plus: null })
+      return
+    }
     adAgeMix.set(name, {
       pct18to34: total > 0 ? sum(rows.filter((r) => YOUNG.includes(r.dim ?? ""))).follows / total : null,
       pct45plus: total > 0 ? sum(rows.filter((r) => OLDER.includes(r.dim ?? ""))).follows / total : null,
@@ -184,6 +190,14 @@ export const SEPTEMBER_KPI_DATA: KPIData = {
   weeklyTotalsApproximate: true,
 }
 
+// Ad set totals per campaign. Ad-level exports lose a few dollars to rounding
+// and ad-set mapping, so the Budget tab uses these to match the other tabs.
+export const SEPTEMBER_CAMPAIGN_TOTALS: Record<Campaign, { spend: number; impressions: number }> = {
+  Engagement: { spend: engagement.spend, impressions: engagement.impressions },
+  Awareness: { spend: awareness.spend, impressions: awareness.impressions },
+  "Retailer Support": { spend: retailer.spend, impressions: retailer.impressions },
+}
+
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
   { name: "Engagement", value: Math.round(engagement.spend), color: "#D93732" },
   { name: "Awareness", value: Math.round(awareness.spend), color: "#660033" },
@@ -217,7 +231,8 @@ export const SEPTEMBER_WEEKLY_FOLLOWS: WeeklyFollows[] = engagementWeeks.map((w,
 }))
 
 // ── Overview narrative ───────────────────────────────────────────────────────
-const AUGUST = { engagementSpend: 2947.72, engagementFollows: 997, cpf: 2.96, impressions: 1848317, ctr: 8.74 }
+const AUGUST = { engagementSpend: 2947.72, engagementFollows: 997, cpf: 2.96, impressions: 1848317, ctr: 8.74, totalFollows: 1336 }
+const totalFollowsChange = Math.round(((IG_INSIGHTS_TOTAL_FOLLOWS - AUGUST.totalFollows) / AUGUST.totalFollows) * 100)
 const change = (cur: number, prior: number) => {
   const v = ((cur - prior) / prior) * 100
   return `${v > 0 ? "+" : ""}${v.toFixed(1)}%`
@@ -231,7 +246,7 @@ const topAd = engagementAds[0]
 const engagementAdSets = new Set(EXPORTS.adsetDaily.filter((r) => campaignForAdSet(r.name) === "Engagement").map((r) => r.name)).size
 
 export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary: `Ads brought in ${int(paidFollows)} followers in September, up from 997 in August. Instagram Insights counts about ${int(IG_INSIGHTS_TOTAL_FOLLOWS)} total follows for the month (up 72.3%), so roughly ${int(organicFollows)} came without a direct ad click. The Instagram Engagement Campaign's cost per follow fell from $2.96 to ${money(engagementCPF)}, the result of running ${engagementAdSets} follower-growth ad sets again instead of one. "${topAd.name}" was the top ad by a wide margin, with ${int(topAd.follows)} follows at ${money(topAd.spend / topAd.follows)} each. One audience finding shapes October: over the last 90 days about 21% of ad-attributed followers were 18–34 and about 55% were 45 or older, so October adds a goal to grow the younger share.`,
+  executiveSummary: `Ads brought in ${int(paidFollows)} followers in September, up from 997 in August. Instagram Insights counts about ${int(IG_INSIGHTS_TOTAL_FOLLOWS)} total follows for the month (up ${totalFollowsChange}%), so roughly ${int(organicFollows)} came without a direct ad click. The Instagram Engagement Campaign's cost per follow fell from $2.96 to ${money(engagementCPF)}, the result of running ${engagementAdSets} follower-growth ad sets again instead of one. "${topAd.name}" was the top ad by a wide margin, with ${int(topAd.follows)} follows at ${money(topAd.spend / topAd.follows)} each. One audience finding shapes October: over the last 90 days about 21% of ad-attributed followers were 18–34 and about 55% were 45 or older, so October adds a goal to grow the younger share.`,
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
@@ -260,11 +275,8 @@ export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       { metric: "Engagement campaign follows", prior: int(AUGUST.engagementFollows), current: int(engagement.follows), change: change(engagement.follows, AUGUST.engagementFollows), dir: "good" },
       { metric: "Cost per follow", prior: money(AUGUST.cpf), current: money(engagementCPF), change: change(engagementCPF, AUGUST.cpf), dir: "good" },
     ],
-    explanation: `August's review found that consolidating follower growth into one ad set bought profile traffic rather than follows. September went back to ${engagementAdSets} parallel ad sets, and the Engagement campaign added ${int(engagement.follows - AUGUST.engagementFollows)} more follows than August while cost per follow came down to ${money(engagementCPF)}. Visit-to-follow held at ${pct1(engagement.follows / engagement.visits)} for the month. The weaker converters ("Ripi x sourmilk", "Sauce Before Pasta", "Cacio e Pepe Puffs") were retired in the first week, and spend shifted to "${topAd.name}" and "Did You Know".`,
-    caveat:
-      SEPTEMBER_MISSING_DATES.length > 0
-        ? `The daily Meta exports have no rows for ${SEPTEMBER_MISSING_DATES.map(fmtDate).join(", ")}, so September totals run through Sep ${day(SEPTEMBER_MISSING_DATES[0]) - 1}.`
-        : undefined,
+    explanation: `August's review found that consolidating follower growth into one ad set bought profile traffic rather than follows. September went back to ${engagementAdSets} parallel ad sets, and the Engagement campaign added ${int(engagement.follows - AUGUST.engagementFollows)} more follows than August while cost per follow came down to ${money(engagementCPF)}. Visit-to-follow held at ${pct1(engagement.follows / engagement.visits)} for the month. The weaker converters ("Ripi x sourmilk", "Sauce Before Pasta") were retired in the first week, and spend shifted to "${topAd.name}" and "Did You Know". Cacio e Pepe Puffs was paused after week one because few profile visitors followed (7.7%), though its cost per follow was $2.43.`,
+    caveat: "The daily Meta exports have no rows for Sep 13 or Sep 30, so September totals cover Sep 1–29 excluding Sep 13.",
   },
   deepDive: {
     title: "Follower Growth Deep Dive — Engagement campaign",
@@ -383,11 +395,11 @@ export const SEPTEMBER_QA = [
   },
   {
     q: "Has it been increasing over the last 60–90 days?",
-    a: "We can confirm the skew today but not the direction yet. Our current data is a single 90-day total. The month-by-month view is being added below and will show whether the older share is growing.",
+    a: "We can confirm the skew today but not the direction yet. Our current data is a single 90-day total. We are adding a month-by-month view next and will share it once it is in.",
   },
   {
     q: "Will engagement fall behind follower growth?",
-    a: 'It is a fair risk, so we are now tracking engagement rate next to follower count each month (see "Follower quality" below). If engagement rate drops while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.',
+    a: 'It is a fair risk, so we are now tracking engagement rate next to follower count each month starting in October. If engagement rate drops while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.',
   },
   {
     q: "What does it cost to reach younger people instead?",
@@ -399,7 +411,7 @@ export const SEPTEMBER_QA = [
 export const OCTOBER_PLAN = {
   goals: [
     { label: "Cost per follower", target: "about $2.00", baseline: `September: about ${money(engagementCPF)}` },
-    { label: "Profile visitors who follow", target: "20%+", baseline: `September: ${pct1(engagement.follows / engagement.visits)}` },
+    { label: "Profile visitors who follow", target: "20%+", baseline: "September: 13.1% overall, about 20% in the last three weeks" },
     { label: "Follower-growth spend on Instagram", target: "100%", baseline: "Jul–Sep: about 75%" },
   ],
   youngShareBaseline: youngShare,

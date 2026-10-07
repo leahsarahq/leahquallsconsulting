@@ -43,6 +43,7 @@ import {
   SEPTEMBER_QA,
   FOLLOWER_QUALITY_INPUTS,
   OCTOBER_PLAN,
+  SEPTEMBER_CAMPAIGN_TOTALS,
 } from "./september-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext, AdData } from "./types"
 import type { DailyData } from "./progress"
@@ -74,6 +75,7 @@ function getMonthExtras(month: MonthKey) {
         followerQuality: typeof FOLLOWER_QUALITY_INPUTS
       } | null,
       octoberPlan: OCTOBER_PLAN as typeof OCTOBER_PLAN | null,
+      campaignTotals: SEPTEMBER_CAMPAIGN_TOTALS as typeof SEPTEMBER_CAMPAIGN_TOTALS | null,
     }
   }
   return {
@@ -81,6 +83,7 @@ function getMonthExtras(month: MonthKey) {
     platformSplit: null as typeof SEPTEMBER_PLATFORM_SPLIT | null,
     audienceInsights: null,
     octoberPlan: null as typeof OCTOBER_PLAN | null,
+    campaignTotals: null as typeof SEPTEMBER_CAMPAIGN_TOTALS | null,
   }
 }
 

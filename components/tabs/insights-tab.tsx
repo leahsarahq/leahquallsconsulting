@@ -11,10 +11,12 @@ function BenchmarkCard({
   benchmark,
   verdict,
   explanation,
+  benchmarkLabel,
 }: {
   metric: string
   value: string
   benchmark: string
+  benchmarkLabel?: string
   verdict: "excellent" | "good" | "average" | "below"
   explanation: string
 }) {
@@ -45,7 +47,7 @@ function BenchmarkCard({
         </span>
       </div>
       <p className="text-xs text-muted-foreground mb-2">
-        <span className="font-medium">Industry benchmark:</span> {benchmark}
+        <span className="font-medium">{benchmarkLabel ?? "Industry benchmark"}:</span> {benchmark}
       </p>
       <p className="text-xs text-foreground/80 leading-relaxed">{explanation}</p>
     </div>
@@ -72,7 +74,10 @@ export function InsightsTab() {
     : 0
   const topDriverMaxCpf = Math.max(0, ...topDrivers.map((ad) => ad.cpf ?? 0))
   const hasCreatorAds = adsData.some((ad) => /joe/i.test(ad.name))
-  const cpmReach = (kpiData.totalSpend / kpiData.totalReach) * 1000
+  const isSeptember = selectedMonth === "sep-2026"
+  const cpmReach = isSeptember
+    ? (kpiData.totalSpend / kpiData.totalImpressions) * 1000
+    : (kpiData.totalSpend / kpiData.totalReach) * 1000
 
   return (
     <div className="space-y-4">
@@ -90,7 +95,11 @@ export function InsightsTab() {
           value={`$${cpmReach.toFixed(2)}`}
           benchmark="$8–14 typical for CPG"
           verdict="excellent"
-          explanation={`${(kpiData.totalReach / 1000000).toFixed(1)}M people reached on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — roughly 60% cheaper than the industry norm.`}
+          explanation={
+            isSeptember
+              ? `${(kpiData.totalImpressions / 1000000).toFixed(1)}M impressions on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — about 40% below the benchmark midpoint.`
+              : `${(kpiData.totalReach / 1000000).toFixed(1)}M people reached on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — roughly 60% cheaper than the industry norm.`
+          }
         />
         <BenchmarkCard
           metric="Engagement CTR"
@@ -103,6 +112,7 @@ export function InsightsTab() {
           metric="Followers gained"
           value={kpiData.followerGrowth.toLocaleString()}
           benchmark="~341/mo before ads (Jan–Mar)"
+          benchmarkLabel={isSeptember ? "Ripi baseline" : undefined}
           verdict="excellent"
           explanation={`${kpiData.followerGrowth.toLocaleString()} new followers in ${monthInfo.label} — more than 5x the pre-ads pace.`}
         />
@@ -142,7 +152,7 @@ export function InsightsTab() {
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">Cutting losers fast keeps costs low.</span>{" "}
-                Weak tests (e.g. Dark Lifestyle) were paused quickly and budget shifted to what worked.
+                Weak tests (e.g. {isSeptember ? "Sauce Before Pasta and Ripi x sourmilk" : "Dark Lifestyle"}) were paused quickly and budget shifted to what worked.
               </span>
             </li>
           </ul>
@@ -169,7 +179,7 @@ export function InsightsTab() {
                 <td className="py-2.5 px-2 font-medium">Meta CPM</td>
                 <td className="py-2.5 px-2">$8–14</td>
                 <td className="py-2.5 px-2">~${((kpiData.totalSpend / kpiData.totalImpressions) * 1000).toFixed(2)}</td>
-                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">~75% below avg</span></td>
+                <td className="py-2.5 px-2"><span className="text-green-700 font-medium">{isSeptember ? "~40% below avg" : "~75% below avg"}</span></td>
               </tr>
               <tr>
                 <td className="py-2.5 px-2 font-medium">Meta CTR (F&B)</td>
@@ -200,7 +210,9 @@ export function InsightsTab() {
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">CPF Target</p>
             <p className="text-lg font-bold text-foreground">&lt; $2.00</p>
-            <p className="text-[11px] text-muted-foreground mt-1">Maintain current efficiency</p>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {isSeptember ? "Down from $2.49 in September" : "Maintain current efficiency"}
+            </p>
           </div>
           <div className="bg-secondary/50 rounded-lg p-3">
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Engagement CTR</p>
