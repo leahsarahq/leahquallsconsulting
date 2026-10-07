@@ -411,19 +411,19 @@ const olderRate = Math.round(((ageRow("45–54").followRate ?? 0) + (ageRow("55�
 export const SEPTEMBER_QA = [
   {
     q: "Is our audience getting older?",
-    a: `It does skew older. Since April, about ${pct0(youngShare)} of followers gained from ads were 18–34, ${pct0(midShare)} were 35–44, and ${pct0(olderShare)} were 45 or older. This happens because the ads are set to find people most likely to follow, and older viewers who visit the profile follow at roughly twice the rate of younger ones (about ${olderRate}% vs ${rateRange(["18–24", "25–34"])}).`,
+    a: "It does skew older. Since April, about 21% of followers gained from ads were 18–34, 27% were 35–44, and 52% were 45 or older. This happens because the ads are set to find people most likely to follow, and older viewers who visit the profile follow at roughly twice the rate of younger ones (about 23% vs 6–11%).",
   },
   {
     q: "Has it been increasing over the last 60–90 days?",
-    a: "We can confirm the skew today but not the direction yet. Our current data is a single 90-day total. We are adding a month-by-month view next and will share it once it is in.",
+    a: "Somewhat. The share of new followers aged 18–34 has held steady at about 21%. The shift is among older groups: followers 45 and older went from roughly 49% in April–June to roughly 55% in July–September, while 35–44 fell from about 30% to 23%.",
   },
   {
     q: "Will engagement fall behind follower growth?",
-    a: 'It is a fair risk, so we are now tracking engagement rate next to follower count each month starting in October. If engagement rate drops while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.',
+    a: "It is a fair risk. Starting in October we are tracking how followers engage alongside follower growth each month. If engagement slips while followers climb, we shift budget toward the younger-capped audience and the ads that bring in younger followers.",
   },
   {
     q: "What does it cost to reach younger people instead?",
-    a: `Less than expected for 25–34: about ${money(ageRow("25–34").cpf ?? 0)} per follower, close to the ${cpfRange(["35–44", "45–54", "55–64"])} we pay for ages 35–64. Ages 18–24 cost about ${money(ageRow("18–24").cpf ?? 0)}. Our best ad for younger followers is "Frozen Pasta Can't Be That Good" (${pct0(frozenMix?.pct18to34)} of its followers are 18–34). "Did You Know" skews oldest (${pct0(didYouKnowMix?.pct45plus)} are 45+). In October one audience is capped at 18–34 so that budget can only go to younger people.`,
+    a: `Not much more for 25–34. Since April they have cost about $1.82 per follower, slightly above the $1.56–$1.67 we pay for ages 35–64. Ages 18–24 cost about $2.52. Costs have been higher in recent months for every age group, and the gap between ages has stayed similar. Over the last 90 days our best ad for younger followers was "Frozen Pasta Can't Be That Good" (24% of its followers are 18–34), while "Did You Know" skewed oldest (73% are 45+). In October one audience is capped at 18–34 so that budget can only go to younger people.`,
   },
 ]
 
