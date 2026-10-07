@@ -286,7 +286,7 @@ export function OverviewTab() {
       </div>
 
       {/* Campaign Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <KPICard
           label="Total spend"
           value={`$${kpiData.totalSpend.toLocaleString()}`}
@@ -307,17 +307,6 @@ export function OverviewTab() {
           label="Total reach"
           value={`${(kpiData.totalReach / 1000).toFixed(0)}K`}
           subtext={kpiData.reachNotDeduplicated ? "sum of daily reach · not deduplicated" : "3 campaigns"}
-        />
-        <KPICard
-          label="Messaging contacts"
-          value={kpiData.messagingContacts ? kpiData.messagingContacts : "—"}
-          subtext={
-            !kpiData.messagingContacts
-              ? "not imported this month"
-              : hasComparison && messagingDelta != null
-                ? `${messagingDelta > 0 ? "+" : ""}${messagingDelta}% vs. ${comparison.shortLabel}`
-                : "messaging contacts"
-          }
         />
       </div>
 
@@ -365,6 +354,8 @@ export function OverviewTab() {
               ? "Engagement campaign follows — total follows pending IG Insights export"
               : weeklyFollows.every((w) => w.total == null)
                 ? "Engagement campaign follows — weekly totals not in the IG Insights export"
+              : kpiData.weeklyTotalsApproximate
+                ? `Total follows ${kpiData.followerGrowth.toLocaleString()} (IG Insights) · weekly totals approximate, read from the daily chart`
               : kpiData.organicExportMissing
                 ? "Ad-attributed follows only — no IG Insights export this month"
                 : "Total follows from Instagram Insights"

@@ -181,6 +181,7 @@ export const SEPTEMBER_KPI_DATA: KPIData = {
   organicExportMissing: false,
   igInsightsMissing: false,
   reachNotDeduplicated: true,
+  weeklyTotalsApproximate: true,
 }
 
 export const SEPTEMBER_SPEND_BY_CAMPAIGN = [
@@ -205,10 +206,14 @@ const engagementWeeks = WEEKS.map((w) => ({
   ),
 }))
 
-export const SEPTEMBER_WEEKLY_FOLLOWS: WeeklyFollows[] = engagementWeeks.map((w) => ({
+// Approximate weekly totals read off the IG Insights daily "Follows" chart
+// (no weekly export); they sum to ~2,190, matching the 2.2K card total.
+const IG_WEEKLY_TOTALS_APPROX = [590, 420, 660, 490, 30]
+
+export const SEPTEMBER_WEEKLY_FOLLOWS: WeeklyFollows[] = engagementWeeks.map((w, i) => ({
   week: w.label,
   paid: w.t.follows,
-  total: null,
+  total: IG_WEEKLY_TOTALS_APPROX[i] ?? null,
 }))
 
 // ── Overview narrative ───────────────────────────────────────────────────────
@@ -254,7 +259,6 @@ export const SEPTEMBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       { metric: "Engagement campaign spend", prior: money(AUGUST.engagementSpend), current: money(engagement.spend), change: change(engagement.spend, AUGUST.engagementSpend), dir: "neutral" },
       { metric: "Engagement campaign follows", prior: int(AUGUST.engagementFollows), current: int(engagement.follows), change: change(engagement.follows, AUGUST.engagementFollows), dir: "good" },
       { metric: "Cost per follow", prior: money(AUGUST.cpf), current: money(engagementCPF), change: change(engagementCPF, AUGUST.cpf), dir: "good" },
-      { metric: "Active follower-growth ad sets", prior: "1", current: String(engagementAdSets), change: `+${engagementAdSets - 1}`, dir: "good" },
     ],
     explanation: `August's review found that consolidating follower growth into one ad set bought profile traffic rather than follows. September went back to ${engagementAdSets} parallel ad sets, and the Engagement campaign added ${int(engagement.follows - AUGUST.engagementFollows)} more follows than August while cost per follow came down to ${money(engagementCPF)}. Visit-to-follow held at ${pct1(engagement.follows / engagement.visits)} for the month. The weaker converters ("Ripi x sourmilk", "Sauce Before Pasta", "Cacio e Pepe Puffs") were retired in the first week, and spend shifted to "${topAd.name}" and "Did You Know".`,
     caveat:
@@ -307,7 +311,7 @@ export const SEPTEMBER_PLATFORM_SPLIT = {
   totals: (["Instagram", "Facebook"] as const).map((p) => platformRow("Both ad sets", p, fgPlatform)),
 }
 
-// ── Insights: audience age (Jul–Sep, Engagement ad sets) ─────────────────────
+// ── Insights: audience age (Jul–Sep, Engagement ad sets) ──────��──────────────
 export const AGE_BUCKETS = ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] as const
 const fgAge = EXPORTS.adsetByAge.filter((r) => campaignForAdSet(r.name) === "Engagement")
 const knownAgeFollows = sum(fgAge.filter((r) => (AGE_BUCKETS as readonly string[]).includes(r.dim ?? ""))).follows

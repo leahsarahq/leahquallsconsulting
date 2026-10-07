@@ -23,6 +23,8 @@ export interface KPIData {
   // `blendedCPF` is therefore inflated. Overview demotes blended CPF and hides
   // the unattributed "Awareness lift" figure when this is set.
   organicExportMissing?: boolean
+  // True when weekly total follows are estimated from the IG Insights daily chart.
+  weeklyTotalsApproximate?: boolean
   // True when the IG Insights "Instagram follows" export hasn't been imported for
   // the month at all. Total follows, Awareness lift and Blended CPF render as "—".
   igInsightsMissing?: boolean
