@@ -5,6 +5,7 @@ import { KPICard } from "@/components/kpi-card"
 import { ChartSection } from "@/components/chart-section"
 import { getDataForMonth } from "@/lib/data"
 import { getComparison } from "@/lib/data/comparisons"
+import { OCTOBER_SPEND_ADJUSTED } from "@/lib/data/october-2026"
 import { useMonth } from "@/lib/month-context"
 
 function Legend({ items }: { items: { color: string; label: string }[] }) {
@@ -41,6 +42,36 @@ function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: st
   if (value > 0) return <span className="text-xs font-medium text-green-600">+{value}{suffix}</span>
   if (value < 0) return <span className="text-xs font-medium text-red-600">{value}{suffix}</span>
   return <span className="text-xs text-muted-foreground">same</span>
+}
+
+function SpendAdjustedCard() {
+  const { summary, metrics, reachNote } = OCTOBER_SPEND_ADJUSTED
+  return (
+    <div className="bg-card border border-border rounded-xl p-4">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-sm font-semibold text-foreground">Spend-adjusted view</h3>
+        <span className="text-[11px] text-muted-foreground">vs. September</span>
+      </div>
+      <p className="text-xs leading-relaxed text-muted-foreground text-pretty mb-3">{summary}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {metrics.map((m) => (
+          <div key={m.label}>
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{m.label}</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <span className="text-lg font-semibold">{m.october}</span>
+              <span className={m.better ? "text-xs font-medium text-green-600" : "text-xs font-medium text-red-600"}>
+                vs. {m.september}
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{m.note}</p>
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] leading-relaxed text-muted-foreground text-pretty mt-3 pt-3 border-t border-border/60">
+        {reachNote}
+      </p>
+    </div>
+  )
 }
 
 export function OverviewTab() {
@@ -220,6 +251,8 @@ export function OverviewTab() {
           )}
         </div>
       </div>
+
+      {selectedMonth === "oct-2026" && <SpendAdjustedCard />}
 
       {/* Comparison detail */}
       <div className="bg-card border border-border rounded-xl p-4">

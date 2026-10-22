@@ -166,6 +166,68 @@ export const OCTOBER_KPI_DATA: KPIData = {
   weeklyTotalsApproximate: true,
 }
 
+// ── Spend-adjusted view vs September ─────────────────────────────────────────
+// October runs on much less daily spend, so totals understate it. These rates
+// normalise for spend and days elapsed. Each IG-based rate uses the IG window.
+export interface SpendAdjustedMetric {
+  label: string
+  october: string
+  september: string
+  better: boolean
+  note: string
+}
+
+const SEPTEMBER_DAYS = 30
+const septSpendPerDay = SEPTEMBER_KPI_DATA.totalSpend / SEPTEMBER_DAYS
+const octSpendPerDay = all.spend / OCTOBER_LAST_AD_DAY
+const septFollowsPer100 = (SEPTEMBER_KPI_DATA.followerGrowth / SEPTEMBER_KPI_DATA.totalSpend) * 100
+const octFollowsPer100 = (igTotal / allThroughIg.spend) * 100
+const septOrganicShare =
+  (SEPTEMBER_KPI_DATA.followerGrowth - SEPTEMBER_KPI_DATA.paidFollows) / SEPTEMBER_KPI_DATA.followerGrowth
+const octOrganicShare = organicFollows / igTotal
+const adjSeptFollowsPerDay = SEPTEMBER_KPI_DATA.followerGrowth / SEPTEMBER_DAYS
+const adjOctFollowsPerDay = igTotal / IG_LAST_DAY
+
+export const OCTOBER_SPEND_ADJUSTED: {
+  summary: string
+  metrics: SpendAdjustedMetric[]
+  reachNote: string
+} = {
+  summary: `October is spending ${money0(octSpendPerDay)}/day against September's ${money0(septSpendPerDay)}/day (${Math.round((1 - octSpendPerDay / septSpendPerDay) * 100)}% less), so totals look smaller by design. Adjusted for spend, follower acquisition is more efficient.`,
+  metrics: [
+    {
+      label: "Follows per $100",
+      october: octFollowsPer100.toFixed(0),
+      september: septFollowsPer100.toFixed(0),
+      better: octFollowsPer100 > septFollowsPer100,
+      note: "all follows ÷ all ad spend",
+    },
+    {
+      label: "Daily ad spend",
+      october: money0(octSpendPerDay),
+      september: money0(septSpendPerDay),
+      better: octSpendPerDay < septSpendPerDay,
+      note: `Oct 1–${OCTOBER_LAST_AD_DAY} vs full September`,
+    },
+    {
+      label: "Non-ad share of follows",
+      october: `${Math.round(octOrganicShare * 100)}%`,
+      september: `${Math.round(septOrganicShare * 100)}%`,
+      better: octOrganicShare > septOrganicShare,
+      note: "follows with no direct ad attribution",
+    },
+    {
+      label: "Follows per day",
+      october: adjOctFollowsPerDay.toFixed(0),
+      september: adjSeptFollowsPerDay.toFixed(0),
+      better: adjOctFollowsPerDay > adjSeptFollowsPerDay,
+      note: `on ${Math.round((1 - octSpendPerDay / septSpendPerDay) * 100)}% less daily spend`,
+    },
+  ],
+  reachNote:
+    "Reach and impressions aren't spend-adjusted here: the drop comes from campaign mix (no Awareness spend, smaller Retailer Support), not efficiency. Engagement CPF is also excluded, since it rose despite lower Engagement spend.",
+}
+
 export const OCTOBER_CAMPAIGN_TOTALS: Record<Campaign, { spend: number; impressions: number }> = {
   Engagement: { spend: engagement.spend, impressions: engagement.impressions },
   Awareness: { spend: 0, impressions: 0 },
