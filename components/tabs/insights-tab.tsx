@@ -75,7 +75,8 @@ export function InsightsTab() {
   const topDriverMaxCpf = Math.max(0, ...topDrivers.map((ad) => ad.cpf ?? 0))
   const hasCreatorAds = adsData.some((ad) => /joe/i.test(ad.name))
   const isSeptember = selectedMonth === "sep-2026"
-  const cpmReach = isSeptember
+  const usesImpressions = !!kpiData.reachNotDeduplicated
+  const cpmReach = usesImpressions
     ? (kpiData.totalSpend / kpiData.totalImpressions) * 1000
     : (kpiData.totalSpend / kpiData.totalReach) * 1000
 
@@ -96,7 +97,7 @@ export function InsightsTab() {
           benchmark="$8–14 typical for CPG"
           verdict="excellent"
           explanation={
-            isSeptember
+            usesImpressions
               ? `${(kpiData.totalImpressions / 1000000).toFixed(1)}M impressions on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — about 40% below the benchmark midpoint.`
               : `${(kpiData.totalReach / 1000000).toFixed(1)}M people reached on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — roughly 60% cheaper than the industry norm.`
           }

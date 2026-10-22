@@ -92,7 +92,7 @@ export function DailyTab() {
 
       {/* Per-campaign role cards */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {CAMPAIGN_ORDER.map((c) => {
+        {CAMPAIGN_ORDER.filter((c) => spend[c] > 0).map((c) => {
           const budgetShare = pct(spend[c], totalSpend)
           const isEngagement = c === "Engagement"
           const costPerFollow = follows[c] > 0 ? spend[c] / follows[c] : null

@@ -50,6 +50,23 @@ const num = (v) => {
   return Number.isFinite(n) ? n : 0
 }
 
+// Each entry: source folder, output JSON, and the exports that must be present.
+const BUILDS = [
+  {
+    src: SRC_DIR,
+    out: OUT_FILE,
+    required: ["adsetDaily", "adDaily", "adsetByAge", "adByAge", "adsetByPlatform", "adByPlatform"],
+  },
+  {
+    src: path.join(SRC_DIR, "oct-2026"),
+    out: path.join(ROOT, "lib/data/meta/oct-2026.generated.json"),
+    required: ["adsetDaily", "adDaily"],
+  },
+]
+
+for (const build of BUILDS) buildExports(build)
+
+function buildExports({ src, out: outFile, required }) {
 const out = {
   adsetDaily: [],
   adDaily: [],
@@ -59,9 +76,9 @@ const out = {
   adByPlatform: [],
 }
 
-const files = fs.readdirSync(SRC_DIR).filter((f) => f.endsWith(".csv"))
+const files = fs.readdirSync(src).filter((f) => f.endsWith(".csv"))
 for (const file of files) {
-  const [header, ...body] = parseCsv(fs.readFileSync(path.join(SRC_DIR, file), "utf8"))
+  const [header, ...body] = parseCsv(fs.readFileSync(path.join(src, file), "utf8"))
   const col = (name) => header.indexOf(name)
   const level = col("Ad set name") >= 0 ? "adset" : col("Ad name") >= 0 ? "ad" : null
   if (!level) throw new Error(`${file}: no "Ad set name" or "Ad name" column`)
@@ -97,10 +114,11 @@ for (const file of files) {
   console.log(`${file} -> ${key} (${rows.length} rows)`)
 }
 
-for (const [k, v] of Object.entries(out)) {
-  if (!v.length) throw new Error(`Missing export: ${k}`)
+for (const k of required) {
+  if (!out[k].length) throw new Error(`Missing export in ${path.relative(ROOT, src)}: ${k}`)
 }
 
-fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true })
-fs.writeFileSync(OUT_FILE, JSON.stringify(out))
-console.log(`Wrote ${path.relative(ROOT, OUT_FILE)}`)
+fs.mkdirSync(path.dirname(outFile), { recursive: true })
+fs.writeFileSync(outFile, JSON.stringify(out))
+console.log(`Wrote ${path.relative(ROOT, outFile)}`)
+}

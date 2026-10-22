@@ -45,6 +45,17 @@ import {
   OCTOBER_PLAN,
   SEPTEMBER_CAMPAIGN_TOTALS,
 } from "./september-2026"
+import {
+  OCTOBER_DAILY_DATA,
+  OCTOBER_ADS_DATA,
+  OCTOBER_KPI_DATA,
+  OCTOBER_SPEND_BY_CAMPAIGN,
+  OCTOBER_WEEKLY_FOLLOWS,
+  OCTOBER_OVERVIEW_ANALYSIS,
+  OCTOBER_TESTING,
+  OCTOBER_IG_DAILY_FOLLOWS,
+  OCTOBER_CAMPAIGN_TOTALS,
+} from "./october-2026"
 import type { IgDailyFollow, AudienceDemographics, OverviewAnalysis, TestingContext, AdData } from "./types"
 import type { DailyData } from "./progress"
 export { Q1_BASELINE, CAMPAIGNS } from "./types"
@@ -76,6 +87,15 @@ function getMonthExtras(month: MonthKey) {
       } | null,
       octoberPlan: OCTOBER_PLAN as typeof OCTOBER_PLAN | null,
       campaignTotals: SEPTEMBER_CAMPAIGN_TOTALS as typeof SEPTEMBER_CAMPAIGN_TOTALS | null,
+    }
+  }
+  if (month === "oct-2026") {
+    return {
+      dataFootnote: "Month to date. Ad data through Oct 22; Instagram Insights follows through Oct 20." as string | null,
+      platformSplit: null as typeof SEPTEMBER_PLATFORM_SPLIT | null,
+      audienceInsights: null,
+      octoberPlan: null as typeof OCTOBER_PLAN | null,
+      campaignTotals: OCTOBER_CAMPAIGN_TOTALS as typeof SEPTEMBER_CAMPAIGN_TOTALS | null,
     }
   }
   return {
@@ -203,6 +223,25 @@ function getBaseData(month: MonthKey) {
         demographics: null as AudienceDemographics | null,
         overviewAnalysis: SEPTEMBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
       }
+    case "oct-2026":
+      return {
+        dailyData: OCTOBER_DAILY_DATA as DailyData,
+        adsData: OCTOBER_ADS_DATA,
+        kpiData: OCTOBER_KPI_DATA,
+        spendByCampaign: OCTOBER_SPEND_BY_CAMPAIGN,
+        weeklyFollows: OCTOBER_WEEKLY_FOLLOWS,
+        previousMonth: {
+          kpiData: SEPTEMBER_KPI_DATA,
+          label: "September",
+          dailyData: SEPTEMBER_DAILY_DATA as DailyData,
+        },
+        priorMonthsDaily: [APRIL_DAILY_DATA, MAY_DAILY_DATA, JUNE_DAILY_DATA, JULY_DAILY_DATA, AUGUST_DAILY_DATA, SEPTEMBER_DAILY_DATA] as DailyData[],
+        audienceTest: null,
+        testing: OCTOBER_TESTING as TestingContext | null,
+        igDailyFollows: OCTOBER_IG_DAILY_FOLLOWS as IgDailyFollow[] | null,
+        demographics: null as AudienceDemographics | null,
+        overviewAnalysis: OCTOBER_OVERVIEW_ANALYSIS as OverviewAnalysis | null,
+      }
     default:
       return {
         dailyData: APRIL_DAILY_DATA,
@@ -244,10 +283,11 @@ const CPF_HISTORY_MONTHS: { key: MonthKey; label: string; ads: AdData[] }[] = [
   { key: "jul-2026", label: "Jul", ads: JULY_ADS_DATA },
   { key: "aug-2026", label: "Aug", ads: AUGUST_ADS_DATA },
   { key: "sep-2026", label: "Sep", ads: SEPTEMBER_ADS_DATA },
+  { key: "oct-2026", label: "Oct", ads: OCTOBER_ADS_DATA },
 ]
 
-// September is the only in-progress month right now, so its CPF is month-to-date.
-const IN_PROGRESS_MONTH: MonthKey = "sep-2026"
+// October is the only in-progress month right now, so its CPF is month-to-date.
+const IN_PROGRESS_MONTH: MonthKey = "oct-2026"
 
 export function getCpfHistory(month: MonthKey): { label: string; cpf: number | null; mtd: boolean }[] {
   const idx = CPF_HISTORY_MONTHS.findIndex((m) => m.key === month)
