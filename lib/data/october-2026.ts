@@ -213,6 +213,49 @@ export const OCTOBER_SPEND_ADJUSTED: {
     "No Awareness spend in October and a smaller Retailer Support budget. Engagement CTR was 4.9% vs. 5.3%.",
 }
 
+// ── November plan (shown on October's Overview) ──────────────────────────────
+export const NOVEMBER_PLAN = {
+  title: "November Plan",
+  subtitle: "What's changing for November and why.",
+  intro:
+    "October showed which audience and which ad drive follower growth most efficiently. For November, we're putting more budget behind what worked, replacing the weakest audience with a dedicated creative-testing slot, and limiting the 18–34 ad set to ages 18–34 so all of its budget reaches the audience we're trying to grow.",
+  adSets: [
+    {
+      name: "Recipes & Cooking (ages 24–64)",
+      role: "Volume engine",
+      description:
+        "Our most efficient audience in October: 676 follows at $2.21, with 22.9% of profile visitors following. Runs 'Frozen Pasta Can't Be That Good' and 'Did You Know.' No changes, so it keeps its learning.",
+    },
+    {
+      name: "Pasta + 18–34",
+      role: "Grow younger followers",
+      description:
+        "Now strictly limited to ages 18–34. In October only 38% of its spend reached 18–34 because Meta expanded the audience, yet 25.6% of its follows were 18–34, against about 20% elsewhere. More budget, all of it on the target age group.",
+    },
+    {
+      name: "Creative Test",
+      role: "Find the next top ad",
+      description:
+        "Replaces the lookalike audience, our most expensive in October at $3.72 per follow. New ads are tested against 'Frozen Pasta Can't Be That Good' on the proven recipe and cooking audience, so winners can move straight into the main ad set.",
+    },
+  ],
+  timeline: [
+    { dates: "Nov 4–13", label: "Test round 1" },
+    { dates: "Nov 14–23", label: "Test round 2" },
+    { dates: "Nov 24–30", label: "Hold steady through Thanksgiving" },
+  ],
+  timelineCaption:
+    "All changes go live together on Nov 4, so there's only one learning reset. Ads are judged after about $100 in spend, and any ad under about $1.80 per follow moves into the main ad set at the next switch.",
+  targetsTitle: "What we're aiming for in November",
+  targets: [
+    { label: "Cost per follow", value: "$2.30–2.60", note: "October: $2.50" },
+    { label: "Visit → follow rate", value: "20%+", note: "October second half: 24.2%" },
+    { label: "18–34 share of new followers", value: "23%+", note: "October: 21.4%" },
+  ],
+  targetsCaption:
+    "Expect more follows than October at a similar cost per follow. Younger followers cost more to win (about $3.02 each in October), so the 18–34 focus keeps the blended cost from dropping much. Ad prices typically rise during Black Friday week, so the last week of November may run higher.",
+}
+
 export const OCTOBER_CAMPAIGN_TOTALS: Record<Campaign, { spend: number; impressions: number }> = {
   Engagement: { spend: engagement.spend, impressions: engagement.impressions },
   Awareness: { spend: 0, impressions: 0 },

@@ -8,6 +8,7 @@ import { getDataForMonth } from "@/lib/data"
 import { getComparison } from "@/lib/data/comparisons"
 import { OCTOBER_SPEND_ADJUSTED } from "@/lib/data/october-2026"
 import { useMonth } from "@/lib/month-context"
+import { NovemberPlanCard } from "@/components/tabs/november-plan-card"
 
 function Legend({ items }: { items: { color: string; label: string }[] }) {
   return (
@@ -199,6 +200,7 @@ export function OverviewTab() {
       )}
 
       {isOctober && <SpendAdjustedCard />}
+      {isOctober && <NovemberPlanCard />}
 
       {!isOctober && (
       <>
