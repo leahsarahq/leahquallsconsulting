@@ -1,6 +1,6 @@
 "use client"
 
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { KPICard } from "@/components/kpi-card"
 import { ChartSection } from "@/components/chart-section"
 import { FootNote, InfoTip, RichText } from "@/components/brief"
@@ -200,7 +200,6 @@ export function OverviewTab() {
       )}
 
       {isOctober && <SpendAdjustedCard />}
-      {isOctober && <NovemberPlanCard />}
 
       {!isOctober && (
       <>
@@ -351,45 +350,7 @@ export function OverviewTab() {
       </>
       )}
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <ChartSection title="Spend by campaign" subtitle={`${monthInfo.label} total: $${kpiData.totalSpend.toLocaleString()}`}>
-          <div className="h-44">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={spendByCampaign}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={45}
-                  outerRadius={70}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
-                  {spendByCampaign.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number) => [`$${value}`, "Spend"]}
-                  contentStyle={{
-                    backgroundColor: "#fbf9f4",
-                    border: "1px solid #e0ddd4",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <Legend
-            items={spendByCampaign.map((c) => ({
-              color: c.color,
-              label: `${c.name} $${c.value}`,
-            }))}
-          />
-        </ChartSection>
-
+      {/* Follower growth by week */}
         <ChartSection title="Follower growth by week" subtitle={
             igMissing
               ? "Engagement campaign follows — total follows pending IG Insights export"
@@ -434,33 +395,15 @@ export function OverviewTab() {
               { color: "#660033", label: "Paid attributed" },
             ]}
           />
+          {overviewAnalysis?.weeklyChartNote && (
+            <p className="mt-2 text-[11px] text-muted-foreground">{overviewAnalysis.weeklyChartNote}</p>
+          )}
         </ChartSection>
-      </div>
 
       {overviewAnalysis && (
         <>
-          {/* Campaign Objectives — judge each campaign on its own goal, not a blended standard */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Campaign Objectives</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {overviewAnalysis.campaignObjectives.map((c) => (
-                <div key={c.name} className="bg-card border border-border rounded-xl p-4 flex flex-col gap-2">
-                  <p className="text-sm font-semibold text-foreground text-balance">{c.name}</p>
-                  <div>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Objective</p>
-                    <p className="text-xs text-foreground mt-0.5">{c.objective}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Judge on</p>
-                    <p className="text-xs text-foreground mt-0.5">{c.judgeOn}</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-1">{c.stat}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* July → August: What Changed */}
+          {/* Prior month → this month: What Changed (past months only) */}
+          {overviewAnalysis.monthChange && (
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">
               {overviewAnalysis.monthChange.priorLabel} → {overviewAnalysis.monthChange.currentLabel}: What Changed
@@ -513,9 +456,13 @@ export function OverviewTab() {
             )}
           </div>
 
+          )}
           {/* Follower Growth Deep Dive */}
           <div className="bg-card border border-border rounded-xl p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">{overviewAnalysis.deepDive.title}</h3>
+            {overviewAnalysis.deepDive.lead && (
+              <RichText value={overviewAnalysis.deepDive.lead} className="mb-4" />
+            )}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -575,6 +522,8 @@ export function OverviewTab() {
           </div>
         </>
       )}
+
+      {isOctober && <NovemberPlanCard />}
     </div>
   )
 }

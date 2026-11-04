@@ -184,7 +184,9 @@ export interface OverviewAnalysis {
     judgeOn: string
     stat: string
   }[]
-  monthChange: {
+  // One-line gray note shown under the "Follower growth by week" chart.
+  weeklyChartNote?: string
+  monthChange?: {
     priorLabel: string
     currentLabel: string
     rows: {
@@ -201,6 +203,8 @@ export interface OverviewAnalysis {
   }
   deepDive: {
     title: string
+    // Optional takeaway + bullets shown directly under the section header.
+    lead?: RichText
     weekly: {
       week: string
       spend: string

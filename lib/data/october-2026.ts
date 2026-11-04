@@ -460,29 +460,16 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       stat: `${money(retailer.spend)} spend · ${int(retailer.clicks)} link clicks · ${money(retailer.spend / retailer.clicks)} CPC · ${pct1(retailer.clicks / retailer.impressions)} CTR.`,
     },
   ],
-  monthChange: {
-    priorLabel: "September",
-    currentLabel: "October",
-    rows: [
-      { metric: "Cost per follow (goal: about $2.00)", prior: money(sepCpf), current: money(engagementCPF), change: change(engagementCPF, sepCpf), dir: engagementCPF <= sepCpf ? "good" : "bad" },
-      { metric: "Visit-to-follow (goal: 20%+)", prior: pct1(sepVtf), current: pct1(octVtf), change: change(octVtf, sepVtf), dir: octVtf >= sepVtf ? "good" : "bad" },
-      { metric: "Ad follows per day", prior: sepFollowsPerDay.toFixed(1), current: octFollowsPerDay.toFixed(1), change: change(octFollowsPerDay, sepFollowsPerDay), dir: octFollowsPerDay >= sepFollowsPerDay ? "good" : "bad" },
-      { metric: "Engagement CTR", prior: `${SEPTEMBER_KPI_DATA.engagementCTR.toFixed(2)}%`, current: `${OCTOBER_KPI_DATA.engagementCTR.toFixed(2)}%`, change: change(OCTOBER_KPI_DATA.engagementCTR, SEPTEMBER_KPI_DATA.engagementCTR), dir: "neutral" },
-    ],
-    explanation: {
+  weeklyChartNote: "Oct 15–21 includes a jump in follows that didn't come from ads (Oct 17–19).",
+  deepDive: {
+    title: "Follower Growth Deep Dive — Engagement campaign",
+    lead: {
       takeaway: "Nearly all of the gap to September came from one week.",
       bullets: [
         { lead: "Oct 8–14:", text: ` "Cacio e Pepe Puffs" and "Corn Ravioli" converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of visits` },
         { lead: `${money(lateMonthCpf)} per follow`, text: " Oct 15–31, after both were paused" },
       ],
-      note: "Compared on rates, not totals, because daily spend was far lower.",
     },
-    caveat: `Instagram Insights and ad data both cover Oct 1–${OCTOBER_LAST_AD_DAY}.`,
-    caveatTip:
-      "Non-ad follows are Instagram Insights total minus ad-attributed follows, so they include follows that ads influenced without a direct click.",
-  },
-  deepDive: {
-    title: "Follower Growth Deep Dive — Engagement campaign",
     weekly: engagementWeeks.map((w) => ({
       week: w.label,
       spend: money0(w.t.spend),

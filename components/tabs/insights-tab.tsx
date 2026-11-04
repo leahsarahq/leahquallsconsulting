@@ -59,7 +59,7 @@ function BenchmarkCard({
 
 export function InsightsTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { kpiData, adsData, audienceInsights } = getDataForMonth(selectedMonth)
+  const { kpiData, adsData, audienceInsights, overviewAnalysis } = getDataForMonth(selectedMonth)
   
   const totalCreatives = adsData.length
   const engagementCreatives = adsData.filter((ad) => ad.campaign === "Engagement").length
@@ -83,6 +83,29 @@ export function InsightsTab() {
 
   return (
     <div className="space-y-4">
+      {/* Campaign Objectives — judge each campaign on its own goal, not a blended standard */}
+      {overviewAnalysis && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Campaign Objectives</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {overviewAnalysis.campaignObjectives.map((c) => (
+              <div key={c.name} className="bg-card border border-border rounded-xl p-4 flex flex-col gap-2">
+                <p className="text-sm font-semibold text-foreground text-balance">{c.name}</p>
+                <div>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Objective</p>
+                  <p className="text-xs text-foreground mt-0.5">{c.objective}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Judge on</p>
+                  <p className="text-xs text-foreground mt-0.5">{c.judgeOn}</p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-1">{c.stat}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Benchmark Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <BenchmarkCard
