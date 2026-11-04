@@ -312,7 +312,9 @@ export const OCTOBER_TESTING: TestingContext = {
       "A follower-growth audience capped at ages 18–34 can add younger followers at a cost per follow close to the broad audiences.",
     kpiFocus: "Cost per follow and visit-to-follow rate, judged per ad set",
     arms: [youngArm, broadArm, lookalikeArm],
-    verdict: `The 18–34 audience finished the month at ${money(youngArm.cpf ?? 0)} per follow, the lowest of the three, but that blends a weak start with a strong finish: before Oct ${YOUNG_SWITCH_DAY} it ran ${money(youngBeforeSwitch.spend / youngBeforeSwitch.follows)} per follow, and after moving onto "Frozen Pasta Can't Be That Good" it ran ${money(youngAfterSwitch.spend / youngAfterSwitch.follows)}. The recipe and cooking audience delivered the most follows (${int(broadArm.follows)}) at ${money(broadArm.cpf ?? 0)} and converted the most profile visitors (${pct1(broadArm.followRate / 100)}). The lookalike audience was the costliest at ${money(lookalikeArm.cpf ?? 0)}.`,
+    verdict:
+      "The 18–34 audience was the most efficient of the three tests at $2.05 per follow, and it got stronger as the month went on. Once 'Frozen Pasta Can't Be That Good' went live on Oct 17, it ran at $1.72 per follow, below our October target. It also led on click-through rate (6.18%), CPC ($0.25), and profile visits (3,212). The recipe and cooking audience drove the most follows (676) and converted the most profile visitors (22.9%), so it remains our volume engine. The lookalike audience trailed at $3.72.",
+    verdictHighlight: { label: "18–34 CPF since Oct 17", value: "$1.72", note: "Below the ~$2.00 October target" },
   },
   notes: [
     cacio && {
@@ -341,6 +343,7 @@ export const OCTOBER_TESTING: TestingContext = {
   // month's Ad sets × Age export ("Unknown" age excluded).
   ageShift: {
     goal: "October goal: grow the share of new followers aged 18–34.",
+    goalMet: "up 0.8 pts from September and 2.4 pts since May.",
     months: [
       { month: "May", young: 342, mid: 562, older: 901, youngSpend: 394.71, totalSpend: 1769.57 },
       { month: "Jun", young: 350, mid: 462, older: 824, youngSpend: 555.44, totalSpend: 2358.95 },
@@ -349,8 +352,12 @@ export const OCTOBER_TESTING: TestingContext = {
       { month: "Sep", young: 372, mid: 414, older: 1025, youngSpend: 1152.46, totalSpend: 4538.84 },
       { month: "Oct", young: 288, mid: 325, older: 735, youngSpend: 870.73, totalSpend: 3466.06 },
     ],
-    callout: { label: "Pasta + 18-34 ad set", youngFollows: 101, totalFollows: 394, youngSpend: 314.88, totalSpend: 819.15 },
-    read: "The 18–34 share went from 20.5% in September to 21.4% in October. That is back to the June–August level but not above it, and it has stayed between 19% and 22% every month since May. We gained fewer 18–34 followers in October (288, down from 372) because total follows fell. Each 18–34 follower cost $3.02, about the same as September's $3.10. Even the ad set aimed at 18–34 got only 26% of its follows from that age group. 38% of its spend reached 18–34, and the rest reached people 35 and older, probably because Meta's audience expansion showed the ads outside the age range. If November's goal stays the same, set a strict age limit on that ad set so the ads only reach people aged 18–34.",
+    callout: { label: "Pasta + 18-34 ad set", youngFollows: 101, totalFollows: 394, youngSpend: 314.88,
+      totalSpend: 819.15,
+      detail:
+        "25.6% of this ad set's follows were 18–34 (101 of 394), against about 20% across the rest of the account, even though only 38.4% of its spend reached 18–34.",
+    },
+    read: "The 18–34 share rose to 21.4% in October and has held steady at 19–22% every month since May. The dedicated 18–34 ad set is already shifting the mix: 25.6% of its follows were 18–34, against about 20% across the rest of the account. It did that even though only 38% of its spend actually reached 18–34, because Meta's audience expansion pushed delivery to people 35 and older. The total number of 18–34 follows dipped along with overall paid follows (1,811 → 1,348), not because the younger share fell. For November, we'll set a strict age limit on this ad set so all of its budget goes to the audience we're trying to grow. That's the clearest lever we have for moving the share further. Expect a higher cost per follow once the age limit is strict; younger followers cost more to win (18–34 CPF was $3.02 in October), and that's the trade-off for growing this audience.",
   },
 }
 

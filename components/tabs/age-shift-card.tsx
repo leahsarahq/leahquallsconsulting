@@ -38,7 +38,20 @@ export function AgeShiftCard({ ageShift }: { ageShift: AgeShift }) {
   const { callout } = ageShift
 
   return (
-    <ChartSection title={`Age mix of new followers since ${first.month}`} subtitle={ageShift.goal}>
+    <ChartSection
+      title={`Age mix of new followers since ${first.month}`}
+      subtitle={
+        <>
+          {ageShift.goal}
+          {ageShift.goalMet && (
+            <>
+              {" "}
+              <span className="font-semibold text-green-600">Met:</span> {ageShift.goalMet}
+            </>
+          )}
+        </>
+      }
+    >
       <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Stat label={`18–34 share · ${last.month}`} value={pct(last.youngShare)} />
         <Stat label={`vs ${prev.month}`} value={`${vsPrev >= 0 ? "+" : ""}${vsPrev.toFixed(1)} pts`} />
@@ -89,8 +102,12 @@ export function AgeShiftCard({ ageShift }: { ageShift: AgeShift }) {
       <div className="mt-4 rounded-lg bg-secondary/40 p-3">
         <p className="text-sm font-medium text-foreground">{callout.label}</p>
         <p className="mt-1 text-xs leading-relaxed text-foreground/80">
-          {pct(share(callout.youngFollows, callout.totalFollows))} of its follows were 18–34 ({callout.youngFollows} of{" "}
-          {callout.totalFollows}) · {pct(share(callout.youngSpend, callout.totalSpend))} of its spend reached 18–34
+          {callout.detail ?? (
+            <>
+              {pct(share(callout.youngFollows, callout.totalFollows))} of its follows were 18–34 ({callout.youngFollows} of{" "}
+              {callout.totalFollows}) · {pct(share(callout.youngSpend, callout.totalSpend))} of its spend reached 18–34
+            </>
+          )}
         </p>
       </div>
 

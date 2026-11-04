@@ -1,6 +1,6 @@
 interface ChartSectionProps {
   title: string
-  subtitle?: string
+  subtitle?: React.ReactNode
   children: React.ReactNode
 }
 

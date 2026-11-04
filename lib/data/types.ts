@@ -133,6 +133,7 @@ export interface TestingContext {
     control?: TestArm
     arms?: TestArm[]
     verdict: string
+    verdictHighlight?: { label: string; value: string; note: string }
   }
   notes: {
     title: string
@@ -147,6 +148,7 @@ export interface TestingContext {
   // Month-by-month age mix of paid follows, used to judge an age-targeting goal.
   export interface AgeShift {
   goal: string
+  goalMet?: string
   months: {
   month: string
   young: number
@@ -155,7 +157,7 @@ export interface TestingContext {
   youngSpend: number
   totalSpend: number
   }[]
-  callout: { label: string; youngFollows: number; totalFollows: number; youngSpend: number; totalSpend: number }
+  callout: { label: string; youngFollows: number; totalFollows: number; youngSpend: number; totalSpend: number; detail?: string }
   read: string
   }
 

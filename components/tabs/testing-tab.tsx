@@ -133,6 +133,15 @@ export function TestingTab() {
       {/* Verdict */}
       <div className="bg-card border border-border rounded-xl p-4">
         <h4 className="text-sm font-semibold text-foreground mb-2">Read</h4>
+        {featured.verdictHighlight && (
+          <div className="mb-3 rounded-lg bg-secondary/50 p-3 sm:max-w-xs">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {featured.verdictHighlight.label}
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-foreground">{featured.verdictHighlight.value}</p>
+            <p className="text-xs text-muted-foreground">{featured.verdictHighlight.note}</p>
+          </div>
+        )}
         <p className="text-sm text-muted-foreground leading-relaxed">{featured.verdict}</p>
       </div>
 
