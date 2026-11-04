@@ -184,10 +184,10 @@ export const OCTOBER_SPEND_ADJUSTED: {
   summary: string
   groups: { label: string; tiles: SpendAdjustedTile[] }[]
   footnote: string
+  footnoteTip: string
 } = {
   title: "October vs. September, adjusted for spend",
-  summary:
-    "October spent $164/day against September's $291/day (44% less) by design, so totals are smaller. Per dollar, follower growth got more efficient.",
+  summary: "Spend was down 44% by design. Per dollar, follower growth improved.",
   groups: [
     {
       label: "Efficiency",
@@ -208,8 +208,9 @@ export const OCTOBER_SPEND_ADJUSTED: {
       ],
     },
   ],
-  footnote:
-    "Impressions were 346K vs. 1,322K in September. The drop comes from campaign mix (no Awareness spend in October and a smaller Retailer Support budget), not from efficiency. Engagement CTR was 4.9% vs. 5.3%.",
+  footnote: "Impressions: 346K vs. 1,322K, from campaign mix, not efficiency.",
+  footnoteTip:
+    "No Awareness spend in October and a smaller Retailer Support budget. Engagement CTR was 4.9% vs. 5.3%.",
 }
 
 export const OCTOBER_CAMPAIGN_TOTALS: Record<Campaign, { spend: number; impressions: number }> = {
@@ -292,8 +293,14 @@ export const OCTOBER_TESTING: TestingContext = {
       "A follower-growth audience capped at ages 18–34 can add younger followers at a cost per follow close to the broad audiences.",
     kpiFocus: "Cost per follow and visit-to-follow rate, judged per ad set",
     arms: [youngArm, broadArm, lookalikeArm],
-    verdict:
-      "The 18–34 audience was the most efficient of the three tests at $2.05 per follow, and it got stronger as the month went on. Once 'Frozen Pasta Can't Be That Good' went live on Oct 17, it ran at $1.72 per follow, below our October target. It also led on click-through rate (6.18%), CPC ($0.25), and profile visits (3,212). The recipe and cooking audience drove the most follows (676) and converted the most profile visitors (22.9%), so it remains our volume engine. The lookalike audience trailed at $3.72.",
+    verdict: {
+      bullets: [
+        { lead: "18–34: $2.05 per follow", text: ", lowest of the three tests" },
+        { lead: "$1.72 after Oct 17", text: `, once "Frozen Pasta Can't Be That Good" went live` },
+        { lead: "Recipes & Cooking:", text: " most follows (676) and best visit-to-follow rate (22.9%)" },
+        { lead: "Lookalike:", text: " most expensive at $3.72" },
+      ],
+    },
     verdictHighlight: { label: "18–34 CPF since Oct 17", value: "$1.72", note: "Below the ~$2.00 October target" },
   },
   notes: [
@@ -302,21 +309,36 @@ export const OCTOBER_TESTING: TestingContext = {
       dateRange: ran(cacio),
       spend: round2(cacio.spend),
       status: "Paused",
-      detail: `Strong clicks but few profile visitors followed (${pct1(cacio.follows / cacio.visits)}), the same pattern as its September run. Paused on Oct ${day(cacio.last)}.`,
+      detail: {
+        bullets: [
+          { lead: `${pct1(cacio.follows / cacio.visits)} visit-to-follow`, text: " despite strong clicks" },
+          { lead: `Paused Oct ${day(cacio.last)}`, text: ", same pattern as September" },
+        ],
+      },
     },
     corn && {
       title: "Corn Ravioli",
       dateRange: ran(corn),
       spend: round2(corn.spend),
       status: "Paused",
-      detail: `${int(corn.follows)} follows at ${money(corn.spend / corn.follows)} each and a ${pct1(corn.follows / corn.visits)} visit-to-follow rate, below the 20% goal.`,
+      detail: {
+        bullets: [
+          { lead: `${int(corn.follows)} follows`, text: ` at ${money(corn.spend / corn.follows)} each` },
+          { lead: `${pct1(corn.follows / corn.visits)} visit-to-follow`, text: ", below the 20% goal" },
+        ],
+      },
     },
     pastaDinners && {
       title: "4 Easy Pasta Dinners",
       dateRange: ran(pastaDinners),
       spend: round2(pastaDinners.spend),
       status: "Short run",
-      detail: `Two-day run with ${int(pastaDinners.follows)} follows. Too little spend to judge.`,
+      detail: {
+        bullets: [
+          { lead: `${int(pastaDinners.follows)} follows`, text: " in a two-day run" },
+          { lead: "Too little spend", text: " to judge" },
+        ],
+      },
     },
   ].filter((n): n is NonNullable<typeof n> => !!n),
   // Follows and spend by age, summed across all follower-growth ad sets in each
@@ -334,10 +356,18 @@ export const OCTOBER_TESTING: TestingContext = {
     ],
     callout: { label: "Pasta + 18-34 ad set", youngFollows: 101, totalFollows: 394, youngSpend: 314.88,
       totalSpend: 819.15,
-      detail:
-        "25.6% of this ad set's follows were 18–34 (101 of 394), against about 20% across the rest of the account, even though only 38.4% of its spend reached 18–34.",
     },
-    read: "The 18–34 share rose to 21.4% in October and has held steady at 19–22% every month since May. The dedicated 18–34 ad set is already shifting the mix: 25.6% of its follows were 18–34, against about 20% across the rest of the account. It did that even though only 38% of its spend actually reached 18–34, because Meta's audience expansion pushed delivery to people 35 and older. The total number of 18–34 follows dipped along with overall paid follows (1,811 → 1,348), not because the younger share fell. For November, we'll set a strict age limit on this ad set so all of its budget goes to the audience we're trying to grow. That's the clearest lever we have for moving the share further. Expect a higher cost per follow once the age limit is strict; younger followers cost more to win (18–34 CPF was $3.02 in October), and that's the trade-off for growing this audience.",
+    read: {
+      takeaway: "The 18–34 ad set is shifting the mix, even with most of its spend leaking to older ages.",
+      bullets: [
+        { lead: "21.4%", text: " of new followers were 18–34, up from 20.5% in September" },
+        { lead: "25.6%", text: " in the 18–34 ad set vs. ~20% elsewhere" },
+        { lead: "Only 38%", text: " of its spend reached 18–34; November adds a strict age limit" },
+        { lead: "Younger followers cost more:", text: " $3.02 per follow in October" },
+      ],
+      note: "18–34 follow count dipped with total paid follows (1,811 → 1,348), not share.",
+      tip: "Meta's audience expansion pushed delivery to people 35+, which is why only 38% of the 18–34 ad set's spend reached 18–34.",
+    },
   },
 }
 
@@ -356,7 +386,16 @@ const lateMonthVtf = lateMonth.follows / lateMonth.visits
 const bestWeek = engagementWeeks.slice(0, 4).reduce((b, w) => (w.t.spend / w.t.follows < b.t.spend / b.t.follows ? w : b))
 
 export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary: `In October the Engagement campaign added 1,390 followers at ${money(engagementCPF)} each. Instagram Insights counts ${int(igTotal)} total follows for the month, against ${int(allThroughIg.follows)} from ads, so about ${int(organicFollows)} came without a direct ad click, with a large jump on Oct 17–19. Week two was the weak spot (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)} per follow) while "Cacio e Pepe Puffs" and "Corn Ravioli" were in rotation. After they were paused, the second half of the month (Oct 15–31) ran ${money(lateMonthCpf)} per follow and ${pct1(lateMonthVtf)} visit-to-follow, at or better than both October goals, with ${bestWeek.label} the best week at ${money(bestWeek.t.spend / bestWeek.t.follows)}. "${topAd.name}" was the top ad with ${int(topAd.follows)} follows.`,
+  executiveSummary: {
+    takeaway: "October finished strong: the second half beat both October goals.",
+    bullets: [
+      { lead: `${int(engagement.follows)} follows from ads`, text: ` at ${money(engagementCPF)} each; ${int(igTotal)} total including organic` },
+      { lead: "Oct 15–31:", text: ` ${money(lateMonthCpf)} per follow, ${pct1(lateMonthVtf)} visit-to-follow rate` },
+      { lead: "Week 2 was the weak spot", text: ` (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)}) until two underperforming ads were paused` },
+      { lead: `"${topAd.name}"`, text: ` was the top ad: ${int(topAd.follows)} follows` },
+    ],
+    note: `~${int(organicFollows)} follows came without a direct ad click; best week was ${bestWeek.label} (${money(bestWeek.t.spend / bestWeek.t.follows)}).`,
+  },
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
@@ -380,8 +419,17 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       { metric: "Ad follows per day", prior: sepFollowsPerDay.toFixed(1), current: octFollowsPerDay.toFixed(1), change: change(octFollowsPerDay, sepFollowsPerDay), dir: octFollowsPerDay >= sepFollowsPerDay ? "good" : "bad" },
       { metric: "Engagement CTR", prior: `${SEPTEMBER_KPI_DATA.engagementCTR.toFixed(2)}%`, current: `${OCTOBER_KPI_DATA.engagementCTR.toFixed(2)}%`, change: change(OCTOBER_KPI_DATA.engagementCTR, SEPTEMBER_KPI_DATA.engagementCTR), dir: "neutral" },
     ],
-    explanation: `October is compared on rates rather than totals because it ran on far less daily spend. Over the full month, almost all of the gap to September comes from Oct 8–14, which spent heavily on "Cacio e Pepe Puffs" and "Corn Ravioli". Those drew profile visits but converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of them. With both paused and spend back on "${topAd.name}", Oct 15–31 ran ${money(lateMonthCpf)} per follow.`,
-    caveat: `Instagram Insights follows and ad data both cover Oct 1–${OCTOBER_LAST_AD_DAY}. Non-ad follows are Instagram Insights total minus ad-attributed follows, so they include follows that ads influenced without a direct click.`,
+    explanation: {
+      takeaway: "Nearly all of the gap to September came from one week.",
+      bullets: [
+        { lead: "Oct 8–14:", text: ` "Cacio e Pepe Puffs" and "Corn Ravioli" converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of visits` },
+        { lead: `${money(lateMonthCpf)} per follow`, text: " Oct 15–31, after both were paused" },
+      ],
+      note: "Compared on rates, not totals, because daily spend was far lower.",
+    },
+    caveat: `Instagram Insights and ad data both cover Oct 1–${OCTOBER_LAST_AD_DAY}.`,
+    caveatTip:
+      "Non-ad follows are Instagram Insights total minus ad-attributed follows, so they include follows that ads influenced without a direct click.",
   },
   deepDive: {
     title: "Follower Growth Deep Dive — Engagement campaign",
@@ -403,6 +451,9 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
         follows: int(a.follows),
         visitToFollow: a.visits > 0 ? pct1(a.follows / a.visits) : "—",
       })),
-    caption: `"${topAd.name}" converts ${pct1(topAd.follows / topAd.visits)} of profile visitors, against ${pct1((ad("Did You Know")?.follows ?? 0) / (ad("Did You Know")?.visits ?? 1))} for "Did You Know" and well under 10% for the paused creatives. Oct 29–31 is a three-day week.`,
+    caption: {
+      takeaway: `"${topAd.name}" converts best: ${pct1(topAd.follows / topAd.visits)} of profile visitors.`,
+      note: `"Did You Know": ${pct1((ad("Did You Know")?.follows ?? 0) / (ad("Did You Know")?.visits ?? 1))}; paused ads under 10%. Oct 29–31 is a three-day week.`,
+    },
   },
 }

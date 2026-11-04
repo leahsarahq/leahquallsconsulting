@@ -2,6 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { ChartSection } from "@/components/chart-section"
+import { RichText } from "@/components/brief"
 import type { AgeShift } from "@/lib/data/types"
 
 const SEGMENTS = [
@@ -111,7 +112,7 @@ export function AgeShiftCard({ ageShift }: { ageShift: AgeShift }) {
         </p>
       </div>
 
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{ageShift.read}</p>
+      <RichText value={ageShift.read} className="mt-4" />
     </ChartSection>
   )
 }

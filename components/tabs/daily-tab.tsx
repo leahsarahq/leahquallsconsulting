@@ -192,10 +192,9 @@ export function DailyTab() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
-            Instagram brings in followers for{" "}
-            <span className="font-medium text-foreground">{money(igTotal?.cpf)}</span> each vs.{" "}
-            <span className="font-medium text-foreground">{money(fbTotal?.cpf)}</span> on Facebook, so October moves all
-            follower-growth spend to Instagram.
+            <span className="font-semibold text-foreground">Takeaway:</span> Instagram follows cost{" "}
+            <span className="font-medium text-foreground">{money(igTotal?.cpf)}</span> vs.{" "}
+            <span className="font-medium text-foreground">{money(fbTotal?.cpf)}</span> on Facebook.
           </p>
         </ChartSection>
       )}

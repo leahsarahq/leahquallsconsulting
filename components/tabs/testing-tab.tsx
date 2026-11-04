@@ -1,6 +1,7 @@
 "use client"
 
 import { ChartSection } from "@/components/chart-section"
+import { RichText } from "@/components/brief"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { TestArm } from "@/lib/data/types"
@@ -142,7 +143,7 @@ export function TestingTab() {
             <p className="text-xs text-muted-foreground">{featured.verdictHighlight.note}</p>
           </div>
         )}
-        <p className="text-sm text-muted-foreground leading-relaxed">{featured.verdict}</p>
+        <RichText value={featured.verdict} />
       </div>
 
       {testing.ageShift && <AgeShiftCard ageShift={testing.ageShift} />}
@@ -161,7 +162,11 @@ export function TestingTab() {
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {note.dateRange} · ${note.spend.toLocaleString()} spend
               </p>
-              <p className="text-xs text-foreground/80 leading-relaxed mt-2">{note.detail}</p>
+              <RichText
+                value={note.detail}
+                className="mt-2"
+                paragraphClassName="text-xs text-foreground/80 leading-relaxed"
+              />
             </div>
           ))}
         </div>

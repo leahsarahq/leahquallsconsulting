@@ -3,6 +3,7 @@
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { KPICard } from "@/components/kpi-card"
 import { ChartSection } from "@/components/chart-section"
+import { FootNote, InfoTip, RichText } from "@/components/brief"
 import { getDataForMonth } from "@/lib/data"
 import { getComparison } from "@/lib/data/comparisons"
 import { OCTOBER_SPEND_ADJUSTED } from "@/lib/data/october-2026"
@@ -45,7 +46,7 @@ function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: st
 }
 
 function SpendAdjustedCard() {
-  const { title, summary, groups, footnote } = OCTOBER_SPEND_ADJUSTED
+  const { title, summary, groups, footnote, footnoteTip } = OCTOBER_SPEND_ADJUSTED
   return (
     <section className="bg-card border border-border rounded-xl p-4" aria-labelledby="spend-adjusted-title">
       <h3 id="spend-adjusted-title" className="text-sm font-semibold text-foreground mb-1">{title}</h3>
@@ -69,9 +70,7 @@ function SpendAdjustedCard() {
           </div>
         </div>
       ))}
-      <p className="text-[11px] leading-relaxed text-muted-foreground text-pretty mt-3 pt-3 border-t border-border/60">
-        {footnote}
-      </p>
+      <FootNote text={footnote} tip={footnoteTip} className="mt-3 pt-3 border-t border-border/60" />
     </section>
   )
 }
@@ -113,7 +112,7 @@ export function OverviewTab() {
             <div className="w-1 h-4 bg-primary rounded-full" />
             <h3 className="text-sm font-semibold text-foreground">Executive Summary — {monthInfo.label}</h3>
           </div>
-          <p className="text-sm leading-relaxed text-muted-foreground text-pretty">{overviewAnalysis.executiveSummary}</p>
+          <RichText value={overviewAnalysis.executiveSummary} />
         </div>
       )}
 
@@ -496,14 +495,17 @@ export function OverviewTab() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
-              {overviewAnalysis.monthChange.explanation}
-            </p>
+            <RichText
+              value={overviewAnalysis.monthChange.explanation}
+              className="mt-3"
+              paragraphClassName="text-xs text-muted-foreground leading-relaxed text-pretty"
+            />
             {overviewAnalysis.monthChange.caveat && (
               <div className="mt-3 border-l-2 border-border pl-3">
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">Caveat</p>
-                <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
-                  {overviewAnalysis.monthChange.caveat}
+                <p className="flex items-center gap-1 text-xs text-muted-foreground leading-relaxed text-pretty">
+                  <span>{overviewAnalysis.monthChange.caveat}</span>
+                  {overviewAnalysis.monthChange.caveatTip && <InfoTip text={overviewAnalysis.monthChange.caveatTip} />}
                 </p>
               </div>
             )}
@@ -563,7 +565,11 @@ export function OverviewTab() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">{overviewAnalysis.deepDive.caption}</p>
+            <RichText
+              value={overviewAnalysis.deepDive.caption}
+              className="mt-3"
+              paragraphClassName="text-xs text-muted-foreground leading-relaxed text-pretty"
+            />
           </div>
         </>
       )}

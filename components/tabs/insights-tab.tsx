@@ -1,6 +1,7 @@
 "use client"
 
 import { ChartSection } from "@/components/chart-section"
+import { RichText } from "@/components/brief"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import { AudienceInsights } from "@/components/tabs/audience-insights"
@@ -130,7 +131,7 @@ export function InsightsTab() {
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">A couple of videos do the heavy lifting.</span>{" "}
-                {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")} — casual, native-feeling videos — drove {topDriverShare}% of paid follows at ${topDriverMaxCpf.toFixed(2)} or less each.
+                {topDriverShare}% of paid follows from {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")}, at ${topDriverMaxCpf.toFixed(2)} or less each.
               </span>
             </li>
             {hasCreatorAds && (
@@ -138,7 +139,7 @@ export function InsightsTab() {
                 <span className="text-green-600 font-bold">+</span>
                 <span>
                   <span className="font-medium text-foreground">Creator ads grab attention.</span>{" "}
-                  The Joe creator ads earned the highest click rates (up to ~10%) — but fewer of those clicks became follows, so we&apos;re iterating the follow ask (see Testing).
+                  Up to ~10% click rate on Joe ads, but fewer clicks became follows.
                 </span>
               </li>
             )}
@@ -146,14 +147,14 @@ export function InsightsTab() {
               <span className="text-muted-foreground font-bold">–</span>
               <span>
                 <span className="font-medium text-foreground">Static images are for reach, not follows.</span>{" "}
-                Hero images and product shots built big impressions but almost no follows — right for awareness and retailer support, not for growth.
+                Big impressions, almost no follows; right for awareness and retailers.
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">Cutting losers fast keeps costs low.</span>{" "}
-                Weak tests (e.g. {isSeptember ? "Sauce Before Pasta and Ripi x sourmilk" : "Dark Lifestyle"}) were paused quickly and budget shifted to what worked.
+                Weak tests ({isSeptember ? "Sauce Before Pasta, Ripi x sourmilk" : "Dark Lifestyle"}) paused quickly; budget moved to winners.
               </span>
             </li>
           </ul>
@@ -198,10 +199,16 @@ export function InsightsTab() {
           </table>
         </div>
         <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-          <p className="text-xs text-foreground font-medium mb-1">Key takeaway</p>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Ripi beats industry benchmarks on cost and engagement across the board — the ads are cheap to run and people respond to them. To scale spend from here, the main need is more fresh creative each month to keep results this strong.
-          </p>
+          <RichText
+            value={{
+              takeaway: "Ripi beats industry benchmarks on cost and engagement.",
+              bullets: [
+                { lead: "Cheap to run:", text: " people respond to the ads" },
+                { lead: "To scale:", text: " we need more fresh creative each month" },
+              ],
+            }}
+            paragraphClassName="text-xs text-muted-foreground leading-relaxed"
+          />
         </div>
       </ChartSection>
 
