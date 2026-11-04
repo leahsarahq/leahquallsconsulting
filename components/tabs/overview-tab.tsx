@@ -45,32 +45,34 @@ function DeltaBadge({ value, suffix = "%" }: { value: number | null; suffix?: st
 }
 
 function SpendAdjustedCard() {
-  const { summary, metrics, reachNote } = OCTOBER_SPEND_ADJUSTED
+  const { title, summary, groups, footnote } = OCTOBER_SPEND_ADJUSTED
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-sm font-semibold text-foreground">Spend-adjusted view</h3>
-        <span className="text-[11px] text-muted-foreground">vs. September</span>
-      </div>
-      <p className="text-xs leading-relaxed text-muted-foreground text-pretty mb-3">{summary}</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {metrics.map((m) => (
-          <div key={m.label}>
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{m.label}</p>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-lg font-semibold">{m.october}</span>
-              <span className={m.better ? "text-xs font-medium text-green-600" : "text-xs font-medium text-red-600"}>
-                vs. {m.september}
-              </span>
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{m.note}</p>
+    <section className="bg-card border border-border rounded-xl p-4" aria-labelledby="spend-adjusted-title">
+      <h3 id="spend-adjusted-title" className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+      <p className="text-xs leading-relaxed text-muted-foreground text-pretty">{summary}</p>
+      {groups.map((group) => (
+        <div key={group.label} className="mt-3 pt-3 border-t border-border/60">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">{group.label}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {group.tiles.map((m) => (
+              <div key={m.label}>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{m.label}</p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-lg font-semibold">{m.october}</span>
+                  <span className={m.better ? "text-xs font-medium text-green-600" : "text-xs text-muted-foreground"}>
+                    vs. {m.september}
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{m.note}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
       <p className="text-[11px] leading-relaxed text-muted-foreground text-pretty mt-3 pt-3 border-t border-border/60">
-        {reachNote}
+        {footnote}
       </p>
-    </div>
+    </section>
   )
 }
 
@@ -95,6 +97,7 @@ export function OverviewTab() {
   const engagementCpfImprovement = pctImprovement(kpiData.engagementCPF, baseline.engagementCPF)
 
   const igMissing = !!kpiData.igInsightsMissing
+  const isOctober = selectedMonth === "oct-2026"
 
   const followsMultiple =
     baseline.followerGrowth && baseline.followerGrowth > 0
@@ -196,6 +199,10 @@ export function OverviewTab() {
       </div>
       )}
 
+      {isOctober && <SpendAdjustedCard />}
+
+      {!isOctober && (
+      <>
       {/* Snapshot */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-xl p-3">
@@ -251,8 +258,6 @@ export function OverviewTab() {
           )}
         </div>
       </div>
-
-      {selectedMonth === "oct-2026" && <SpendAdjustedCard />}
 
       {/* Comparison detail */}
       <div className="bg-card border border-border rounded-xl p-4">
@@ -342,6 +347,8 @@ export function OverviewTab() {
           subtext={kpiData.reachNotDeduplicated ? "not deduplicated" : "3 campaigns"}
         />
       </div>
+      </>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -171,9 +171,7 @@ export const OCTOBER_KPI_DATA: KPIData = {
 }
 
 // ── Spend-adjusted view vs September ─────────────────────────────────────────
-// October runs on much less daily spend, so totals understate it. These rates
-// normalise for spend and days elapsed. Each IG-based rate uses the IG window.
-export interface SpendAdjustedMetric {
+export type SpendAdjustedTile = {
   label: string
   october: string
   september: string
@@ -181,55 +179,37 @@ export interface SpendAdjustedMetric {
   note: string
 }
 
-const SEPTEMBER_DAYS = 30
-const septSpendPerDay = SEPTEMBER_KPI_DATA.totalSpend / SEPTEMBER_DAYS
-const octSpendPerDay = all.spend / OCTOBER_LAST_AD_DAY
-const septFollowsPer100 = (SEPTEMBER_KPI_DATA.followerGrowth / SEPTEMBER_KPI_DATA.totalSpend) * 100
-const octFollowsPer100 = (igTotal / allThroughIg.spend) * 100
-const septOrganicShare =
-  (SEPTEMBER_KPI_DATA.followerGrowth - SEPTEMBER_KPI_DATA.paidFollows) / SEPTEMBER_KPI_DATA.followerGrowth
-const octOrganicShare = organicFollows / igTotal
-const adjSeptFollowsPerDay = SEPTEMBER_KPI_DATA.followerGrowth / SEPTEMBER_DAYS
-const adjOctFollowsPerDay = igTotal / IG_LAST_DAY
-
 export const OCTOBER_SPEND_ADJUSTED: {
+  title: string
   summary: string
-  metrics: SpendAdjustedMetric[]
-  reachNote: string
+  groups: { label: string; tiles: SpendAdjustedTile[] }[]
+  footnote: string
 } = {
-  summary: `October is spending ${money0(octSpendPerDay)}/day against September's ${money0(septSpendPerDay)}/day (${Math.round((1 - octSpendPerDay / septSpendPerDay) * 100)}% less), so totals look smaller by design. Adjusted for spend, follower acquisition is more efficient.`,
-  metrics: [
+  title: "October vs. September, adjusted for spend",
+  summary:
+    "October spent $164/day against September's $291/day (44% less) by design, so totals are smaller. Per dollar, follower growth got more efficient.",
+  groups: [
     {
-      label: "Follows per $100",
-      october: octFollowsPer100.toFixed(0),
-      september: septFollowsPer100.toFixed(0),
-      better: octFollowsPer100 > septFollowsPer100,
-      note: "all follows ÷ all ad spend",
+      label: "Efficiency",
+      tiles: [
+        { label: "Follows per $100", october: "39", september: "25", better: true, note: "$2.57 per follower, all follows" },
+        { label: "Engagement CPF", october: "$2.50", september: "$2.49", better: false, note: "flat on ad-attributed follows" },
+        { label: "Daily ad spend", october: "$164", september: "$291", better: false, note: "$5,085 total, Oct 1–31" },
+        { label: "Follows per day", october: "64", september: "73", better: false, note: "on 44% less daily spend" },
+      ],
     },
     {
-      label: "Daily ad spend",
-      october: money0(octSpendPerDay),
-      september: money0(septSpendPerDay),
-      better: octSpendPerDay < septSpendPerDay,
-      note: `Oct 1–${OCTOBER_LAST_AD_DAY} vs full September`,
-    },
-    {
-      label: "Non-ad share of follows",
-      october: `${Math.round(octOrganicShare * 100)}%`,
-      september: `${Math.round(septOrganicShare * 100)}%`,
-      better: octOrganicShare > septOrganicShare,
-      note: "follows with no direct ad attribution",
-    },
-    {
-      label: "Follows per day",
-      october: adjOctFollowsPerDay.toFixed(0),
-      september: adjSeptFollowsPerDay.toFixed(0),
-      better: adjOctFollowsPerDay > adjSeptFollowsPerDay,
-      note: `on ${Math.round((1 - octSpendPerDay / septSpendPerDay) * 100)}% less daily spend`,
+      label: "Where follows came from",
+      tiles: [
+        { label: "Total follows", october: "1,980", september: "2,200", better: false, note: "Instagram Insights, all sources" },
+        { label: "From ads", october: "1,390", september: "1,824", better: false, note: "attributed in Ads Manager" },
+        { label: "Not from ads", october: "590", september: "376", better: false, note: "organic + halo, no direct ad click" },
+        { label: "Non-ad share", october: "30%", september: "17%", better: true, note: "share of all follows" },
+      ],
     },
   ],
-  reachNote:
-    "Reach and impressions aren't spend-adjusted here: the drop comes from campaign mix (no Awareness spend, smaller Retailer Support), not efficiency. Engagement CPF is compared directly in the September comparison instead.",
+  footnote:
+    "Impressions were 346K vs. 1,322K in September. The drop comes from campaign mix (no Awareness spend in October and a smaller Retailer Support budget), not from efficiency. Engagement CTR was 4.9% vs. 5.3%.",
 }
 
 export const OCTOBER_CAMPAIGN_TOTALS: Record<Campaign, { spend: number; impressions: number }> = {
@@ -376,7 +356,7 @@ const lateMonthVtf = lateMonth.follows / lateMonth.visits
 const bestWeek = engagementWeeks.slice(0, 4).reduce((b, w) => (w.t.spend / w.t.follows < b.t.spend / b.t.follows ? w : b))
 
 export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary: `In October the Engagement campaign added ${int(engagement.follows)} followers at ${money(engagementCPF)} each. Instagram Insights counts ${int(igTotal)} total follows for the month, against ${int(allThroughIg.follows)} from ads, so about ${int(organicFollows)} came without a direct ad click, with a large jump on Oct 17–19. Week two was the weak spot (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)} per follow) while "Cacio e Pepe Puffs" and "Corn Ravioli" were in rotation. After they were paused, the second half of the month (Oct 15–31) ran ${money(lateMonthCpf)} per follow and ${pct1(lateMonthVtf)} visit-to-follow, at or better than both October goals, with ${bestWeek.label} the best week at ${money(bestWeek.t.spend / bestWeek.t.follows)}. "${topAd.name}" was the top ad with ${int(topAd.follows)} follows.`,
+  executiveSummary: `In October the Engagement campaign added 1,390 followers at ${money(engagementCPF)} each. Instagram Insights counts ${int(igTotal)} total follows for the month, against ${int(allThroughIg.follows)} from ads, so about ${int(organicFollows)} came without a direct ad click, with a large jump on Oct 17–19. Week two was the weak spot (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)} per follow) while "Cacio e Pepe Puffs" and "Corn Ravioli" were in rotation. After they were paused, the second half of the month (Oct 15–31) ran ${money(lateMonthCpf)} per follow and ${pct1(lateMonthVtf)} visit-to-follow, at or better than both October goals, with ${bestWeek.label} the best week at ${money(bestWeek.t.spend / bestWeek.t.follows)}. "${topAd.name}" was the top ad with ${int(topAd.follows)} follows.`,
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
