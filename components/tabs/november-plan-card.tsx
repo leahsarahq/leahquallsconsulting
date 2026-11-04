@@ -1,4 +1,5 @@
 import { NOVEMBER_PLAN } from "@/lib/data/october-2026"
+import { BriefView, FootNote } from "@/components/brief"
 
 export function NovemberPlanCard() {
   const plan = NOVEMBER_PLAN
@@ -12,7 +13,7 @@ export function NovemberPlanCard() {
       </h3>
       <p className="text-xs text-muted-foreground mt-0.5">{plan.subtitle}</p>
 
-      <p className="text-sm leading-relaxed text-foreground mt-3 text-pretty">{plan.intro}</p>
+      <BriefView brief={{ takeaway: plan.takeaway }} className="mt-3" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
         {plan.adSets.map((set) => (
@@ -21,7 +22,7 @@ export function NovemberPlanCard() {
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
               Role: {set.role}
             </p>
-            <p className="text-xs leading-relaxed text-muted-foreground mt-2 text-pretty">{set.description}</p>
+            <BriefView brief={{ bullets: set.bullets }} className="mt-2.5" />
           </div>
         ))}
       </div>
@@ -34,7 +35,7 @@ export function NovemberPlanCard() {
           </li>
         ))}
       </ol>
-      <p className="text-[11px] leading-relaxed text-muted-foreground mt-2 text-pretty">{plan.timelineCaption}</p>
+      <FootNote text={plan.timelineCaption} tip={plan.timelineTip} className="mt-2" />
 
       <div className="mt-4 pt-4 border-t border-border/60">
         <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
@@ -49,7 +50,7 @@ export function NovemberPlanCard() {
             </div>
           ))}
         </div>
-        <p className="text-[11px] leading-relaxed text-muted-foreground mt-2 text-pretty">{plan.targetsCaption}</p>
+        <FootNote text={plan.targetsCaption} tip={plan.targetsTip} className="mt-2" />
       </div>
     </section>
   )
