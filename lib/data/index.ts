@@ -91,7 +91,7 @@ function getMonthExtras(month: MonthKey) {
   }
   if (month === "oct-2026") {
     return {
-      dataFootnote: "Full month of ad data (Oct 1–31). Instagram Insights follows are only available through Oct 20, so total follows, blended CPF and organic lift use Oct 1–20." as string | null,
+      dataFootnote: "Full month of ad data and Instagram Insights follows (Oct 1–31)." as string | null,
       platformSplit: null as typeof SEPTEMBER_PLATFORM_SPLIT | null,
       audienceInsights: null,
       octoberPlan: null as typeof OCTOBER_PLAN | null,

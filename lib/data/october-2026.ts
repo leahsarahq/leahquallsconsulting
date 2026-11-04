@@ -10,7 +10,7 @@ import type { AdData, Campaign, KPIData, OverviewAnalysis, TestArm, TestingConte
 //   Blended CPF     = total spend ÷ total follows (Instagram Insights), same window
 //   Visit-to-follow = Instagram follows ÷ Instagram profile visits
 // No Awareness campaign ran in October. The Instagram Insights "Follows" export
-// covers Oct 1–20 only.
+// covers the full month (Oct 1–31).
 // The Oct 1–31 ads export omits "Did You Know" and "Corn Ravioli", so their Oct 1–22
 // rows come from the earlier export, and "Did You Know" Oct 23–31 uses the Lookalike
 // ad set rows (it was the only ad delivering in that ad set after Oct 19).
@@ -64,7 +64,7 @@ const change = (cur: number, prior: number) => {
 }
 
 export const OCTOBER_LAST_AD_DAY = 31
-const IG_LAST_DAY = 20
+const IG_LAST_DAY = 31
 
 // ── Campaign mapping ─────────────────────────────────────────────────────────
 // The ads export has no ad set column; these are the follower-growth creatives.
@@ -96,9 +96,10 @@ for (const r of EXPORTS.adsetDaily) {
   cell.follows += r.follows
 }
 
-// ── Instagram Insights daily follows (Oct 1–20) ──────────────────────────────
+// ── Instagram Insights daily follows (Oct 1–31) ──────────────────────────────
 export const OCTOBER_IG_DAILY_FOLLOWS = [
   64, 69, 92, 78, 53, 57, 52, 41, 39, 39, 35, 33, 42, 25, 54, 39, 149, 157, 101, 83,
+  106, 80, 41, 61, 62, 56, 62, 49, 49, 55, 57,
 ].map((follows, i) => ({ date: `2026-10-${String(i + 1).padStart(2, "0")}`, follows }))
 const igTotal = OCTOBER_IG_DAILY_FOLLOWS.reduce((s, d) => s + d.follows, 0)
 const igBetween = (from: number, to: number) =>
@@ -353,7 +354,7 @@ const lateMonthVtf = lateMonth.follows / lateMonth.visits
 const bestWeek = engagementWeeks.slice(0, 4).reduce((b, w) => (w.t.spend / w.t.follows < b.t.spend / b.t.follows ? w : b))
 
 export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
-  executiveSummary: `In October the Engagement campaign added ${int(engagement.follows)} followers at ${money(engagementCPF)} each. Instagram Insights counts ${int(igTotal)} total follows through Oct ${IG_LAST_DAY}, against ${int(allThroughIg.follows)} from ads over the same days, so about ${int(organicFollows)} came without a direct ad click, with a large jump on Oct 17–19. Week two was the weak spot (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)} per follow) while "Cacio e Pepe Puffs" and "Corn Ravioli" were in rotation. After they were paused, the second half of the month (Oct 15–31) ran ${money(lateMonthCpf)} per follow and ${pct1(lateMonthVtf)} visit-to-follow, at or better than both October goals, with ${bestWeek.label} the best week at ${money(bestWeek.t.spend / bestWeek.t.follows)}. "${topAd.name}" was the top ad with ${int(topAd.follows)} follows.`,
+  executiveSummary: `In October the Engagement campaign added ${int(engagement.follows)} followers at ${money(engagementCPF)} each. Instagram Insights counts ${int(igTotal)} total follows for the month, against ${int(allThroughIg.follows)} from ads, so about ${int(organicFollows)} came without a direct ad click, with a large jump on Oct 17–19. Week two was the weak spot (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)} per follow) while "Cacio e Pepe Puffs" and "Corn Ravioli" were in rotation. After they were paused, the second half of the month (Oct 15–31) ran ${money(lateMonthCpf)} per follow and ${pct1(lateMonthVtf)} visit-to-follow, at or better than both October goals, with ${bestWeek.label} the best week at ${money(bestWeek.t.spend / bestWeek.t.follows)}. "${topAd.name}" was the top ad with ${int(topAd.follows)} follows.`,
   campaignObjectives: [
     {
       name: "Instagram Engagement Campaign",
@@ -378,7 +379,7 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       { metric: "Engagement CTR", prior: `${SEPTEMBER_KPI_DATA.engagementCTR.toFixed(2)}%`, current: `${OCTOBER_KPI_DATA.engagementCTR.toFixed(2)}%`, change: change(OCTOBER_KPI_DATA.engagementCTR, SEPTEMBER_KPI_DATA.engagementCTR), dir: "neutral" },
     ],
     explanation: `October is compared on rates rather than totals because it ran on far less daily spend. Over the full month, almost all of the gap to September comes from Oct 8–14, which spent heavily on "Cacio e Pepe Puffs" and "Corn Ravioli". Those drew profile visits but converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of them. With both paused and spend back on "${topAd.name}", Oct 15–31 ran ${money(lateMonthCpf)} per follow.`,
-    caveat: `Instagram Insights follows run through Oct ${IG_LAST_DAY}; ad data runs through Oct ${OCTOBER_LAST_AD_DAY}. Total follows, blended CPF and organic lift use Oct 1–${IG_LAST_DAY} for both.`,
+    caveat: `Instagram Insights follows and ad data both cover Oct 1–${OCTOBER_LAST_AD_DAY}. Non-ad follows are Instagram Insights total minus ad-attributed follows, so they include follows that ads influenced without a direct click.`,
   },
   deepDive: {
     title: "Follower Growth Deep Dive — Engagement campaign",
