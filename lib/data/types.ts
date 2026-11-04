@@ -139,9 +139,25 @@ export interface TestingContext {
     dateRange: string
     spend: number
     status: string
-    detail: string
+  detail: string
   }[]
-}
+  ageShift?: AgeShift
+  }
+
+  // Month-by-month age mix of paid follows, used to judge an age-targeting goal.
+  export interface AgeShift {
+  goal: string
+  months: {
+  month: string
+  young: number
+  mid: number
+  older: number
+  youngSpend: number
+  totalSpend: number
+  }[]
+  callout: { label: string; youngFollows: number; totalFollows: number; youngSpend: number; totalSpend: number }
+  read: string
+  }
 
 // A per-month narrative analysis block for the Overview tab. When present it
 // replaces the generic benchmark framing with the real, campaign-specific read:

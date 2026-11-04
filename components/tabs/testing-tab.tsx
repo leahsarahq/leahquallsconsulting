@@ -5,6 +5,7 @@ import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { TestArm } from "@/lib/data/types"
 import { OctoberPlan } from "@/components/tabs/october-plan"
+import { AgeShiftCard } from "@/components/tabs/age-shift-card"
 
 // Accent colors assigned to each arm, in order.
 const ARM_ACCENTS = ["#D93732", "#660033", "#E8853A"]
@@ -134,6 +135,8 @@ export function TestingTab() {
         <h4 className="text-sm font-semibold text-foreground mb-2">Read</h4>
         <p className="text-sm text-muted-foreground leading-relaxed">{featured.verdict}</p>
       </div>
+
+      {testing.ageShift && <AgeShiftCard ageShift={testing.ageShift} />}
 
       {/* Context notes */}
       <ChartSection title="Other tests & context" subtitle="Short-lived, carryover, and promo runs to read carefully">

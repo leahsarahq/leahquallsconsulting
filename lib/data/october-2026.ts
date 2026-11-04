@@ -337,6 +337,21 @@ export const OCTOBER_TESTING: TestingContext = {
       detail: `Two-day run with ${int(pastaDinners.follows)} follows. Too little spend to judge.`,
     },
   ].filter((n): n is NonNullable<typeof n> => !!n),
+  // Follows and spend by age, summed across all follower-growth ad sets in each
+  // month's Ad sets × Age export ("Unknown" age excluded).
+  ageShift: {
+    goal: "October goal: grow the share of new followers aged 18–34.",
+    months: [
+      { month: "May", young: 342, mid: 562, older: 901, youngSpend: 394.71, totalSpend: 1769.57 },
+      { month: "Jun", young: 350, mid: 462, older: 824, youngSpend: 555.44, totalSpend: 2358.95 },
+      { month: "Jul", young: 373, mid: 438, older: 920, youngSpend: 756.7, totalSpend: 3115.85 },
+      { month: "Aug", young: 216, mid: 218, older: 553, youngSpend: 589.88, totalSpend: 2947.57 },
+      { month: "Sep", young: 372, mid: 414, older: 1025, youngSpend: 1152.46, totalSpend: 4538.84 },
+      { month: "Oct", young: 288, mid: 325, older: 735, youngSpend: 870.73, totalSpend: 3466.06 },
+    ],
+    callout: { label: "Pasta + 18-34 ad set", youngFollows: 101, totalFollows: 394, youngSpend: 314.88, totalSpend: 819.15 },
+    read: "The 18–34 share went from 20.5% in September to 21.4% in October. That is back to the June–August level but not above it, and it has stayed between 19% and 22% every month since May. We gained fewer 18–34 followers in October (288, down from 372) because total follows fell. Each 18–34 follower cost $3.02, about the same as September's $3.10. Even the ad set aimed at 18–34 got only 26% of its follows from that age group. 38% of its spend reached 18–34, and the rest reached people 35 and older, probably because Meta's audience expansion showed the ads outside the age range. If November's goal stays the same, set a strict age limit on that ad set so the ads only reach people aged 18–34.",
+  },
 }
 
 // ── Overview narrative ───────────────────────────────────────────────────────
