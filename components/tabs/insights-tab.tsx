@@ -1,6 +1,7 @@
 "use client"
 
 import { ChartSection } from "@/components/chart-section"
+import { RichText } from "@/components/brief"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import { AudienceInsights } from "@/components/tabs/audience-insights"
@@ -58,7 +59,7 @@ function BenchmarkCard({
 
 export function InsightsTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { kpiData, adsData, audienceInsights } = getDataForMonth(selectedMonth)
+  const { kpiData, adsData, audienceInsights, overviewAnalysis } = getDataForMonth(selectedMonth)
   
   const totalCreatives = adsData.length
   const engagementCreatives = adsData.filter((ad) => ad.campaign === "Engagement").length
@@ -75,12 +76,36 @@ export function InsightsTab() {
   const topDriverMaxCpf = Math.max(0, ...topDrivers.map((ad) => ad.cpf ?? 0))
   const hasCreatorAds = adsData.some((ad) => /joe/i.test(ad.name))
   const isSeptember = selectedMonth === "sep-2026"
-  const cpmReach = isSeptember
+  const usesImpressions = !!kpiData.reachNotDeduplicated
+  const cpmReach = usesImpressions
     ? (kpiData.totalSpend / kpiData.totalImpressions) * 1000
     : (kpiData.totalSpend / kpiData.totalReach) * 1000
 
   return (
     <div className="space-y-4">
+      {/* Campaign Objectives — judge each campaign on its own goal, not a blended standard */}
+      {overviewAnalysis && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Campaign Objectives</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {overviewAnalysis.campaignObjectives.map((c) => (
+              <div key={c.name} className="bg-card border border-border rounded-xl p-4 flex flex-col gap-2">
+                <p className="text-sm font-semibold text-foreground text-balance">{c.name}</p>
+                <div>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Objective</p>
+                  <p className="text-xs text-foreground mt-0.5">{c.objective}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Judge on</p>
+                  <p className="text-xs text-foreground mt-0.5">{c.judgeOn}</p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-1">{c.stat}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Benchmark Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <BenchmarkCard
@@ -96,7 +121,7 @@ export function InsightsTab() {
           benchmark="$8–14 typical for CPG"
           verdict="excellent"
           explanation={
-            isSeptember
+            usesImpressions
               ? `${(kpiData.totalImpressions / 1000000).toFixed(1)}M impressions on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — about 40% below the benchmark midpoint.`
               : `${(kpiData.totalReach / 1000000).toFixed(1)}M people reached on $${(kpiData.totalSpend / 1000).toFixed(1)}K spend — roughly 60% cheaper than the industry norm.`
           }
@@ -129,7 +154,7 @@ export function InsightsTab() {
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">A couple of videos do the heavy lifting.</span>{" "}
-                {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")} — casual, native-feeling videos — drove {topDriverShare}% of paid follows at ${topDriverMaxCpf.toFixed(2)} or less each.
+                {topDriverShare}% of paid follows from {topDrivers.map((ad) => `"${ad.name}"`).join(" and ")}, at ${topDriverMaxCpf.toFixed(2)} or less each.
               </span>
             </li>
             {hasCreatorAds && (
@@ -137,7 +162,7 @@ export function InsightsTab() {
                 <span className="text-green-600 font-bold">+</span>
                 <span>
                   <span className="font-medium text-foreground">Creator ads grab attention.</span>{" "}
-                  The Joe creator ads earned the highest click rates (up to ~10%) — but fewer of those clicks became follows, so we&apos;re iterating the follow ask (see Testing).
+                  Up to ~10% click rate on Joe ads, but fewer clicks became follows.
                 </span>
               </li>
             )}
@@ -145,14 +170,14 @@ export function InsightsTab() {
               <span className="text-muted-foreground font-bold">–</span>
               <span>
                 <span className="font-medium text-foreground">Static images are for reach, not follows.</span>{" "}
-                Hero images and product shots built big impressions but almost no follows — right for awareness and retailer support, not for growth.
+                Big impressions, almost no follows; right for awareness and retailers.
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-green-600 font-bold">+</span>
               <span>
                 <span className="font-medium text-foreground">Cutting losers fast keeps costs low.</span>{" "}
-                Weak tests (e.g. {isSeptember ? "Sauce Before Pasta and Ripi x sourmilk" : "Dark Lifestyle"}) were paused quickly and budget shifted to what worked.
+                Weak tests ({isSeptember ? "Sauce Before Pasta, Ripi x sourmilk" : "Dark Lifestyle"}) paused quickly; budget moved to winners.
               </span>
             </li>
           </ul>
@@ -197,10 +222,16 @@ export function InsightsTab() {
           </table>
         </div>
         <div className="mt-4 p-3 bg-secondary/50 rounded-lg">
-          <p className="text-xs text-foreground font-medium mb-1">Key takeaway</p>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Ripi beats industry benchmarks on cost and engagement across the board — the ads are cheap to run and people respond to them. To scale spend from here, the main need is more fresh creative each month to keep results this strong.
-          </p>
+          <RichText
+            value={{
+              takeaway: "Ripi beats industry benchmarks on cost and engagement.",
+              bullets: [
+                { lead: "Cheap to run:", text: " people respond to the ads" },
+                { lead: "To scale:", text: " we need more fresh creative each month" },
+              ],
+            }}
+            paragraphClassName="text-xs text-muted-foreground leading-relaxed"
+          />
         </div>
       </ChartSection>
 

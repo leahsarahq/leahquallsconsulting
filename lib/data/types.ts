@@ -119,6 +119,16 @@ export interface TestArm {
   cpc: number
 }
 
+// Scannable copy: an optional one-line takeaway, short bullets that lead with
+// a bold number or phrase, and an optional one-line gray note with a tooltip.
+export interface Brief {
+  takeaway?: string
+  bullets?: { lead: string; text?: string }[]
+  note?: string
+  tip?: string
+}
+export type RichText = string | Brief
+
 // Testing context for a month: one featured head-to-head test plus shorter
 // context notes explaining short-lived / carryover / promo test runs.
 export interface TestingContext {
@@ -132,16 +142,34 @@ export interface TestingContext {
     challenger?: TestArm
     control?: TestArm
     arms?: TestArm[]
-    verdict: string
+    verdict: RichText
+    verdictHighlight?: { label: string; value: string; note: string }
   }
   notes: {
     title: string
     dateRange: string
     spend: number
     status: string
-    detail: string
+  detail: RichText
   }[]
-}
+  ageShift?: AgeShift
+  }
+
+  // Month-by-month age mix of paid follows, used to judge an age-targeting goal.
+  export interface AgeShift {
+  goal: string
+  goalMet?: string
+  months: {
+  month: string
+  young: number
+  mid: number
+  older: number
+  youngSpend: number
+  totalSpend: number
+  }[]
+  callout: { label: string; youngFollows: number; totalFollows: number; youngSpend: number; totalSpend: number; detail?: string }
+  read: RichText
+  }
 
 // A per-month narrative analysis block for the Overview tab. When present it
 // replaces the generic benchmark framing with the real, campaign-specific read:
@@ -149,14 +177,16 @@ export interface TestingContext {
 // follower-growth deep dive, and recommendations. Only months that provide this
 // (currently August) render these sections; other months are unaffected.
 export interface OverviewAnalysis {
-  executiveSummary: string
+  executiveSummary: RichText
   campaignObjectives: {
     name: string
     objective: string
     judgeOn: string
     stat: string
   }[]
-  monthChange: {
+  // One-line gray note shown under the "Follower growth by week" chart.
+  weeklyChartNote?: string
+  monthChange?: {
     priorLabel: string
     currentLabel: string
     rows: {
@@ -167,11 +197,14 @@ export interface OverviewAnalysis {
       // "bad" | "good" | "neutral" — controls the change badge color.
       dir: "bad" | "good" | "neutral"
     }[]
-    explanation: string
+    explanation: RichText
     caveat?: string
+    caveatTip?: string
   }
   deepDive: {
     title: string
+    // Optional takeaway + bullets shown directly under the section header.
+    lead?: RichText
     weekly: {
       week: string
       spend: string
@@ -187,7 +220,7 @@ export interface OverviewAnalysis {
       follows: string
       visitToFollow: string
     }[]
-    caption: string
+    caption: RichText
   }
 }
 

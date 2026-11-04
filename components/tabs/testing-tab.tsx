@@ -1,10 +1,12 @@
 "use client"
 
 import { ChartSection } from "@/components/chart-section"
+import { RichText } from "@/components/brief"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
 import type { TestArm } from "@/lib/data/types"
 import { OctoberPlan } from "@/components/tabs/october-plan"
+import { AgeShiftCard } from "@/components/tabs/age-shift-card"
 
 // Accent colors assigned to each arm, in order.
 const ARM_ACCENTS = ["#D93732", "#660033", "#E8853A"]
@@ -132,8 +134,19 @@ export function TestingTab() {
       {/* Verdict */}
       <div className="bg-card border border-border rounded-xl p-4">
         <h4 className="text-sm font-semibold text-foreground mb-2">Read</h4>
-        <p className="text-sm text-muted-foreground leading-relaxed">{featured.verdict}</p>
+        {featured.verdictHighlight && (
+          <div className="mb-3 rounded-lg bg-secondary/50 p-3 sm:max-w-xs">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {featured.verdictHighlight.label}
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-foreground">{featured.verdictHighlight.value}</p>
+            <p className="text-xs text-muted-foreground">{featured.verdictHighlight.note}</p>
+          </div>
+        )}
+        <RichText value={featured.verdict} />
       </div>
+
+      {testing.ageShift && <AgeShiftCard ageShift={testing.ageShift} />}
 
       {/* Context notes */}
       <ChartSection title="Other tests & context" subtitle="Short-lived, carryover, and promo runs to read carefully">
@@ -149,7 +162,11 @@ export function TestingTab() {
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 {note.dateRange} · ${note.spend.toLocaleString()} spend
               </p>
-              <p className="text-xs text-foreground/80 leading-relaxed mt-2">{note.detail}</p>
+              <RichText
+                value={note.detail}
+                className="mt-2"
+                paragraphClassName="text-xs text-foreground/80 leading-relaxed"
+              />
             </div>
           ))}
         </div>

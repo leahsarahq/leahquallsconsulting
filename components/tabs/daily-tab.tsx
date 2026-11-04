@@ -1,5 +1,6 @@
 "use client"
 
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { ChartSection } from "@/components/chart-section"
 import { getDataForMonth } from "@/lib/data"
 import { useMonth } from "@/lib/month-context"
@@ -31,7 +32,7 @@ function BoughtStat({ value, label, sublabel }: { value: string; label: string; 
 
 export function DailyTab() {
   const { selectedMonth, monthInfo } = useMonth()
-  const { adsData, platformSplit, campaignTotals } = getDataForMonth(selectedMonth)
+  const { adsData, platformSplit, campaignTotals, spendByCampaign, kpiData } = getDataForMonth(selectedMonth)
   const usesAdSetTotals = campaignTotals != null
   const volumeLabel = usesAdSetTotals ? "Impressions" : "People reached"
   const per1kLabel = usesAdSetTotals ? "per 1K impressions" : "per 1K reached"
@@ -65,6 +66,37 @@ export function DailyTab() {
 
   return (
     <div className="space-y-4">
+      <ChartSection title="Spend by campaign" subtitle={`${monthInfo.label} total: $${kpiData.totalSpend.toLocaleString()}`}>
+        <div className="h-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={spendByCampaign} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" strokeWidth={0}>
+                {spendByCampaign.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: number) => [`$${value}`, "Spend"]}
+                contentStyle={{
+                  backgroundColor: "#fbf9f4",
+                  border: "1px solid #e0ddd4",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-3">
+          {spendByCampaign.map((c) => (
+            <span key={c.name} className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: c.color }} />
+              {`${c.name} $${c.value}`}
+            </span>
+          ))}
+        </div>
+      </ChartSection>
+
       {/* What the budget bought */}
       <ChartSection title="What the budget bought">
         <p className="text-sm text-muted-foreground leading-relaxed">
@@ -92,7 +124,7 @@ export function DailyTab() {
 
       {/* Per-campaign role cards */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {CAMPAIGN_ORDER.map((c) => {
+        {CAMPAIGN_ORDER.filter((c) => spend[c] > 0).map((c) => {
           const budgetShare = pct(spend[c], totalSpend)
           const isEngagement = c === "Engagement"
           const costPerFollow = follows[c] > 0 ? spend[c] / follows[c] : null
@@ -192,10 +224,9 @@ export function DailyTab() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed mt-3 text-pretty">
-            Instagram brings in followers for{" "}
-            <span className="font-medium text-foreground">{money(igTotal?.cpf)}</span> each vs.{" "}
-            <span className="font-medium text-foreground">{money(fbTotal?.cpf)}</span> on Facebook, so October moves all
-            follower-growth spend to Instagram.
+            <span className="font-semibold text-foreground">Takeaway:</span> Instagram follows cost{" "}
+            <span className="font-medium text-foreground">{money(igTotal?.cpf)}</span> vs.{" "}
+            <span className="font-medium text-foreground">{money(fbTotal?.cpf)}</span> on Facebook.
           </p>
         </ChartSection>
       )}
