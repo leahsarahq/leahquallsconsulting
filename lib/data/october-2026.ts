@@ -187,12 +187,12 @@ export const OCTOBER_SPEND_ADJUSTED: {
   footnoteTip: string
 } = {
   title: "October vs. September, adjusted for spend",
-  summary: "Spend was down 44% by design. Per dollar, follower growth improved.",
+  summary: "October's budget was an overcorrection after September's increase, so totals are smaller. Per dollar, follower growth improved.",
   groups: [
     {
       label: "Efficiency",
       tiles: [
-        { label: "Follows per $100", october: "39", september: "25", better: true, note: "$2.57 per follower, all follows" },
+        { label: "Follows per $100", october: "39", september: "25", better: true, note: "all follows ÷ all ad spend; includes the Oct 17–19 IG giveaway" },
         { label: "Engagement CPF", october: "$2.50", september: "$2.49", better: false, note: "flat on ad-attributed follows" },
         { label: "Daily ad spend", october: "$164", september: "$291", better: false, note: "$5,085 total, Oct 1–31" },
         { label: "Follows per day", october: "64", september: "73", better: false, note: "on 44% less daily spend" },
@@ -203,8 +203,8 @@ export const OCTOBER_SPEND_ADJUSTED: {
       tiles: [
         { label: "Total follows", october: "1,980", september: "2,200", better: false, note: "Instagram Insights, all sources" },
         { label: "From ads", october: "1,390", september: "1,824", better: false, note: "attributed in Ads Manager" },
-        { label: "Not from ads", october: "590", september: "376", better: false, note: "organic + halo, no direct ad click" },
-        { label: "Non-ad share", october: "30%", september: "17%", better: true, note: "share of all follows" },
+        { label: "Not from ads", october: "590", september: "376", better: false, note: "organic + giveaway, no direct ad click" },
+        { label: "Non-ad share", october: "30%", september: "17%", better: true, note: "lifted by the Oct 17–19 IG giveaway" },
       ],
     },
   ],
@@ -217,10 +217,11 @@ export const OCTOBER_SPEND_ADJUSTED: {
 export const NOVEMBER_PLAN = {
   title: "November Plan",
   subtitle: "What's changing for November and why.",
-  takeaway: "More budget behind what worked, a dedicated test slot, and a strict 18–34 age limit.",
+  takeaway: "Budget is back up: 4 ad sets at $50/day each, $200/day total.",
   adSets: [
     {
       name: "Recipes & Cooking (ages 24–64)",
+      budget: "$50/day",
       role: "Volume engine",
       bullets: [
         { lead: "$2.21 per follow", text: " in October, our best" },
@@ -229,6 +230,7 @@ export const NOVEMBER_PLAN = {
     },
     {
       name: "Pasta + 18–34",
+      budget: "$50/day",
       role: "Grow younger followers",
       bullets: [
         { lead: "Now strictly", text: " ages 18–34" },
@@ -237,10 +239,20 @@ export const NOVEMBER_PLAN = {
     },
     {
       name: "Creative Test",
+      budget: "$50/day",
       role: "Find the next top ad",
       bullets: [
         { lead: "Replaces lookalike", text: " ($3.72 per follow)" },
-        { lead: "Tests new ads", text: " on our best audience" },
+        { lead: "Tests new ads", text: " on a broad audience" },
+      ],
+    },
+    {
+      name: "[AD SET NAME]",
+      budget: "$50/day",
+      role: "[ROLE]",
+      bullets: [
+        { lead: "[BULLET 1]", text: "" },
+        { lead: "[BULLET 2]", text: "" },
       ],
     },
   ],
@@ -441,7 +453,7 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
     bullets: [
       { lead: `${int(engagement.follows)} follows from ads`, text: ` at ${money(engagementCPF)} each; ${int(igTotal)} total including organic` },
       { lead: "Oct 15–31:", text: ` ${money(lateMonthCpf)} per follow, ${pct1(lateMonthVtf)} visit-to-follow rate` },
-      { lead: "Week 2 was the weak spot", text: ` (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)}) until two underperforming ads were paused` },
+      { lead: "Week 2 was the weak spot", text: ` (${money(engagementWeeks[1].t.spend / engagementWeeks[1].t.follows)}): two new test ads underperformed and were paused` },
       { lead: `"${topAd.name}"`, text: ` was the top ad: ${int(topAd.follows)} follows` },
     ],
     note: `~${int(organicFollows)} follows came without a direct ad click; best week was ${bestWeek.label} (${money(bestWeek.t.spend / bestWeek.t.follows)}).`,
@@ -460,13 +472,13 @@ export const OCTOBER_OVERVIEW_ANALYSIS: OverviewAnalysis = {
       stat: `${money(retailer.spend)} spend · ${int(retailer.clicks)} link clicks · ${money(retailer.spend / retailer.clicks)} CPC · ${pct1(retailer.clicks / retailer.impressions)} CTR.`,
     },
   ],
-  weeklyChartNote: "Oct 15–21 includes a jump in follows that didn't come from ads (Oct 17–19).",
+  weeklyChartNote: "Oct 15–21 includes a jump in follows from the Instagram giveaway (Oct 17–19), not ads.",
   deepDive: {
     title: "Follower Growth Deep Dive — Engagement campaign",
     lead: {
       takeaway: "Nearly all of the gap to September came from one week.",
       bullets: [
-        { lead: "Oct 8–14:", text: ` "Cacio e Pepe Puffs" and "Corn Ravioli" converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of visits` },
+        { lead: "Oct 8–14:", text: ` two new test ads ('Cacio e Pepe Puffs' and 'Corn Ravioli') converted only ${pct1(((cacio?.follows ?? 0) + (corn?.follows ?? 0)) / ((cacio?.visits ?? 0) + (corn?.visits ?? 1)))} of visits` },
         { lead: `${money(lateMonthCpf)} per follow`, text: " Oct 15–31, after both were paused" },
       ],
     },

@@ -15,10 +15,13 @@ export function NovemberPlanCard() {
 
       <BriefView brief={{ takeaway: plan.takeaway }} className="mt-3" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
         {plan.adSets.map((set) => (
           <div key={set.name} className="bg-card border border-border/60 rounded-lg p-3">
             <p className="text-sm font-semibold text-foreground">{set.name}</p>
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
+              {set.budget}
+            </p>
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5">
               Role: {set.role}
             </p>
